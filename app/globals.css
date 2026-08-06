@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  /* Creamy pastel palette — deliberately fixed (no OS dark-mode switching)
+     so header/footer/body always render as one consistent theme. */
+  --background: #faf3e8;
+  --foreground: #4a3f35;
+  --surface: #fffcf7;
+  --surface-muted: #f2e6d5;
+  --border: #e7d7bf;
+  --accent: #c17a56;
+  --accent-foreground: #fffcf7;
+  --accent-soft: #f0d9c4;
+  --muted-foreground: #8d7c68;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-muted-foreground: var(--muted-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

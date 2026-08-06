@@ -1,0 +1,6 @@
+{
+  "label": "Email",
+  "fieldType": "email",
+  "required": true,
+  "sortOrder": 2
+}

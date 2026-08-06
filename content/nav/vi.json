@@ -1,0 +1,8 @@
+{
+  "links": [
+    { "label": "Danh Mục", "url": "/catalog", "openInNewTab": false },
+    { "label": "Thẻ Câu Chuyện", "url": "/story-cards", "openInNewTab": false },
+    { "label": "Blog", "url": "/blog", "openInNewTab": false },
+    { "label": "Liên Hệ", "url": "/contact", "openInNewTab": false }
+  ]
+}

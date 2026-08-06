@@ -1,0 +1,23 @@
+{
+  "columns": [
+    {
+      "title": "Explore",
+      "links": [
+        { "label": "Catalog", "url": "/en/catalog" },
+        { "label": "Story Cards", "url": "/en/story-cards" },
+        { "label": "Blog", "url": "/en/blog" }
+      ]
+    },
+    {
+      "title": "Company",
+      "links": [
+        { "label": "Contact", "url": "/en/contact" }
+      ]
+    }
+  ],
+  "contactInfo": {
+    "address": "123 Example Street, Demo City",
+    "phone": "+1 555 0100",
+    "email": "hello@example.com"
+  }
+}

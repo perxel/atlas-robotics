@@ -1,0 +1,15 @@
+{
+  "title": "Demo Site",
+  "logo": "/uploads/placeholder-logo.svg",
+  "favicon": "/favicon.ico",
+  "defaultSeo": {
+    "metaTitle": "Demo Site — Tech Stack Proof of Concept",
+    "metaDescription": "A reusable internal demo validating Next.js, TinaCMS, and two-locale content editing.",
+    "ogImage": ""
+  },
+  "socialLinks": [
+    { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },
+    { "platform": "Instagram", "url": "https://instagram.com/example", "icon": "instagram" },
+    { "platform": "YouTube", "url": "https://youtube.com/example", "icon": "youtube" }
+  ]
+}

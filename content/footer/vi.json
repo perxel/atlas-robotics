@@ -1,0 +1,23 @@
+{
+  "columns": [
+    {
+      "title": "Khám Phá",
+      "links": [
+        { "label": "Danh Mục", "url": "/catalog" },
+        { "label": "Thẻ Câu Chuyện", "url": "/story-cards" },
+        { "label": "Blog", "url": "/blog" }
+      ]
+    },
+    {
+      "title": "Công Ty",
+      "links": [
+        { "label": "Liên Hệ", "url": "/contact" }
+      ]
+    }
+  ],
+  "contactInfo": {
+    "address": "123 Đường Ví Dụ, Thành Phố Demo",
+    "phone": "+84 555 0100",
+    "email": "hello@example.com"
+  }
+}

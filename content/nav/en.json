@@ -1,0 +1,8 @@
+{
+  "links": [
+    { "label": "Catalog", "url": "/en/catalog", "openInNewTab": false },
+    { "label": "Story Cards", "url": "/en/story-cards", "openInNewTab": false },
+    { "label": "Blog", "url": "/en/blog", "openInNewTab": false },
+    { "label": "Contact", "url": "/en/contact", "openInNewTab": false }
+  ]
+}

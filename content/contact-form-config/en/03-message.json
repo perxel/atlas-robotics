@@ -1,0 +1,6 @@
+{
+  "label": "Message",
+  "fieldType": "textarea",
+  "required": true,
+  "sortOrder": 3
+}
