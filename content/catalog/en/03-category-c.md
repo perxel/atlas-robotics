@@ -1,6 +1,7 @@
 ---
 name: 'Category C'
 sortOrder: 3
+draft: false
 status: active
 effectiveDate: '2026-02-20T00:00:00.000Z'
 pages:

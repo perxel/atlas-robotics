@@ -1,5 +1,6 @@
 {
   "links": [
+    { "label": "Giới Thiệu", "url": "/about", "openInNewTab": false },
     { "label": "Danh Mục", "url": "/catalog", "openInNewTab": false },
     { "label": "Thẻ Câu Chuyện", "url": "/story-cards", "openInNewTab": false },
     { "label": "Blog", "url": "/blog", "openInNewTab": false },

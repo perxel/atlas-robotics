@@ -1,6 +1,7 @@
 ---
 name: 'Danh Mục E'
 sortOrder: 5
+draft: false
 status: inactive
 effectiveDate: '2025-11-10T00:00:00.000Z'
 pages:

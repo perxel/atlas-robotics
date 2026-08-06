@@ -2,6 +2,7 @@
 title: 'Story Three'
 subtitle: 'A short subtitle for story three'
 sortOrder: 3
+draft: false
 primaryImage: /uploads/placeholder-desktop-5.svg
 secondaryImage: /uploads/placeholder-desktop-6.svg
 attributes:

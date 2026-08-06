@@ -1,6 +1,7 @@
 ---
 title: 'Xin Chào Thế Giới'
 slug: hello-world
+draft: false
 coverImage: /uploads/placeholder-desktop-1.svg
 coverImageAlt: 'Ảnh bìa mẫu cho bài viết blog'
 author: 'Tác Giả Demo'

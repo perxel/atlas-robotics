@@ -42,6 +42,10 @@ export default async function BlogDetailPage({
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const result = await getBlogPostQuery(locale, slug);
 
+  // getBlogPostQuery resolves the slug via a draft-filtered query, so a
+  // draft post already can't be reached here — including inside Tina's own
+  // admin preview pane while editing it. See the "Drafts" note in
+  // CLAUDE.md for what full draft-preview support would additionally need.
   if (!result) notFound();
 
   return (

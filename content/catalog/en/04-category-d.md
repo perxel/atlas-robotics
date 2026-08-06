@@ -1,6 +1,7 @@
 ---
 name: 'Category D'
 sortOrder: 4
+draft: false
 status: active
 effectiveDate: '2026-03-05T00:00:00.000Z'
 pages:

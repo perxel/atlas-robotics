@@ -2,6 +2,7 @@
 title: 'Câu Chuyện Một'
 subtitle: 'Phụ đề ngắn cho câu chuyện một'
 sortOrder: 1
+draft: false
 primaryImage: /uploads/placeholder-desktop-1.svg
 secondaryImage: /uploads/placeholder-desktop-2.svg
 attachmentPdf: /uploads/placeholder-brochure.pdf

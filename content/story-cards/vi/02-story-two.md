@@ -2,6 +2,7 @@
 title: 'Câu Chuyện Hai'
 subtitle: 'Phụ đề ngắn cho câu chuyện hai'
 sortOrder: 2
+draft: false
 primaryImage: /uploads/placeholder-desktop-3.svg
 secondaryImage: /uploads/placeholder-desktop-4.svg
 attributes:

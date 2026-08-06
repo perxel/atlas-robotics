@@ -1,5 +1,6 @@
 {
   "links": [
+    { "label": "About", "url": "/en/about", "openInNewTab": false },
     { "label": "Catalog", "url": "/en/catalog", "openInNewTab": false },
     { "label": "Story Cards", "url": "/en/story-cards", "openInNewTab": false },
     { "label": "Blog", "url": "/en/blog", "openInNewTab": false },

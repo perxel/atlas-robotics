@@ -1,6 +1,7 @@
 ---
 title: 'Hello World'
 slug: hello-world
+draft: false
 coverImage: /uploads/placeholder-desktop-1.svg
 coverImageAlt: 'Placeholder cover image for the sample blog post'
 author: 'Demo Author'

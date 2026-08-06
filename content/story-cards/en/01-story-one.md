@@ -2,6 +2,7 @@
 title: 'Story One'
 subtitle: 'A short subtitle for story one'
 sortOrder: 1
+draft: false
 primaryImage: /uploads/placeholder-desktop-1.svg
 secondaryImage: /uploads/placeholder-desktop-2.svg
 attachmentPdf: /uploads/placeholder-brochure.pdf

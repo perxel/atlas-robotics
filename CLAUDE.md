@@ -97,12 +97,14 @@ the live page, in a split preview pane) needs three pieces per collection:
    `lib/tina-content.ts`).
 2. **`ui.router` on the collection** (`tina/config.ts`), so the admin's
    preview pane knows which URL a document maps to. `document` in that
-   callback is only typed with `_sys` — no collection-specific fields, even
-   though they exist on the object at runtime — so derive the locale/slug
-   from `document._sys.breadcrumbs`, not a custom field like `document.slug`
-   (matches Tina's own docs example, which uses `_sys.filename`). This is
-   also why the app's `relativePath` lookup and the router's URL must agree
-   on the same filename-is-the-slug assumption.
+   callback is only typed with `_sys` — no collection-specific fields — even
+   though `slug` exists on the object at runtime; the router reads it via an
+   explicit cast (`(document as unknown as { slug: string }).slug`). That
+   cast is safe specifically *because* `slugUniquenessGuard` (see "Routable
+   slugs" below) guarantees `slug` is unique per locale — without that
+   guarantee, don't trust a custom field here; fall back to
+   `document._sys.breadcrumbs` (filename-derived) the way Tina's own docs
+   example does.
 3. **A client component calling `useTina()` + `tinaField()`**
    (`components/blog/BlogPostView.tsx`) that the server page passes
    `{query, variables, data}` into. `data-tina-field={tinaField(post, "x")}`
@@ -124,6 +126,125 @@ like `catalog`'s `pages[]` or `story-cards`' `attributes[]`), and two data
 paths to keep in sync (initial server props vs. the live-edit override). In
 exchange, editors get true WYSIWYG editing instead of a flat form — worth it
 for high-traffic editorial content, not for rarely-touched config.
+
+## Routable slugs — a field, not a filename, and it's enforced
+
+Any collection where a document's URL is driven by an editable `slug`
+field (not by whatever Tina named the underlying file) uses two paired
+helpers from `tina/slug-field.ts`:
+
+- **`slugField({ reserved? })`** — the field itself. `reserved` is an
+  optional `Set<string>` of words that can't be used (see "Pages" below);
+  omit it for collections that don't need one (`blog` posts live under
+  `/blog/`, so they can't collide with a root-level page slug).
+- **`slugUniquenessGuard(collectionName)`** — a `ui.beforeSubmit` hook that
+  blocks saving a document whose `slug` is already used by another document
+  in the same collection *and locale* (the same slug validly exists in both
+  `en/` and `vi/` — those are different URLs). Verified against
+  `tinacms/dist/index.js` directly (not just docs, which don't say either
+  way): `beforeSubmit` runs inside `handleSubmit`'s `try/catch`, and
+  throwing there stops the write from ever reaching disk — Tina shows the
+  message as a form error.
+
+**Why this exists:** routing by filename (`relativePath: ${locale}/${slug}.md`)
+silently breaks the moment a document's `slug` field doesn't match its
+actual filename — whichever document isn't literally named `<slug>.md`
+becomes an unreachable 404 with no error shown anywhere. So lookups
+(`lib/tina-content.ts`) resolve a slug by **querying the `slug` field**
+(`getBlogPostQuery`/`getPageBySlug`: a filtered `*Connection` query first to
+find the matching document's `relativePath`, then a single-doc fetch) and
+only then read the resolved document — never by assuming filename === slug.
+That's only safe because uniqueness is guaranteed at write time by the
+guard above.
+
+**The gate:** `assertSlugFieldsHaveGuard(collections)` runs at the bottom of
+`tina/config.ts` on every `dev`/`build` — if any collection has a field
+named `slug` but no `ui.beforeSubmit`, it throws immediately with the
+offending collection's name. Adding a new routable collection *without*
+wiring the guard fails the build loudly rather than shipping a latent
+404 bug. Use `slugField()` + `beforeSubmit: slugUniquenessGuard("name")`
+together on every new collection that needs an editable slug.
+
+**Real limitation, not fully closed:** `beforeSubmit` only runs when a
+document is saved *through Tina's admin form*. A document created by a
+direct GraphQL mutation (a seed script, a migration) bypasses it entirely —
+same as an ORM-level unique constraint that doesn't help if something
+writes to the database directly. The seed content in this repo was
+created carefully by hand/script for exactly this reason; it isn't
+proof the guard works, only that nothing violated it.
+
+## Drafts
+
+`draftField()` (`tina/draft-field.ts`) is a plain, unenforced boolean —
+Tina docs are explicit that draft fields aren't special, application code
+is responsible for filtering: https://tina.io/docs/drafts/drafts-fields.
+Applied to `catalog`, `storyCards`, `blog`, and `pages` (collections whose
+documents are individually publishable); not on `contact-form-config`
+(field definitions, not content) or the `site-settings`/`nav`/`footer`
+singletons.
+
+- **Listing queries** filter it at the GraphQL level: `filter: { draft: { eq: false } } }`
+  on every `*Connection` call in `lib/tina-content.ts`.
+- **Single-document lookups** (`getBlogPostQuery`/`getPageBySlug`, see
+  above) apply the same `draft: { eq: false }` filter during the
+  slug-resolution step — a draft simply won't resolve to a `relativePath`,
+  so it 404s the same way a nonexistent slug would.
+- Every seed content file explicitly sets `draft: false` rather than
+  omitting the field — this was a deliberate choice to avoid relying on
+  how Tina's filter treats an *absent* field vs. an explicit `false`
+  (verified empirically that `eq: false` does match existing content, but
+  explicit is cheap and removes the ambiguity for future seed content too).
+- **Known gap, matches Tina's own documented caveat:** because drafts are
+  filtered out at query time, a draft is *also* invisible inside Tina's own
+  admin preview pane — an editor can't live-preview a post before
+  publishing it. Tina's docs call this out directly: full support needs
+  Next.js Preview Mode (`draftMode()`), which isn't implemented here. Out
+  of scope for this PoC; flagging so it isn't mistaken for an oversight.
+
+## Pages collection & block-based editing
+
+`pages` (`tina/config.ts`) is a generic, editor-composable collection using
+Tina's block-based editing (https://tina.io/docs/editing/blocks): a
+`blocks` list field with `templates` (defined in `tina/blocks.ts`), each
+template rendered by a matching component in `components/blocks/`
+(`BlocksRenderer.tsx` switches on `block.__typename`). Add a new block type
+by adding a `Template` to `pageBlocks` and a case to the switch — nothing
+else changes.
+
+**Root-level routing:** `pages` documents resolve at `/<slug>` (e.g.
+`/about`, or `/en/about`) via a catch-all route,
+`app/[locale]/[slug]/page.tsx` — *not* a nested `/pages/<slug>`. This is
+deliberate: it's what lets a client who's allowed to create pages publish
+one live with no code deploy. It does not conflict with the dedicated
+routes (`/blog`, `/catalog`, `/contact`, `/story-cards`, and `/blog/[slug]`
+for post details) — verified empirically, not just reasoned about: Next.js
+always resolves a literal folder over a same-level dynamic sibling, so
+`/blog` hits `app/[locale]/blog/page.tsx` and never falls through to the
+catch-all as long as that literal route exists. `lib/pages-config.ts`'s
+`reservedSlugs` set (enforced via `slugField({ reserved: reservedSlugs })`
+on `pages`) stops an editor from creating a page that *would* collide if
+one of those dedicated routes were ever removed.
+
+**Creation lock:** `pages.ui.allowedActions.create` — `true` by default (a
+generic pages collection is only useful if editors can add pages).
+For a client who should only edit existing pages, flip it to `false`; this
+is the one-line, per-client toggle mentioned in the field's own comment in
+`tina/config.ts`.
+
+**Block editing on/off per page, in code:** `lib/pages-config.ts`'s
+`blocksDisabledSlugs` — a developer-only override, not exposed to editors.
+A listed slug always renders as a fixed layout (title + intro only),
+ignoring whatever's in its `blocks` field, regardless of what the admin
+shows. The schema itself doesn't change per document; only the frontend's
+rendering decision does.
+
+**Migrating an existing fixed route (e.g. `/blog`) to a `pages` document:**
+delete the dedicated `page.tsx`, extract its markup into a reusable
+component, wrap that component in a new block type, create the
+`content/pages/<locale>/<slug>.md` document, add the block to it. Detail
+routes with their own data shape (`/blog/[slug]`) are unaffected either
+way — they're a structurally different URL shape, not competing for the
+same route.
 
 ## Known issues
 

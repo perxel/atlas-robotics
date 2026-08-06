@@ -2,6 +2,7 @@
 title: 'Câu Chuyện Bốn'
 subtitle: 'Phụ đề ngắn cho câu chuyện bốn'
 sortOrder: 4
+draft: false
 primaryImage: /uploads/placeholder-desktop-1.svg
 secondaryImage: /uploads/placeholder-desktop-2.svg
 attributes:

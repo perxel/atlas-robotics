@@ -1,6 +1,7 @@
 ---
 name: 'Danh Mục B'
 sortOrder: 2
+draft: false
 status: active
 effectiveDate: '2026-02-01T00:00:00.000Z'
 pages:

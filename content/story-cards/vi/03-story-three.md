@@ -2,6 +2,7 @@
 title: 'Câu Chuyện Ba'
 subtitle: 'Phụ đề ngắn cho câu chuyện ba'
 sortOrder: 3
+draft: false
 primaryImage: /uploads/placeholder-desktop-5.svg
 secondaryImage: /uploads/placeholder-desktop-6.svg
 attributes:
