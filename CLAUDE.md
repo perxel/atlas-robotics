@@ -81,20 +81,21 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
 
 ## Visual editing
 
-Only worth wiring up for collections editors touch constantly (start with
-`blog`; add to others deliberately, not by default — see the pattern below).
-The plain admin at `/admin/index.html` (form-based CRUD) works for every
-collection with zero extra code; visual editing (click-to-edit directly on
-the live page, in a split preview pane) needs three pieces per collection:
+Wired up for `blog` and `pages` — collections editors touch constantly; add
+to others deliberately, not by default (see the pattern below). The plain
+admin at `/admin/index.html` (form-based CRUD) works for every collection
+with zero extra code; visual editing (click-to-edit directly on the live
+page, in a split preview pane) needs three pieces per collection:
 
-1. **A single-document query, not a connection query.** `useTina()` needs the
-   raw `{ data, query, variables }` shape a `client.queries.<name>(...)`
-   single-doc call returns — a `*Connection` (list) query result won't work.
-   Compose the `relativePath` with locale as the sub-folder per Tina's
-   directory-based i18n guide (`` `${locale}/${slug}.md` ``), same as any
-   other single-doc lookup. Wrap it in React's `cache()` so `generateMetadata`
-   and the page component share one request (see `getBlogPostQuery` in
-   `lib/tina-content.ts`).
+1. **A single-document query, not a connection query, resolved by the
+   `slug` field.** `useTina()` needs the raw `{ data, query, variables }`
+   shape a `client.queries.<name>(relativePath)` single-doc call returns — a
+   `*Connection` (list) query result won't work. Get there in two steps, as
+   `getBlogPostQuery`/`getPageQuery` (`lib/tina-content.ts`) do: a
+   `*Connection` query filtered by `slug` (and `draft`) to find the matching
+   document's `relativePath`, then the single-doc fetch by that path. Wrap
+   the whole thing in React's `cache()` so `generateMetadata` and the page
+   component share one request.
 2. **`ui.router` on the collection** (`tina/config.ts`), so the admin's
    preview pane knows which URL a document maps to. `document` in that
    callback is only typed with `_sys` — no collection-specific fields — even
@@ -106,24 +107,36 @@ the live page, in a split preview pane) needs three pieces per collection:
    `document._sys.breadcrumbs` (filename-derived) the way Tina's own docs
    example does.
 3. **A client component calling `useTina()` + `tinaField()`**
-   (`components/blog/BlogPostView.tsx`) that the server page passes
-   `{query, variables, data}` into. `data-tina-field={tinaField(post, "x")}`
-   on the DOM node showing field `x` is what makes it clickable in the
-   preview pane. Outside Tina's admin iframe, `useTina()` is a no-op — it
-   returns the passed-in `data` unchanged, so normal visitors and the
+   (`components/blog/BlogPostView.tsx`, `components/pages/PageView.tsx`)
+   that the server page passes `{query, variables, data}` into.
+   `data-tina-field={tinaField(post, "x")}` on the DOM node showing field
+   `x` is what makes it clickable in the preview pane. Outside Tina's admin
+   iframe, both `useTina()` and `tinaField()` are no-ops — `useTina()`
+   returns the passed-in `data` unchanged and `tinaField()` returns `""`
+   (verified directly against `@tinacms/bridge/dist/tina-field.js`: it
+   short-circuits to `""` whenever the object has no `_content_source`,
+   which only live-edit data carries) — so normal visitors and the
    production build render identically to a plain server component.
 
-To extend this to another collection, copy `getBlogPostQuery` +
-`BlogPostView` + the `blog` collection's `ui.router`, swapping in that
+**List/blocks fields work too, at two granularities:** `pages`' `blocks`
+list is the example — `BlocksRenderer.tsx` wraps each rendered block in
+`data-tina-field={tinaField(block)}` (no field name = "edit this whole
+block," and Tina resolves the correct array index from the block object's
+own metadata, no manual indexing needed), and each block component
+additionally marks its own fields (`tinaField(data, "heading")` etc.) for
+finer click targets. Same pattern for any other list field.
+
+To extend this to another collection, copy the query pattern +
+a `*View.tsx` client component + a `ui.router`, swapping in that
 collection's query/fields. Skip it for collections edited rarely or by
-developers only (this repo intentionally leaves `contact-form-config` and
-the singleton `site-settings`/`nav`/`footer` docs on the plain admin).
+developers only (this repo intentionally leaves `contact-form-config`,
+`catalog`, `storyCards`, and the singleton `site-settings`/`nav`/`footer`
+docs on the plain admin).
 
 Tradeoff, if asked to add more: per collection it costs a client/server
 component split (page fetch → client component, not a single server
-component), per-field `tinaField` wiring (non-trivial for nested list fields
-like `catalog`'s `pages[]` or `story-cards`' `attributes[]`), and two data
-paths to keep in sync (initial server props vs. the live-edit override). In
+component), per-field `tinaField` wiring, and two data paths to keep in
+sync (initial server props vs. the live-edit override). In
 exchange, editors get true WYSIWYG editing instead of a flat form — worth it
 for high-traffic editorial content, not for rarely-touched config.
 
@@ -245,6 +258,26 @@ component, wrap that component in a new block type, create the
 routes with their own data shape (`/blog/[slug]`) are unaffected either
 way — they're a structurally different URL shape, not competing for the
 same route.
+
+**Home page is a `pages` document too** (`content/pages/<locale>/home.md`,
+`slug: "home"`), rendered by `app/[locale]/page.tsx` — same `PageView` +
+`getPageQuery` as any other page, visual editing included. It's *not*
+handled by the `[slug]` catch-all, for a structural reason rather than a
+choice: `/` has zero URL segments, and `[locale]/[slug]/page.tsx` requires
+exactly one segment to bind `slug` to — there's no fallthrough to reach for
+a zero-segment path the way `/blog` falls through once its dedicated route
+is removed. So `app/[locale]/page.tsx` fetches slug `"home"` explicitly
+instead of relying on routing to find it.
+
+Because the `home` document is still a normal `pages` document with a real
+`slug` field, it's *also* reachable at `/home` via the catch-all — same
+content at two URLs. `app/[locale]/[slug]/page.tsx` special-cases
+`slug === "home"` with a `redirect()` to `/` rather than rendering it a
+second time. `"home"` is deliberately **not** in `reservedSlugs` — that
+list blocks a slug from being *used*, but the home document needs exactly
+that slug to be resolvable by `getPageQuery(locale, "home")`; uniqueness
+(so no second document can also claim `"home"`) is already guaranteed by
+`slugUniquenessGuard`, same as any other page.
 
 ## Known issues
 

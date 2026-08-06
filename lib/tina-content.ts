@@ -87,19 +87,18 @@ export const getBlogPostQuery = cache(async (locale: Locale, slug: string) => {
 });
 
 /** Same two-step slug resolution as getBlogPostQuery — see its comment. */
-export async function getPageBySlug(locale: Locale, slug: string) {
+export const getPageQuery = cache(async (locale: Locale, slug: string) => {
   try {
     const lookup = await client.queries.pagesConnection({
       filter: { slug: { eq: slug }, draft: { eq: false } },
     });
     const match = inLocale(lookup.data.pagesConnection.edges, locale)[0];
     if (!match) return null;
-    const res = await client.queries.pages({ relativePath: match._sys.relativePath });
-    return res.data.pages;
+    return await client.queries.pages({ relativePath: match._sys.relativePath });
   } catch {
     return null;
   }
-}
+});
 
 export async function getContactFormFields(locale: Locale) {
   const res = await client.queries.contactFormConfigConnection();

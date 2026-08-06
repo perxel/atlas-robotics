@@ -1,4 +1,5 @@
-import { StaticTinaMarkdown } from "tinacms/dist/rich-text/static";
+import { TinaMarkdown } from "tinacms/dist/rich-text";
+import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksRichText } from "@/tina/__generated__/types";
 
 export default function RichTextBlock({ data }: { data: PagesBlocksRichText }) {
@@ -6,8 +7,8 @@ export default function RichTextBlock({ data }: { data: PagesBlocksRichText }) {
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
-      <div className="prose prose-sm max-w-none">
-        <StaticTinaMarkdown content={data.body} />
+      <div data-tina-field={tinaField(data, "body")} className="prose prose-sm max-w-none">
+        <TinaMarkdown content={data.body} />
       </div>
     </section>
   );

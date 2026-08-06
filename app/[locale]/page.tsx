@@ -1,11 +1,16 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getSiteSettings } from "@/lib/tina-content";
+import { getPageQuery, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
+import PageView from "@/components/pages/PageView";
 
+// The home page is a `pages` document with slug "home" — same collection
+// and rendering path as any other page (see app/[locale]/[slug]/page.tsx),
+// just mounted at the site root instead of a dynamic segment because "/"
+// has zero URL segments to bind a [slug] param to.
 export async function generateMetadata({
   params,
 }: {
@@ -15,13 +20,18 @@ export async function generateMetadata({
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || localePath(locale, "/");
-  const settings = await getSiteSettings(locale);
+  const [result, settings] = await Promise.all([
+    getPageQuery(locale, "home"),
+    getSiteSettings(locale),
+  ]);
+  const page = result?.data.pages;
+  const dict = getDictionary(locale);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
-    seo: settings?.defaultSeo,
-    fallbackTitle: settings?.title || getDictionary(locale).siteName,
+    seo: page?.seo || settings?.defaultSeo,
+    fallbackTitle: page?.title || settings?.title || dict.siteName,
   });
 }
 
@@ -32,32 +42,11 @@ export default async function Home({
 }) {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
-  const dict = getDictionary(locale);
+  const result = await getPageQuery(locale, "home");
 
-  const sections = [
-    { path: "/catalog", ...dict.home.sections.catalog },
-    { path: "/story-cards", ...dict.home.sections.storyCards },
-    { path: "/blog", ...dict.home.sections.blog },
-    { path: "/contact", ...dict.home.sections.contact },
-  ];
+  if (!result) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16">
-      <h1 className="text-3xl font-semibold">{dict.home.title}</h1>
-      <p className="mt-3 max-w-2xl text-muted-foreground">{dict.home.description}</p>
-
-      <div className="mt-10 grid gap-6 sm:grid-cols-2">
-        {sections.map((section) => (
-          <Link
-            key={section.path}
-            href={localePath(locale, section.path)}
-            className="block rounded-lg border border-border bg-surface p-6 hover:border-accent"
-          >
-            <h2 className="text-lg font-semibold">{section.label}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{section.description}</p>
-          </Link>
-        ))}
-      </div>
-    </div>
+    <PageView query={result.query} variables={result.variables} data={result.data} />
   );
 }

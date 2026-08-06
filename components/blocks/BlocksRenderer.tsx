@@ -1,25 +1,26 @@
+import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocks } from "@/tina/__generated__/types";
 import Hero from "./Hero";
 import RichTextBlock from "./RichTextBlock";
 import Cta from "./Cta";
 
 // Add a new block: add its Template in tina/blocks.ts, then a case here
-// mapping its __typename to a render component.
+// mapping its __typename to a render component. Each block is wrapped with
+// tinaField(block) (no field name = "edit this whole block") so it's
+// click-to-edit in Tina's admin preview — a no-op outside that context,
+// since tinaField() returns "" when the object has no live-edit metadata.
 export default function BlocksRenderer({ blocks }: { blocks: (PagesBlocks | null)[] }) {
   return (
     <>
       {blocks.map((block, i) => {
         if (!block) return null;
-        switch (block.__typename) {
-          case "PagesBlocksHero":
-            return <Hero key={i} data={block} />;
-          case "PagesBlocksRichText":
-            return <RichTextBlock key={i} data={block} />;
-          case "PagesBlocksCta":
-            return <Cta key={i} data={block} />;
-          default:
-            return null;
-        }
+        return (
+          <div key={i} data-tina-field={tinaField(block)}>
+            {block.__typename === "PagesBlocksHero" && <Hero data={block} />}
+            {block.__typename === "PagesBlocksRichText" && <RichTextBlock data={block} />}
+            {block.__typename === "PagesBlocksCta" && <Cta data={block} />}
+          </div>
+        );
       })}
     </>
   );

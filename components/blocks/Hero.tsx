@@ -1,3 +1,4 @@
+import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksHero } from "@/tina/__generated__/types";
 
 export default function Hero({ data }: { data: PagesBlocksHero }) {
@@ -8,11 +9,18 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
         <img
           src={data.image}
           alt=""
+          data-tina-field={tinaField(data, "image")}
           className="mx-auto mb-6 h-40 w-40 rounded-full object-cover"
         />
       )}
-      <h2 className="text-3xl font-semibold">{data.heading}</h2>
-      {data.subheading && <p className="mt-3 text-muted-foreground">{data.subheading}</p>}
+      <h2 data-tina-field={tinaField(data, "heading")} className="text-3xl font-semibold">
+        {data.heading}
+      </h2>
+      {data.subheading && (
+        <p data-tina-field={tinaField(data, "subheading")} className="mt-3 text-muted-foreground">
+          {data.subheading}
+        </p>
+      )}
     </section>
   );
 }

@@ -335,6 +335,17 @@ const collections: Collection[] = [
         create: true,
       },
       beforeSubmit: slugUniquenessGuard("pages"),
+      // Same reasoning as blog's router (see its comment): reading `slug`
+      // off `document` is safe because slugUniquenessGuard above guarantees
+      // it's unique per locale. The "home" document is special-cased to the
+      // site root — see app/[locale]/page.tsx and the matching redirect for
+      // /home in app/[locale]/[slug]/page.tsx (avoids the same content
+      // being reachable at two URLs).
+      router: ({ document }) => {
+        const locale = document._sys.breadcrumbs[0] as Locale;
+        const slug = (document as unknown as { slug: string }).slug;
+        return slug === "home" ? localePath(locale, "/") : localePath(locale, `/${slug}`);
+      },
     },
     fields: [
       { type: "string", name: "title", label: "Title", required: true },

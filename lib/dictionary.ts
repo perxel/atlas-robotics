@@ -6,16 +6,6 @@ import type { Locale } from "@/lib/i18n";
 export type Dictionary = {
   siteName: string;
   nav: { primary: string };
-  home: {
-    title: string;
-    description: string;
-    sections: {
-      catalog: { label: string; description: string };
-      storyCards: { label: string; description: string };
-      blog: { label: string; description: string };
-      contact: { label: string; description: string };
-    };
-  };
   catalog: {
     pageTitle: string;
     pageDescription: string;
@@ -71,29 +61,6 @@ const dictionaries: Record<Locale, Dictionary> = {
   en: {
     siteName: "Demo Site",
     nav: { primary: "Primary" },
-    home: {
-      title: "TinaCMS Stack Proof of Concept",
-      description:
-        "A reusable internal demo validating Next.js App Router, TinaCMS with repo based media, two-locale routing, and a set of structured content components.",
-      sections: {
-        catalog: {
-          label: "Catalog viewer",
-          description: "Tabbed image viewer with swipe/arrow navigation and a text alternative.",
-        },
-        storyCards: {
-          label: "Story cards",
-          description: "Click or swipe between records in a card based component.",
-        },
-        blog: {
-          label: "Blog",
-          description: "Listing and detail pages sourced from structured content.",
-        },
-        contact: {
-          label: "Contact",
-          description: "A CMS-defined form that logs submissions server side.",
-        },
-      },
-    },
     catalog: {
       pageTitle: "Catalog",
       pageDescription: "Structured, CMS-driven tabbed viewer with swipe and arrow navigation.",
@@ -144,30 +111,6 @@ const dictionaries: Record<Locale, Dictionary> = {
   vi: {
     siteName: "Trang Demo",
     nav: { primary: "Chính" },
-    home: {
-      title: "Bằng Chứng Khái Niệm Nền Tảng TinaCMS",
-      description:
-        "Một bản demo nội bộ dùng lại được, xác thực Next.js App Router, TinaCMS với media lưu trong repo, định tuyến hai ngôn ngữ và bộ thành phần nội dung có cấu trúc.",
-      sections: {
-        catalog: {
-          label: "Trình xem danh mục",
-          description:
-            "Trình xem ảnh dạng tab với điều hướng vuốt/mũi tên và một phiên bản văn bản thay thế.",
-        },
-        storyCards: {
-          label: "Thẻ câu chuyện",
-          description: "Nhấp hoặc vuốt giữa các bản ghi trong thành phần dạng thẻ.",
-        },
-        blog: {
-          label: "Blog",
-          description: "Trang danh sách và chi tiết được lấy từ nội dung có cấu trúc.",
-        },
-        contact: {
-          label: "Liên hệ",
-          description: "Một biểu mẫu được định nghĩa từ CMS, ghi lại dữ liệu gửi ở phía máy chủ.",
-        },
-      },
-    },
     catalog: {
       pageTitle: "Danh Mục",
       pageDescription:
