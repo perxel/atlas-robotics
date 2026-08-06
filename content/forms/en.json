@@ -1,0 +1,7 @@
+{
+  "contactForm": {
+    "name": { "label": "Name", "placeholder": "Your name" },
+    "email": { "label": "Email", "placeholder": "you@example.com" },
+    "message": { "label": "Message", "placeholder": "How can we help?" }
+  }
+}

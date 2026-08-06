@@ -48,6 +48,11 @@ export type Dictionary = {
     sending: string;
     success: string;
     error: string;
+    fields: {
+      name: { label: string; placeholder: string };
+      email: { label: string; placeholder: string };
+      message: { label: string; placeholder: string };
+    };
   };
   footer: {
     contactHeading: string;
@@ -99,11 +104,16 @@ const dictionaries: Record<Locale, Dictionary> = {
     },
     contact: {
       pageTitle: "Contact",
-      pageDescription: "This form is rendered entirely from structured content — no hardcoded fields.",
+      pageDescription: "Send us a message and we'll get back to you.",
       send: "Send",
       sending: "Sending…",
       success: "Thanks — your message was logged server side.",
       error: "Something went wrong. Please try again.",
+      fields: {
+        name: { label: "Name", placeholder: "Your name" },
+        email: { label: "Email", placeholder: "you@example.com" },
+        message: { label: "Message", placeholder: "How can we help?" },
+      },
     },
     footer: { contactHeading: "Contact" },
     social: { fallbackLabel: "Social link" },
@@ -150,12 +160,16 @@ const dictionaries: Record<Locale, Dictionary> = {
     },
     contact: {
       pageTitle: "Liên Hệ",
-      pageDescription:
-        "Biểu mẫu này được hiển thị hoàn toàn từ nội dung có cấu trúc — không có trường nào được viết cứng.",
+      pageDescription: "Gửi tin nhắn cho chúng tôi, chúng tôi sẽ phản hồi sớm nhất.",
       send: "Gửi",
       sending: "Đang gửi…",
       success: "Cảm ơn — tin nhắn của bạn đã được ghi lại ở phía máy chủ.",
       error: "Đã xảy ra lỗi. Vui lòng thử lại.",
+      fields: {
+        name: { label: "Họ và Tên", placeholder: "Tên của bạn" },
+        email: { label: "Email", placeholder: "ban@example.com" },
+        message: { label: "Lời Nhắn", placeholder: "Chúng tôi có thể giúp gì cho bạn?" },
+      },
     },
     footer: { contactHeading: "Liên Hệ" },
     social: { fallbackLabel: "Liên kết mạng xã hội" },

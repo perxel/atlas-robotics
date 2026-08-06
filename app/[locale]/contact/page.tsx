@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getContactFormFields, getSiteSettings } from "@/lib/tina-content";
+import { getForms, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
 import ContactForm from "@/components/contact/ContactForm";
 
@@ -32,7 +32,7 @@ export default async function ContactPage({
 }) {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
-  const fields = await getContactFormFields(locale);
+  const forms = await getForms(locale);
   const dict = getDictionary(locale);
 
   return (
@@ -41,15 +41,7 @@ export default async function ContactPage({
       <p className="mt-1 text-sm text-muted-foreground">{dict.contact.pageDescription}</p>
 
       <div className="mt-8">
-        <ContactForm
-          locale={locale}
-          fields={fields.map((f) => ({
-            id: f.id,
-            label: f.label,
-            fieldType: f.fieldType,
-            required: f.required,
-          }))}
-        />
+        <ContactForm locale={locale} fields={forms?.contactForm} />
       </div>
     </div>
   );

@@ -41,6 +41,15 @@ export async function getFooter(locale: Locale) {
   }
 }
 
+export async function getForms(locale: Locale) {
+  try {
+    const res = await client.queries.forms({ relativePath: `${locale}.json` });
+    return res.data.forms;
+  } catch {
+    return null;
+  }
+}
+
 export async function getCatalogTabs(locale: Locale) {
   const res = await client.queries.catalogConnection({ filter: { draft: { eq: false } } });
   const tabs = inLocale(res.data.catalogConnection.edges, locale);
@@ -99,9 +108,3 @@ export const getPageQuery = cache(async (locale: Locale, slug: string) => {
     return null;
   }
 });
-
-export async function getContactFormFields(locale: Locale) {
-  const res = await client.queries.contactFormConfigConnection();
-  const fields = inLocale(res.data.contactFormConfigConnection.edges, locale);
-  return fields.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-}
