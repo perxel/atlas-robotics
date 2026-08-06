@@ -97,15 +97,21 @@ page, in a split preview pane) needs three pieces per collection:
    the whole thing in React's `cache()` so `generateMetadata` and the page
    component share one request.
 2. **`ui.router` on the collection** (`tina/config.ts`), so the admin's
-   preview pane knows which URL a document maps to. `document` in that
-   callback is only typed with `_sys` — no collection-specific fields — even
-   though `slug` exists on the object at runtime; the router reads it via an
-   explicit cast (`(document as unknown as { slug: string }).slug`). That
-   cast is safe specifically *because* `slugUniquenessGuard` (see "Routable
-   slugs" below) guarantees `slug` is unique per locale — without that
-   guarantee, don't trust a custom field here; fall back to
-   `document._sys.breadcrumbs` (filename-derived) the way Tina's own docs
-   example does.
+   preview pane knows which URL a document maps to. Derive it from
+   `document._sys.breadcrumbs` (filename), never a custom field like
+   `slug` — `document` in this callback is typed with only `_sys`, and that
+   type is accurate: an earlier version of this code read `document.slug`
+   via a cast (reasoning it was safe because `slugUniquenessGuard`
+   guarantees uniqueness — true, but beside the point), and it broke live:
+   clicking "edit" in the admin produced a preview URL with a literal
+   `undefined` slug and 404'd, because the field genuinely isn't populated
+   on `document` at this call site. Matches Tina's own docs example, which
+   uses `_sys.filename` for the same reason. Only resolves to the right URL
+   when filename === slug (true for this repo's seed content); if an
+   editor's `slug` field diverges from the filename, this link can point at
+   the wrong preview URL — the live site's actual routing is unaffected,
+   since page rendering resolves the `slug` field via a GraphQL query
+   (`lib/tina-content.ts`), not this router.
 3. **A client component calling `useTina()` + `tinaField()`**
    (`components/blog/BlogPostView.tsx`, `components/pages/PageView.tsx`)
    that the server page passes `{query, variables, data}` into.
@@ -292,3 +298,18 @@ that slug to be resolvable by `getPageQuery(locale, "home")`; uniqueness
 - `app/global-error.tsx` sits outside the `[locale]` segment and has no
   locale context available (it replaces the root layout entirely), so its
   copy is intentionally bilingual rather than guessing a language.
+- **Tina CLI telemetry can hang the build**: `tinacms build`/`dev` phones
+  home to PostHog on exit by default; in an environment with restricted
+  outbound network access, that flush retries for ~30s and can prevent the
+  wrapped `next build` from ever running at all (observed directly: the log
+  showed `Tina build complete` followed only by PostHog timeout errors, no
+  `.next` output — the Next.js build step never started). Both scripts pass
+  `--noTelemetry` for exactly this reason; don't remove it without
+  confirming the target environment has open egress to PostHog.
+- **`ui.router` must read `document._sys`, never a custom field** — see the
+  "Visual editing" section above. Confirmed live, not just reasoned about:
+  reading `document.slug` there produced a broken preview URL with a
+  literal `undefined` and 404'd. The router callback's `document` really
+  only carries `_sys` at runtime, matching its TypeScript type exactly —
+  the type wasn't the incomplete part here, an earlier version of this code
+  was wrong to override it with a cast.

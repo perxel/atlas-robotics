@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tinacms dev -c \"next dev\"",
-    "build": "NODE_ENV=production tinacms build --local --skip-cloud-checks -c \"next build\"",
+    "dev": "tinacms dev --noTelemetry -c \"next dev\"",
+    "build": "NODE_ENV=production tinacms build --local --skip-cloud-checks --noTelemetry -c \"next build\"",
     "start": "next start",
     "lint": "eslint"
   },

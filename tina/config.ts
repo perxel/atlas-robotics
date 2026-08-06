@@ -253,15 +253,20 @@ const collections: Collection[] = [
     ui: {
       // Tells the admin's live-preview pane which page a document maps
       // to, so it can visually edit it (see components/blog/BlogPostView.tsx).
-      // `document` is only typed with `_sys` (not collection-specific
-      // fields) even though `slug` exists on it at runtime — safe to
-      // read here because slugUniquenessGuard below guarantees it's
-      // unique per locale, so it's the correct canonical routing key
-      // (not the filename, which editors don't control).
+      // Derived from the filename (_sys.breadcrumbs), NOT the `slug` field —
+      // confirmed live that `document` in this callback only reliably
+      // carries `_sys` (matching its TypeScript type, which only declares
+      // `_sys`); reading a custom field here produced a broken preview URL
+      // with a literal "undefined" slug. This is also what Tina's own docs
+      // example does. Only correct when filename === slug (true for this
+      // repo's seed content); if an editor's slug diverges from the
+      // filename, this link can point at the wrong preview URL — the
+      // actual page route is unaffected, since rendering resolves the
+      // `slug` field via a GraphQL query (lib/tina-content.ts), not this.
       router: ({ document }) => {
         const locale = document._sys.breadcrumbs[0] as Locale;
-        const slug = (document as unknown as { slug: string }).slug;
-        return `${localePath(locale, "/blog")}/${slug}`;
+        const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
+        return `${localePath(locale, "/blog")}/${filename}`;
       },
       beforeSubmit: slugUniquenessGuard("blog"),
     },
@@ -335,16 +340,18 @@ const collections: Collection[] = [
         create: true,
       },
       beforeSubmit: slugUniquenessGuard("pages"),
-      // Same reasoning as blog's router (see its comment): reading `slug`
-      // off `document` is safe because slugUniquenessGuard above guarantees
-      // it's unique per locale. The "home" document is special-cased to the
-      // site root — see app/[locale]/page.tsx and the matching redirect for
-      // /home in app/[locale]/[slug]/page.tsx (avoids the same content
-      // being reachable at two URLs).
+      // Same reasoning as blog's router (see its comment): derived from the
+      // filename (_sys.breadcrumbs), not the `slug` field — `document` in
+      // this callback only reliably carries `_sys` (confirmed live: reading
+      // `document.slug` here produced a broken preview URL). The `home`
+      // document is special-cased to the site root by filename — see
+      // app/[locale]/page.tsx and the matching redirect for /home in
+      // app/[locale]/[slug]/page.tsx (avoids the same content being
+      // reachable at two URLs).
       router: ({ document }) => {
         const locale = document._sys.breadcrumbs[0] as Locale;
-        const slug = (document as unknown as { slug: string }).slug;
-        return slug === "home" ? localePath(locale, "/") : localePath(locale, `/${slug}`);
+        const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
+        return filename === "home" ? localePath(locale, "/") : localePath(locale, `/${filename}`);
       },
     },
     fields: [
