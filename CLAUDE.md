@@ -79,6 +79,52 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
   The `NODE_ENV=production` prefix is load-bearing, not decorative — see
   Known issues below.
 
+## Visual editing
+
+Only worth wiring up for collections editors touch constantly (start with
+`blog`; add to others deliberately, not by default — see the pattern below).
+The plain admin at `/admin/index.html` (form-based CRUD) works for every
+collection with zero extra code; visual editing (click-to-edit directly on
+the live page, in a split preview pane) needs three pieces per collection:
+
+1. **A single-document query, not a connection query.** `useTina()` needs the
+   raw `{ data, query, variables }` shape a `client.queries.<name>(...)`
+   single-doc call returns — a `*Connection` (list) query result won't work.
+   Compose the `relativePath` with locale as the sub-folder per Tina's
+   directory-based i18n guide (`` `${locale}/${slug}.md` ``), same as any
+   other single-doc lookup. Wrap it in React's `cache()` so `generateMetadata`
+   and the page component share one request (see `getBlogPostQuery` in
+   `lib/tina-content.ts`).
+2. **`ui.router` on the collection** (`tina/config.ts`), so the admin's
+   preview pane knows which URL a document maps to. `document` in that
+   callback is only typed with `_sys` — no collection-specific fields, even
+   though they exist on the object at runtime — so derive the locale/slug
+   from `document._sys.breadcrumbs`, not a custom field like `document.slug`
+   (matches Tina's own docs example, which uses `_sys.filename`). This is
+   also why the app's `relativePath` lookup and the router's URL must agree
+   on the same filename-is-the-slug assumption.
+3. **A client component calling `useTina()` + `tinaField()`**
+   (`components/blog/BlogPostView.tsx`) that the server page passes
+   `{query, variables, data}` into. `data-tina-field={tinaField(post, "x")}`
+   on the DOM node showing field `x` is what makes it clickable in the
+   preview pane. Outside Tina's admin iframe, `useTina()` is a no-op — it
+   returns the passed-in `data` unchanged, so normal visitors and the
+   production build render identically to a plain server component.
+
+To extend this to another collection, copy `getBlogPostQuery` +
+`BlogPostView` + the `blog` collection's `ui.router`, swapping in that
+collection's query/fields. Skip it for collections edited rarely or by
+developers only (this repo intentionally leaves `contact-form-config` and
+the singleton `site-settings`/`nav`/`footer` docs on the plain admin).
+
+Tradeoff, if asked to add more: per collection it costs a client/server
+component split (page fetch → client component, not a single server
+component), per-field `tinaField` wiring (non-trivial for nested list fields
+like `catalog`'s `pages[]` or `story-cards`' `attributes[]`), and two data
+paths to keep in sync (initial server props vs. the live-edit override). In
+exchange, editors get true WYSIWYG editing instead of a flat form — worth it
+for high-traffic editorial content, not for rarely-touched config.
+
 ## Known issues
 
 - **Next.js 16 `/_global-error` prerender bug**: production builds crash

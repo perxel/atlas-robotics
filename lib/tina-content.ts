@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import type { Locale } from "@/lib/i18n";
 
@@ -62,10 +63,20 @@ export async function getBlogPosts(locale: Locale) {
   });
 }
 
-export async function getBlogPostBySlug(locale: Locale, slug: string) {
-  const posts = await getBlogPosts(locale);
-  return posts.find((post) => post.slug === slug) || null;
-}
+/**
+ * Single-document query by relativePath (locale as sub-folder), per Tina's
+ * directory-based i18n guide. Returns the raw {data, query, variables}
+ * response shape `useTina()` needs to enable visual editing on this page.
+ * Wrapped in React's `cache()` so generateMetadata and the page component
+ * share one request instead of querying twice.
+ */
+export const getBlogPostQuery = cache(async (locale: Locale, slug: string) => {
+  try {
+    return await client.queries.blog({ relativePath: `${locale}/${slug}.md` });
+  } catch {
+    return null;
+  }
+});
 
 export async function getContactFormFields(locale: Locale) {
   const res = await client.queries.contactFormConfigConnection();

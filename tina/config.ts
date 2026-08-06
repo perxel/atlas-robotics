@@ -1,5 +1,6 @@
 import { defineConfig } from "tinacms";
 import { seoField } from "./seo-schema";
+import { localePath, type Locale } from "../lib/i18n";
 
 // Local dev runs fully self-hosted (no Tina Cloud project needed).
 // Setting NEXT_PUBLIC_TINA_CLIENT_ID / TINA_TOKEN switches to Tina Cloud.
@@ -258,6 +259,18 @@ export default defineConfig({
         label: "Blog Posts",
         path: "content/blog",
         format: "md",
+        ui: {
+          // Tells the admin's live-preview pane which page a document maps
+          // to, so it can visually edit it (see components/blog/BlogPostView.tsx).
+          // `document` is only typed with `_sys` here (not collection-specific
+          // fields), so this derives the slug from the filename — which is
+          // also what the app's relativePath-based lookup assumes matches
+          // the `slug` field (see getBlogPostQuery in lib/tina-content.ts).
+          router: ({ document }) => {
+            const [locale, ...slugParts] = document._sys.breadcrumbs;
+            return `${localePath(locale as Locale, "/blog")}/${slugParts.join("/")}`;
+          },
+        },
         fields: [
           { type: "string", name: "title", label: "Title", required: true },
           { type: "string", name: "slug", label: "Slug", required: true },
