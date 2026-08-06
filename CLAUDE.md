@@ -18,8 +18,24 @@ export const defaultLocale: Locale = "vi";
 
 The default locale is served **unprefixed** at `/` (e.g. `/catalog`); every
 other locale is served under its own prefix (e.g. `/en/catalog`). This is
-handled by `proxy.ts` (Next.js 16 renamed `middleware.ts` → `proxy.ts` and the
-export from `middleware` → `proxy` — don't rename it back):
+handled by `middleware.ts`.
+
+**Note on the file name:** Next.js 16 renamed `middleware.ts` → `proxy.ts`
+(export `middleware` → `proxy`), and normally that rename should stick — but
+this repo deliberately uses the deprecated `middleware.ts` convention instead.
+`proxy.ts` is hardcoded to the Node.js runtime with no override (Next.js
+throws if a `runtime` is set in its `config` export); Cloudflare's
+`opennextjs-cloudflare` adapter doesn't support Node.js middleware yet
+(github.com/opennextjs/opennextjs-cloudflare#962, long-term tracked in #972),
+so deploying there fails with "Node.js middleware is not currently
+supported." `middleware.ts` isn't (yet) subject to that lock-in and can still
+declare `runtime: "experimental-edge"` in its `config` export, which is what
+makes the Cloudflare deploy work. This is a deliberate, verified workaround
+for a currently-unresolved third-party adapter gap, not an oversight — but
+re-check it on every Next.js/opennextjs-cloudflare upgrade, since it relies
+on `middleware.ts` not being closed off the same way `proxy.ts` was.
+Only revert to `proxy.ts` if this project stops targeting Cloudflare, or once
+opennextjs-cloudflare ships Node.js middleware support.
 
 - unprefixed request → rewritten internally to the default-locale route,
   URL bar stays clean

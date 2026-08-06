@@ -6,7 +6,18 @@ import { defaultLocale, pathnameHasLocalePrefix } from "@/lib/i18n";
 // other locale is served under its own "/<locale>" prefix. An explicit
 // "/<defaultLocale>" URL is canonicalized (redirected) back to the
 // unprefixed form so there is only ever one URL per page.
-export function proxy(request: NextRequest) {
+//
+// This file intentionally uses the deprecated `middleware.ts` convention
+// instead of Next.js 16's `proxy.ts`: `proxy.ts` is hardcoded to the
+// Node.js runtime with no override (Next.js throws if you try), and
+// Cloudflare's opennextjs-cloudflare adapter doesn't support Node.js
+// middleware yet (github.com/opennextjs/opennextjs-cloudflare#962,
+// long-term tracked in #972). `middleware.ts` still honors an explicit
+// edge `runtime` in its `config` export, which this deployment needs.
+// Re-evaluate on every Next.js/opennextjs-cloudflare upgrade — this only
+// works because `middleware.ts` isn't (yet) subject to the same
+// runtime lock-in as `proxy.ts`.
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const defaultPrefix = `/${defaultLocale}`;
@@ -31,5 +42,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
+  runtime: "experimental-edge",
   matcher: ["/((?!_next|api|admin|favicon.ico|.*\\..*).*)"],
 };
