@@ -89,7 +89,7 @@ export function assertSlugFieldsHaveGuard(
   if (offenders.length > 0) {
     throw new Error(
       `Collection(s) [${offenders.join(", ")}] have a "slug" field but no ui.beforeSubmit. ` +
-        `Add "beforeSubmit: slugUniquenessGuard(collectionName)" — see tina/slug-field.ts.`
+        `Add "beforeSubmit: slugUniquenessGuard(collectionName)" — see tina/collections/shared-fields/slug.schema.tsx.`
     );
   }
 }

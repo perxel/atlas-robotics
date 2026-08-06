@@ -63,9 +63,16 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
 
 ## TinaCMS
 
-- Schema lives in `tina/config.ts`; a shared `seoField()` helper
-  (`tina/seo-schema.ts`) adds a consistent meta title/description/OG image
-  object to every page-representing collection.
+- Each collection lives in its own `tina/collections/<name>.schema.tsx`
+  file; `tina/config.ts` only imports and composes them into the
+  `collections` array passed to `defineConfig`. Shared field helpers
+  (`seoField()`, `draftField()`, `slugField()`/`slugUniquenessGuard()`,
+  `defineTaxonomy()`/`taxonomyField()` — see "Taxonomies" below) live under
+  `tina/collections/shared-fields/`, one `<name>.schema.tsx` per helper.
+  Block templates live next to their render component as
+  `components/blocks/<Name>.template.tsx`. This follows Tina's own
+  naming-conventions guide (https://tina.io/docs/guides/naming-conventions)
+  rather than one large inline schema file.
 - Media is repo-based (`media.tina` in the config, `publicFolder: "public"`,
   `mediaRoot: "uploads"`) — uploads land in `public/uploads`, not an external
   provider. Tina's `image` field type accepts any file (PDFs included).
@@ -96,7 +103,7 @@ page, in a split preview pane) needs three pieces per collection:
    document's `relativePath`, then the single-doc fetch by that path. Wrap
    the whole thing in React's `cache()` so `generateMetadata` and the page
    component share one request.
-2. **`ui.router` on the collection** (`tina/config.ts`), so the admin's
+2. **`ui.router` on the collection** (in its `tina/collections/<name>.schema.tsx`), so the admin's
    preview pane knows which URL a document maps to. Derive it from
    `document._sys.breadcrumbs` (filename), never a custom field like
    `slug` — `document` in this callback is typed with only `_sys`, and that
@@ -150,7 +157,7 @@ for high-traffic editorial content, not for rarely-touched config.
 
 Any collection where a document's URL is driven by an editable `slug`
 field (not by whatever Tina named the underlying file) uses two paired
-helpers from `tina/slug-field.ts`:
+helpers from `tina/collections/shared-fields/slug.schema.tsx`:
 
 - **`slugField({ reserved? })`** — the field itself. `reserved` is an
   optional `Set<string>` of words that can't be used (see "Pages" below);
@@ -194,7 +201,7 @@ proof the guard works, only that nothing violated it.
 
 ## Drafts
 
-`draftField()` (`tina/draft-field.ts`) is a plain, unenforced boolean —
+`draftField()` (`tina/collections/shared-fields/draft.schema.tsx`) is a plain, unenforced boolean —
 Tina docs are explicit that draft fields aren't special, application code
 is responsible for filtering: https://tina.io/docs/drafts/drafts-fields.
 Applied to `catalog`, `storyCards`, `blog`, and `pages` (collections whose
@@ -220,15 +227,85 @@ singletons.
   Next.js Preview Mode (`draftMode()`), which isn't implemented here. Out
   of scope for this PoC; flagging so it isn't mistaken for an oversight.
 
+## Taxonomies
+
+WordPress-style taxonomies (categories, tags, countries, ...) as a reusable
+Tina pattern, not a one-off field on `blog`. Two factories in
+`tina/collections/shared-fields/taxonomy.schema.tsx`:
+
+- **`defineTaxonomy({ name, label })`** — registers a taxonomy as its own
+  term-store collection (`title` + `slug`, uniqueness-guarded the same way
+  as any other routable-slug collection — see "Routable slugs" above).
+  `categories` (`tina/collections/categories.schema.tsx`) is the only one
+  registered so far; a second taxonomy (e.g. `countries`) is another call
+  to this factory plus an entry in the `collections` array in
+  `tina/config.ts`.
+- **`taxonomyField({ taxonomy, label, multiple? })`** — attaches a
+  registered taxonomy to a content collection as a reference field.
+  `multiple` defaults to `true` (a document can carry several terms at
+  once, matching WordPress's default checkbox-style category/tag
+  behavior — its core `category` taxonomy is multi-select by default, not
+  single).
+
+**Why `multiple: true` isn't a plain `reference` field with `list: true`:**
+Tina's `reference` field type doesn't support `list: true` in the admin —
+the GraphQL schema builder accepts it (`@tinacms/graphql`'s
+`_buildDataField`), but logs `"the user interface for reference does not
+support \`list: true\`"` because there's no admin widget for it (confirmed
+by reading that source, not just the docs, which don't mention `list` on
+`reference` at all). So `multiple: true` instead wraps each term in a
+repeatable `object` item (`{ term: <reference> }`) — the exact pattern
+already used for every other repeatable field in this schema
+(`socialLinks`, footer `columns`, `attributes`) — verified live in the
+admin (drag, edit, delete, add all work; the collapsed item label falls
+back to the reference's filename since `itemProps` only sees raw form
+values, not resolved query data). That's why a multi-term field resolves
+as `{ term: Category }[]`, not `Category[]` directly — unwrap with
+`.map(c => c.term)` on the frontend. Pass `multiple: false` for a taxonomy
+that's genuinely single-select for a given collection; that case has no
+such limitation and stays a plain `reference` field.
+
+**Frontend wiring** is generic across taxonomies rather than per-taxonomy
+bespoke code:
+
+- `lib/taxonomies.ts` — a registry, one row per (content collection ×
+  taxonomy) attachment: `{ collection, taxonomy, urlSegment, fieldName }`.
+  Adding "countries" to `blog` later is one row here plus the schema
+  change, no new route file.
+- `filterByTaxonomyTerm(entries, fieldName, termSlug)` in
+  `lib/tina-content.ts` — a generic post-query filter. Filters in
+  application code rather than a GraphQL `filter` clause, same as every
+  other listing query in this file, since nested list-object filter
+  semantics on a taxonomy field aren't worth relying on unverified.
+- `app/[locale]/blog/[slug]/[term]/page.tsx` — the generic archive route
+  for any taxonomy attached to `blog`. The folder is named `[slug]`, not
+  `[taxonomy]`, only because Next.js requires every dynamic segment at the
+  same route level to share one parameter name, and this level already has
+  `[slug]` from the sibling post-detail route
+  (`app/[locale]/blog/[slug]/page.tsx`) — confirmed live: naming it
+  `[taxonomy]` instead broke the whole app with "You cannot use different
+  slug names for the same dynamic path ('slug' !== 'taxonomy')". Its
+  `resolveTerm()` is the one piece that isn't fully generic yet: it has a
+  hardcoded case for `"categories"` because Tina's generated client is
+  per-collection typed (`client.queries.categoriesConnection`), so a second
+  taxonomy needs a matching branch there, not just a registry row.
+
+**Only `blog` has a taxonomy attached right now.** Extending to another
+content collection (`catalog`, `storyCards`) needs that collection's own
+archive route file too, since Next.js routes are physical per top-level
+path — the registry and `filterByTaxonomyTerm` are already
+collection-agnostic; only the route file isn't.
+
 ## Pages collection & block-based editing
 
-`pages` (`tina/config.ts`) is a generic, editor-composable collection using
-Tina's block-based editing (https://tina.io/docs/editing/blocks): a
-`blocks` list field with `templates` (defined in `tina/blocks.ts`), each
-template rendered by a matching component in `components/blocks/`
-(`BlocksRenderer.tsx` switches on `block.__typename`). Add a new block type
-by adding a `Template` to `pageBlocks` and a case to the switch — nothing
-else changes.
+`pages` (`tina/collections/pages.schema.tsx`) is a generic,
+editor-composable collection using Tina's block-based editing
+(https://tina.io/docs/editing/blocks): a `blocks` list field with
+`templates` (`pageBlocks`, assembled in that same file from each block's
+`<Name>.template.tsx` next to its render component in `components/blocks/`;
+`BlocksRenderer.tsx` switches on `block.__typename`). Add a new block type
+by creating `<Name>.template.tsx` + adding it to `pageBlocks` + a case in
+the switch — nothing else changes.
 
 **Root-level routing:** `pages` documents resolve at `/<slug>` (e.g.
 `/about`, or `/en/about`) via a catch-all route,
@@ -248,7 +325,7 @@ one of those dedicated routes were ever removed.
 generic pages collection is only useful if editors can add pages).
 For a client who should only edit existing pages, flip it to `false`; this
 is the one-line, per-client toggle mentioned in the field's own comment in
-`tina/config.ts`.
+`tina/collections/pages.schema.tsx`.
 
 **Block editing on/off per page, in code:** `lib/pages-config.ts`'s
 `blocksDisabledSlugs` — a developer-only override, not exposed to editors.

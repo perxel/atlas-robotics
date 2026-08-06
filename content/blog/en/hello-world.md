@@ -7,6 +7,9 @@ coverImageAlt: 'Placeholder cover image for the sample blog post'
 author: 'Demo Author'
 publishDate: '2026-07-15T00:00:00.000Z'
 excerpt: 'A short sample excerpt introducing the blog collection built for this proof of concept.'
+categories:
+  - term: content/categories/en/news.md
+  - term: content/categories/en/guides.md
 seo:
   metaTitle: 'Hello World — Blog'
   metaDescription: 'Sample blog post demonstrating the blog collection structure and rich text body.'

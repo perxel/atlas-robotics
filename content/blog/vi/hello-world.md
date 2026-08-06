@@ -7,6 +7,9 @@ coverImageAlt: 'Ảnh bìa mẫu cho bài viết blog'
 author: 'Tác Giả Demo'
 publishDate: '2026-07-15T00:00:00.000Z'
 excerpt: 'Một đoạn trích mẫu ngắn giới thiệu bộ sưu tập blog được xây dựng cho bằng chứng khái niệm này.'
+categories:
+  - term: content/categories/vi/news.md
+  - term: content/categories/vi/guides.md
 seo:
   metaTitle: 'Xin Chào Thế Giới — Blog'
   metaDescription: 'Bài viết blog mẫu minh họa cấu trúc bộ sưu tập blog và nội dung văn bản phong phú.'

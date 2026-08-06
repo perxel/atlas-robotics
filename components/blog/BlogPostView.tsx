@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import type { Locale } from "@/lib/i18n";
+import { localePath, type Locale } from "@/lib/i18n";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
 
 export default function BlogPostView({
@@ -20,6 +21,11 @@ export default function BlogPostView({
   // so this renders identically for normal visitors and the production build.
   const { data: liveData } = useTina({ query, variables, data });
   const post = liveData.blog;
+
+  type CategoryItem = NonNullable<NonNullable<typeof post.categories>[number]>;
+  const categories = (post.categories ?? []).filter(
+    (c): c is CategoryItem & { term: NonNullable<CategoryItem["term"]> } => !!c?.term
+  );
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12">
@@ -49,6 +55,21 @@ export default function BlogPostView({
           <span data-tina-field={tinaField(post, "author")}> · {post.author}</span>
         )}
       </p>
+
+      {categories.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {categories.map((c) => (
+            <Link
+              key={c.term.slug}
+              href={localePath(locale, `/blog/category/${c.term.slug}`)}
+              data-tina-field={tinaField(c)}
+              className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
+            >
+              {c.term.title}
+            </Link>
+          ))}
+        </div>
+      )}
 
       <div data-tina-field={tinaField(post, "body")} className="prose prose-sm mt-8 max-w-none">
         <TinaMarkdown content={post.body} />

@@ -72,11 +72,45 @@ export async function getBlogPosts(locale: Locale) {
   });
 }
 
+export async function getCategories(locale: Locale) {
+  const res = await client.queries.categoriesConnection();
+  const categories = inLocale(res.data.categoriesConnection.edges, locale);
+  return categories.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/**
+ * Generic filter for any taxonomy attached via `taxonomyField` (see
+ * tina/collections/shared-fields/taxonomy.schema.tsx and
+ * lib/taxonomies.ts). `fieldName` is a taxonomy registry entry's
+ * `fieldName` (e.g. "categories" on `blog`) — the field's shape is always
+ * `{ term: { slug, ... } }[]` because `taxonomyField` defaults to
+ * `multiple: true`, which wraps each term reference in a repeatable object
+ * (see that file's comment for why a bare `reference` field can't be
+ * `list: true` in Tina's admin). Filters in application code rather than a
+ * GraphQL `filter` clause — same pattern as every other listing query in
+ * this file — since nested list-object filter semantics aren't worth
+ * relying on unverified.
+ */
+export function filterByTaxonomyTerm<T extends Record<string, unknown>>(
+  entries: T[],
+  fieldName: string,
+  termSlug: string
+): T[] {
+  return entries.filter((entry) => {
+    const terms = entry[fieldName] as
+      | Array<{ term?: { slug?: string | null } | null } | null>
+      | null
+      | undefined;
+    return terms?.some((t) => t?.term?.slug === termSlug) ?? false;
+  });
+}
+
 /**
  * Single-document query by relativePath, resolved in two steps from the
  * `slug` field — not by assuming filename === slug, since Tina lets editors
  * set the filename and the slug field independently. Safe to trust `slug`
- * as unique per locale because `slugUniquenessGuard` (tina/slug-field.ts)
+ * as unique per locale because `slugUniquenessGuard`
+ * (tina/collections/shared-fields/slug.schema.tsx)
  * blocks saving a duplicate through the admin. Returns the raw
  * {data, query, variables} response shape `useTina()` needs to enable
  * visual editing on this page. Wrapped in React's `cache()` so

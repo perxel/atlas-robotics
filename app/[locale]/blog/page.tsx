@@ -41,21 +41,39 @@ export default async function BlogPage({
 
       <div className="mt-8 grid gap-8 sm:grid-cols-2">
         {posts.map((post) => (
-          <Link
+          <div
             key={post.id}
-            href={localePath(locale, `/blog/${post.slug}`)}
-            className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
+            className="overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
-            {post.coverImage && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={post.coverImage}
-                alt={post.coverImageAlt || ""}
-                className="aspect-video w-full object-cover"
-              />
-            )}
+            <Link href={localePath(locale, `/blog/${post.slug}`)}>
+              {post.coverImage && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={post.coverImage}
+                  alt={post.coverImageAlt || ""}
+                  className="aspect-video w-full object-cover"
+                />
+              )}
+            </Link>
             <div className="p-4">
-              <h2 className="font-semibold">{post.title}</h2>
+              {post.categories && post.categories.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-1.5">
+                  {post.categories.map((c) =>
+                    c?.term ? (
+                      <Link
+                        key={c.term.slug}
+                        href={localePath(locale, `/blog/category/${c.term.slug}`)}
+                        className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
+                      >
+                        {c.term.title}
+                      </Link>
+                    ) : null
+                  )}
+                </div>
+              )}
+              <h2 className="font-semibold">
+                <Link href={localePath(locale, `/blog/${post.slug}`)}>{post.title}</Link>
+              </h2>
               {post.publishDate && (
                 <p className="mt-1 text-xs text-muted-foreground">
                   {new Date(post.publishDate).toLocaleDateString(locale)}
@@ -64,7 +82,7 @@ export default async function BlogPage({
               )}
               {post.excerpt && <p className="mt-2 text-sm text-muted-foreground">{post.excerpt}</p>}
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 
