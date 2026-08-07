@@ -1,7 +1,7 @@
 {
   "title": "Lorem ipsum",
   "logo": "/uploads/placeholder-logo.svg",
-  "favicon": "/uploads/favicon.ico",
+  "favicon": "/favicon.ico",
   "defaultSeo": {
     "metaTitle": "Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn",
     "metaDescription": "Lorem ipsum xây dựng những công cụ tập trung cho các nhóm đang phát triển: tự động hóa quy trình, phân tích thời gian thực và cộng tác nhóm.",
