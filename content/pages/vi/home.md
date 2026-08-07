@@ -2,16 +2,32 @@
 title: 'Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn'
 slug: home
 draft: false
-intro: ''
+hideTitle: true
 blocks:
-  - heading: Làm nhiều hơn với ít việc vặt hơn
-    subheading: >-
-      Lorem ipsum giúp các nhóm đang phát triển tự động hóa những phần nhàm
-      chán, thấy rõ điều gì đang thực sự diễn ra, và luôn đồng bộ — mà không
-      cần tuyển thêm người để quản lý sự hỗn loạn.
-    image: /uploads/hero-banner.jpg
-    buttonLabel: Bắt đầu miễn phí
-    buttonUrl: /contact
+  - slides:
+      - heading: Làm nhiều hơn với ít việc vặt hơn
+        subheading: >-
+          Lorem ipsum giúp các nhóm đang phát triển tự động hóa những phần
+          nhàm chán, thấy rõ điều gì đang thực sự diễn ra, và luôn đồng bộ —
+          mà không cần tuyển thêm người để quản lý sự hỗn loạn.
+        image: /uploads/hero-banner.jpg
+        video: /uploads/hero-video-1.mp4
+        buttonLabel: Bắt đầu miễn phí
+        buttonUrl: /contact
+      - heading: Thấy rõ mọi thứ đang diễn ra, theo thời gian thực
+        subheading: >-
+          Ipsum Insights biến những bảng tính rời rạc thành bảng điều khiển
+          trực tiếp mà cả nhóm bạn có thể tin tưởng.
+        image: /uploads/hero-banner-2.jpg
+        buttonLabel: Khám phá Ipsum Insights
+        buttonUrl: /products/ipsum-insights
+      - heading: Giữ cả nhóm luôn đồng bộ
+        subheading: >-
+          Một không gian làm việc chung cho dự án, tài liệu và hội thoại —
+          Ipsum Sync thay thế cuộc truy lùng thông tin.
+        image: /uploads/hero-banner-3.jpg
+        buttonLabel: Khám phá Ipsum Sync
+        buttonUrl: /products/ipsum-sync
     _template: hero
   - heading: Vì sao các nhóm chọn Lorem ipsum
     items:

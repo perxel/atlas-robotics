@@ -6,6 +6,7 @@ import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ProductView({
   query,
@@ -63,6 +64,15 @@ export default function ProductView({
       >
         {product.title}
       </h1>
+      <div className="mt-2">
+        <Breadcrumb
+          items={[
+            { label: dict.breadcrumb.home, href: localePath(locale, "/") },
+            { label: dict.products.pageTitle, href: localePath(locale, "/products") },
+            { label: product.title },
+          ]}
+        />
+      </div>
       {product.excerpt && (
         <p data-tina-field={tinaField(product, "excerpt")} className="mt-2 text-muted-foreground">
           {product.excerpt}

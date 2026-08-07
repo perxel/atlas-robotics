@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/dictionary";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function BlogPostView({
   query,
@@ -21,6 +23,7 @@ export default function BlogPostView({
   // so this renders identically for normal visitors and the production build.
   const { data: liveData } = useTina({ query, variables, data });
   const post = liveData.blog;
+  const dict = getDictionary(locale);
 
   type CategoryItem = NonNullable<NonNullable<typeof post.categories>[number]>;
   const categories = (post.categories ?? []).filter(
@@ -45,7 +48,16 @@ export default function BlogPostView({
       >
         {post.title}
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <div className="mt-2">
+        <Breadcrumb
+          items={[
+            { label: dict.breadcrumb.home, href: localePath(locale, "/") },
+            { label: dict.blog.pageTitle, href: localePath(locale, "/blog") },
+            { label: post.title },
+          ]}
+        />
+      </div>
+      <p className="mt-3 text-sm text-muted-foreground">
         {post.publishDate && (
           <span data-tina-field={tinaField(post, "publishDate")}>
             {new Date(post.publishDate).toLocaleDateString(locale)}

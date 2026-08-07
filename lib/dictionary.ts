@@ -6,6 +6,7 @@ import type { Locale } from "@/lib/i18n";
 export type Dictionary = {
   siteName: string;
   nav: { primary: string };
+  breadcrumb: { home: string };
   blog: {
     pageTitle: string;
     noPosts: string;
@@ -51,6 +52,7 @@ const dictionaries: Record<Locale, Dictionary> = {
   en: {
     siteName: "Lorem ipsum",
     nav: { primary: "Primary" },
+    breadcrumb: { home: "Home" },
     blog: {
       pageTitle: "Blog",
       noPosts: "No posts published yet.",
@@ -90,6 +92,7 @@ const dictionaries: Record<Locale, Dictionary> = {
   vi: {
     siteName: "Lorem ipsum",
     nav: { primary: "Chính" },
+    breadcrumb: { home: "Trang chủ" },
     blog: {
       pageTitle: "Blog",
       noPosts: "Chưa có bài viết nào được đăng.",
