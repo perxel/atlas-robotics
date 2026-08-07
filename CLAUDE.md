@@ -97,10 +97,20 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
   "singleton" primitive.
 - Admin UI is served at `/admin/index.html`, generated automatically by the
   `tinacms` CLI wrapper — no app route needed for it.
-- `npm run dev` → `tinacms dev -c "next dev"`.
-- `npm run build` → `NODE_ENV=production tinacms build --local --skip-cloud-checks -c "next build"`.
-  The `NODE_ENV=production` prefix is load-bearing, not decorative — see
-  Known issues below.
+- `npm run dev` → `tinacms dev --noTelemetry -c "next dev"`. No Tina Cloud
+  credentials needed — `clientId`/`token` fall back to `null` in
+  `tina/config.ts`, which makes the CLI self-host content locally for dev.
+- `npm run build` → `NODE_ENV=production NODE_OPTIONS=--max-old-space-size=4096
+  tinacms build --noTelemetry -c "next build --webpack"`. The
+  `NODE_ENV=production` prefix and `--noTelemetry` are load-bearing, not
+  decorative — see Known issues below. `--webpack` and the raised heap limit
+  are Cloudflare-build-environment workarounds (see Known issues); harmless
+  elsewhere.
+
+**Tina Cloud is required before the first production deploy, on every
+project built from this boilerplate — not optional, not
+platform-specific.** See "Production builds require Tina Cloud" under Known
+issues below before deploying anywhere for the first time.
 
 ## Visual editing
 
@@ -380,6 +390,42 @@ that slug to be resolvable by `getPageQuery(locale, "home")`; uniqueness
 
 ## Known issues
 
+- **Production builds require Tina Cloud — set this up before the first
+  deploy, on every project, regardless of hosting platform.** Every page in
+  this app fetches CMS content at request time (all routes render
+  dynamically — confirmed by `next build`'s own route summary marking them
+  `ƒ`, not `○`), via the generated `tina/__generated__/client.ts`. Building
+  with TinaCMS's `--local` (self-hosted) mode points that generated client
+  at a temporary `http://localhost:4001/graphql` server that exists only for
+  the duration of the build itself — it's gone by the time a real visitor
+  hits the deployed site, on **any** host (this was first misdiagnosed as a
+  Cloudflare-specific adapter bug; it isn't — a plain Node server or Vercel
+  deploy would fail the exact same way). Symptoms are inconsistent and
+  actively misleading depending on which `lib/tina-content.ts` function is
+  involved: functions wrapped in try/catch (`getSiteSettings`,
+  `getPageQuery`) degrade to a clean Next.js not-found page; functions
+  without one (`getCatalogTabs`, and likely other `*Connection` helpers in
+  that file) throw uncaught and render `app/global-error.tsx` ("Something
+  went wrong"). It can even look like it works in local testing right after
+  a build, because of a leftover on-disk query-result cache
+  (`tina/__generated__/.cache/<timestamp>/`, gitignored, tied to that one
+  build's absolute machine path) — that's a false positive from reusing the
+  same build machine, not evidence of a working setup; a genuinely fresh
+  build has no such cache.
+  **The fix, required once per project:** create the project at
+  app.tina.io, then set `NEXT_PUBLIC_TINA_CLIENT_ID` and `TINA_TOKEN` as env
+  vars wherever the app builds/runs — on platforms that separate build-time
+  and runtime environments (Cloudflare Workers does: Settings → Build →
+  Environment Variables for the build step, `wrangler secret put` for the
+  deployed Worker's runtime), set them in **both** places, since a
+  deploy-runtime secret alone won't reach the build step that generates
+  `client.ts`. Confirm it worked by checking the generated
+  `tina/__generated__/client.ts` after a build: it must show a
+  `content.tinajs.io` URL, never `localhost:4001`. Do this before
+  troubleshooting *any* "works locally, broken in production" symptom on a
+  project from this boilerplate — chasing the symptom instead (adapter
+  rewrite bugs, middleware runtime lock-in, etc., all real rabbit holes hit
+  before this was found) wastes real time on the wrong layer.
 - **Next.js 16 `/_global-error` prerender bug**: production builds crash
   during prerendering of the internal `/_global-error` route
   (`TypeError: Cannot read properties of null (reading 'useContext')`) unless
@@ -391,6 +437,19 @@ that slug to be resolvable by `getPageQuery(locale, "home")`; uniqueness
 - `app/global-error.tsx` sits outside the `[locale]` segment and has no
   locale context available (it replaces the root layout entirely), so its
   copy is intentionally bilingual rather than guessing a language.
+- **Turbopack can hang indefinitely on resource-constrained build
+  containers**: `next build` defaults to Turbopack in Next.js 16, which
+  offloads compilation to a worker process communicating with its native
+  binary over IPC (`NEXT_TURBOPACK_USE_WORKER`) — observed hanging silently
+  for 25+ minutes on one build platform (no error, no crash, just no output
+  until an external timeout killed it), while the identical build with
+  `next build --webpack` completed in seconds. Also observed separately: the
+  Tina indexing step hitting V8's default ~2GB heap ceiling and OOM-crashing
+  on the same platform, fixed by `NODE_OPTIONS=--max-old-space-size=4096` —
+  a different failure mode (fast crash vs. silent hang) from a different
+  cause, both specific to that one build environment. Neither reproduced
+  locally. If a fresh project's build hangs or OOMs somewhere a local build
+  doesn't, try these two independently before assuming an app-code bug.
 - **Tina CLI telemetry can hang the build**: `tinacms build`/`dev` phones
   home to PostHog on exit by default; in an environment with restricted
   outbound network access, that flush retries for ~30s and can prevent the
