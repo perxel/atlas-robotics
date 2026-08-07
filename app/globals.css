@@ -33,7 +33,57 @@ body {
   color: var(--foreground);
 }
 
-/* Page-to-page crossfade, see app/[locale]/layout.tsx's <ViewTransition>. */
+/*
+ * Page-to-page crossfade, see app/[locale]/layout.tsx's <ViewTransition>.
+ *
+ * The browser's default view-transition animation interpolates the
+ * captured snapshot's size/position (via ::view-transition-group), not
+ * just its opacity — two pages of different height (e.g. the homepage's
+ * tall hero vs. a shorter page) makes that read as the content visibly
+ * scaling during navigation. These rules disable that default group
+ * animation and replace old/new's default cross-fade with an explicit
+ * opacity-only one, so every transition is a plain fade regardless of how
+ * much the page height changes.
+ *
+ * Scoped with `*`, so this currently applies to the single unnamed
+ * <ViewTransition> in the layout. If a named shared-element morph (see
+ * the "Customizing the morph animation" pattern in Next's view-transitions
+ * guide) is ever added, give it `default="none"` — same as the guide
+ * already recommends — so it doesn't inherit this global fade-only rule.
+ *
+ * Deliberately doesn't touch old/new's `mix-blend-mode` (browser default:
+ * `plus-lighter`) — overriding it to `normal` was tried and produced a
+ * visible brightness flash partway through the crossfade, since normal
+ * alpha-compositing two partially-transparent snapshots over a
+ * transparent canvas dims the overlap; `plus-lighter` exists precisely to
+ * avoid that.
+ */
+::view-transition-group(*) {
+  animation: none;
+}
+::view-transition-old(*) {
+  animation: view-transition-fade-out 250ms ease-in-out both;
+}
+::view-transition-new(*) {
+  animation: view-transition-fade-in 250ms ease-in-out both;
+}
+@keyframes view-transition-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes view-transition-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(*),
   ::view-transition-new(*),
