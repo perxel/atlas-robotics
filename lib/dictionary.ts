@@ -11,6 +11,7 @@ export type Dictionary = {
     pageTitle: string;
     noPosts: string;
     viewAll: string;
+    related: string;
   };
   products: {
     pageTitle: string;
@@ -18,6 +19,14 @@ export type Dictionary = {
     noProducts: string;
     viewDetails: string;
     getStarted: string;
+    viewAll: string;
+    related: string;
+  };
+  pagination: {
+    navLabel: string;
+    previous: string;
+    next: string;
+    page: string;
   };
   newsletter: {
     emailLabel: string;
@@ -55,6 +64,7 @@ const dictionaries: Record<Locale, Dictionary> = {
       pageTitle: "Blog",
       noPosts: "No posts published yet.",
       viewAll: "View all posts",
+      related: "Related posts",
     },
     products: {
       pageTitle: "Products",
@@ -62,6 +72,14 @@ const dictionaries: Record<Locale, Dictionary> = {
       noProducts: "No products published yet.",
       viewDetails: "View details",
       getStarted: "Get started",
+      viewAll: "View all products",
+      related: "Related products",
+    },
+    pagination: {
+      navLabel: "Pagination",
+      previous: "Previous",
+      next: "Next",
+      page: "Page",
     },
     newsletter: {
       emailLabel: "Email address",
@@ -93,6 +111,7 @@ const dictionaries: Record<Locale, Dictionary> = {
       pageTitle: "Blog",
       noPosts: "Chưa có bài viết nào được đăng.",
       viewAll: "Xem tất cả bài viết",
+      related: "Bài viết liên quan",
     },
     products: {
       pageTitle: "Sản Phẩm",
@@ -100,6 +119,14 @@ const dictionaries: Record<Locale, Dictionary> = {
       noProducts: "Chưa có sản phẩm nào được đăng.",
       viewDetails: "Xem chi tiết",
       getStarted: "Bắt đầu ngay",
+      viewAll: "Xem tất cả sản phẩm",
+      related: "Sản phẩm liên quan",
+    },
+    pagination: {
+      navLabel: "Phân trang",
+      previous: "Trước",
+      next: "Sau",
+      page: "Trang",
     },
     newsletter: {
       emailLabel: "Địa chỉ email",

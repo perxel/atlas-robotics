@@ -17,6 +17,7 @@ export default function PageView({
   locale,
   latestPosts,
   products,
+  currentPage = 1,
 }: {
   query: string;
   variables: PagesQueryVariables;
@@ -24,6 +25,8 @@ export default function PageView({
   locale: Locale;
   latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
   products: Awaited<ReturnType<typeof getProducts>>;
+  /** Which page of a paginated block ("all" mode ProductListingBlock, BlogListingBlock) is showing — only meaningful on the /blog and /products listing routes. */
+  currentPage?: number;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,
   // so this renders identically for normal visitors and the production build.
@@ -41,7 +44,7 @@ export default function PageView({
   return (
     <article>
       {titleEnabled && (
-        <div className="mx-auto max-w-3xl px-4 py-12">
+        <div className="mx-auto max-w-6xl px-4 py-12">
           <h1 data-tina-field={tinaField(page, "title")} className="text-3xl font-semibold">
             {page.title}
           </h1>
@@ -70,6 +73,7 @@ export default function PageView({
           locale={locale}
           latestPosts={latestPosts}
           products={products}
+          currentPage={currentPage}
         />
       )}
     </article>

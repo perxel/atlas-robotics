@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import "../globals.css";
@@ -65,7 +66,9 @@ export default async function LocaleLayout({
     >
       <body className="flex min-h-full flex-col">
         <Header locale={locale} />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          <ViewTransition>{children}</ViewTransition>
+        </main>
         <Footer locale={locale} />
       </body>
     </html>

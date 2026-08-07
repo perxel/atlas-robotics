@@ -54,6 +54,11 @@ blocks:
         title: Collaboration
         description: One shared workspace for your whole team with Ipsum Sync.
     _template: featureGrid
+  - heading: Our products
+    subheading: Three ways to run smoother operations, in one account.
+    mode: latest
+    productsToShow: 3
+    _template: productListing
   - heading: From the blog
     subheading: Playbooks and product news from the Lorem ipsum team.
     postsToShow: 3

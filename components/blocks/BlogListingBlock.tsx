@@ -5,6 +5,8 @@ import { collectionPath, type CollectionKey } from "@/lib/collection-slugs";
 import { getDictionary } from "@/lib/dictionary";
 import type { Locale } from "@/lib/i18n";
 import type { getBlogPosts } from "@/lib/tina-content";
+import { paginate, DEFAULT_PAGE_SIZE } from "@/lib/pagination";
+import Pagination from "@/components/Pagination";
 
 const COLLECTION: CollectionKey = "blog";
 
@@ -12,12 +14,19 @@ export default function BlogListingBlock({
   data,
   posts,
   locale,
+  currentPage = 1,
 }: {
   data: PagesBlocksBlogListing;
   posts: Awaited<ReturnType<typeof getBlogPosts>>;
   locale: Locale;
+  currentPage?: number;
 }) {
   const dict = getDictionary(locale);
+  const { items: shown, currentPage: resolvedPage, totalPages } = paginate(
+    posts,
+    currentPage,
+    DEFAULT_PAGE_SIZE
+  );
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-12">
@@ -31,7 +40,7 @@ export default function BlogListingBlock({
       )}
 
       <div className="grid gap-8 sm:grid-cols-2">
-        {posts.map((post) => (
+        {shown.map((post) => (
           <div
             key={post.id}
             className="overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
@@ -79,9 +88,16 @@ export default function BlogListingBlock({
         ))}
       </div>
 
-      {posts.length === 0 && (
+      {shown.length === 0 && (
         <p className="mt-8 text-sm text-muted-foreground">{dict.blog.noPosts}</p>
       )}
+
+      <Pagination
+        currentPage={resolvedPage}
+        totalPages={totalPages}
+        basePath={collectionPath(locale, COLLECTION)}
+        locale={locale}
+      />
     </section>
   );
 }

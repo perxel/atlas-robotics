@@ -54,6 +54,11 @@ blocks:
         title: Cộng Tác
         description: Một không gian làm việc chung cho cả nhóm với Ipsum Sync.
     _template: featureGrid
+  - heading: Sản phẩm của chúng tôi
+    subheading: Ba giải pháp giúp vận hành trơn tru hơn, trong một tài khoản.
+    mode: latest
+    productsToShow: 3
+    _template: productListing
   - heading: Từ blog của chúng tôi
     subheading: Bí quyết vận hành và tin tức sản phẩm từ đội ngũ Lorem ipsum.
     postsToShow: 3

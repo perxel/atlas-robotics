@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import { locales, localePath, type Locale } from "@/lib/i18n";
+import { getTaxonomiesForCollection } from "@/lib/taxonomies";
 
 /** Directory-based localization: content/<collection>/<locale>/<file>. Exported for app/sitemap.ts. */
 export function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
@@ -93,6 +94,52 @@ export function filterByTaxonomyTerm<T extends Record<string, unknown>>(
       | undefined;
     return terms?.some((t) => t?.term?.slug === termSlug) ?? false;
   });
+}
+
+/**
+ * "Related" items for a detail page's related section: other entries in
+ * `entries` (already fetched in full for the listing page — reused here
+ * rather than a second query) that share at least one taxonomy term with
+ * the entry whose slug is `currentSlug`, generalized across every taxonomy
+ * attached to `collection` via the registry (lib/taxonomies.ts), same as
+ * the taxonomy archive routes. Falls back to padding with other entries
+ * (excluding the current one) when there's no taxonomy overlap — or no
+ * taxonomy attached at all — so the section still shows `limit` items
+ * instead of rendering sparse or empty.
+ */
+export function getRelatedEntries<T extends Record<string, unknown> & { slug: string }>(
+  collection: string,
+  entries: T[],
+  currentSlug: string,
+  limit = 3
+): T[] {
+  const others = entries.filter((entry) => entry.slug !== currentSlug);
+  const current = entries.find((entry) => entry.slug === currentSlug);
+  if (!current) return others.slice(0, limit);
+
+  const fieldNames = getTaxonomiesForCollection(collection).map((t) => t.fieldName);
+  const termSlugsOf = (entry: T): string[] =>
+    fieldNames.flatMap((fieldName) => {
+      const terms = entry[fieldName] as
+        | Array<{ term?: { slug?: string | null } | null } | null>
+        | null
+        | undefined;
+      return (terms ?? [])
+        .map((t) => t?.term?.slug)
+        .filter((slug): slug is string => !!slug);
+    });
+
+  const currentTermSlugs = new Set(termSlugsOf(current));
+  const related =
+    currentTermSlugs.size > 0
+      ? others.filter((entry) => termSlugsOf(entry).some((slug) => currentTermSlugs.has(slug)))
+      : [];
+
+  if (related.length >= limit) return related.slice(0, limit);
+
+  const seen = new Set(related.map((entry) => entry.slug));
+  const padding = others.filter((entry) => !seen.has(entry.slug));
+  return [...related, ...padding].slice(0, limit);
 }
 
 /**

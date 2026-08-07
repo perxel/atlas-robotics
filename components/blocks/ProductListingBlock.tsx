@@ -1,37 +1,86 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
-import type { PagesBlocksProductListing } from "@/tina/__generated__/types";
+import type { PagesQuery } from "@/tina/__generated__/types";
 import { collectionPath, type CollectionKey } from "@/lib/collection-slugs";
 import { getDictionary } from "@/lib/dictionary";
 import type { Locale } from "@/lib/i18n";
 import type { getProducts } from "@/lib/tina-content";
+import { paginate, DEFAULT_PAGE_SIZE } from "@/lib/pagination";
+import Pagination from "@/components/Pagination";
 
 const COLLECTION: CollectionKey = "products";
+
+type Product = Awaited<ReturnType<typeof getProducts>>[number];
+
+// Derived from PagesQuery itself, not the generated `PagesBlocksProductListing`
+// type — Tina's codegen types a `reference` field's resolved value against
+// the reusable single-document `Products` type (which requires `_values`,
+// a `Document`-interface field only ever populated by a standalone
+// `products(relativePath)` query), but a reference *nested inside another
+// query* — like this block's `manualProducts` — never actually selects
+// `_values`. The two are meant to be the same shape and aren't quite,
+// which fails a strict assignment. Deriving straight from `PagesQuery`
+// sidesteps the mismatch by using the type that matches what's actually on
+// the wire, and happens to match `getProducts()`'s own (connection-query)
+// item shape for the same reason.
+type Blocks = NonNullable<PagesQuery["pages"]["blocks"]>;
+type ProductListingData = Extract<
+  NonNullable<Blocks[number]>,
+  { __typename?: "PagesBlocksProductListing" }
+>;
+
+/** See ProductListingBlock.template.tsx for what each mode means. */
+function resolveShownProducts(
+  data: ProductListingData,
+  products: Product[],
+  currentPage: number
+): { shown: Product[]; pagination: { currentPage: number; totalPages: number } | null } {
+  if (data.mode === "manual") {
+    const shown = (data.manualProducts ?? [])
+      .map((item) => item?.product)
+      .filter((product): product is NonNullable<typeof product> => Boolean(product));
+    return { shown, pagination: null };
+  }
+
+  if (data.mode === "all") {
+    const { items, currentPage: resolvedPage, totalPages } = paginate(
+      products,
+      currentPage,
+      DEFAULT_PAGE_SIZE
+    );
+    return { shown: items, pagination: { currentPage: resolvedPage, totalPages } };
+  }
+
+  return { shown: products.slice(0, data.productsToShow || 3), pagination: null };
+}
 
 export default function ProductListingBlock({
   data,
   products,
   locale,
+  currentPage = 1,
 }: {
-  data: PagesBlocksProductListing;
-  products: Awaited<ReturnType<typeof getProducts>>;
+  data: ProductListingData;
+  products: Product[];
   locale: Locale;
+  currentPage?: number;
 }) {
   const dict = getDictionary(locale);
+  const { shown, pagination } = resolveShownProducts(data, products, currentPage);
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-12">
+    <section className="mx-auto max-w-6xl px-4 py-12">
+      <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
+        {data.heading}
+      </h2>
       {data.subheading && (
-        <p
-          data-tina-field={tinaField(data, "subheading")}
-          className="mb-8 text-sm text-muted-foreground"
-        >
+        <p data-tina-field={tinaField(data, "subheading")} className="mt-3 text-muted-foreground">
           {data.subheading}
         </p>
       )}
 
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((product) => (
+      <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {shown.map((product) => (
           <div
             key={product.id}
             className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
@@ -62,11 +111,11 @@ export default function ProductListingBlock({
                   )}
                 </div>
               )}
-              <h2 className="font-semibold">
+              <h3 className="font-semibold">
                 <Link href={collectionPath(locale, COLLECTION, `/${product.slug}`)}>
                   {product.title}
                 </Link>
-              </h2>
+              </h3>
               {product.excerpt && (
                 <p className="mt-2 text-sm text-muted-foreground">{product.excerpt}</p>
               )}
@@ -84,8 +133,28 @@ export default function ProductListingBlock({
         ))}
       </div>
 
-      {products.length === 0 && (
+      {shown.length === 0 && (
         <p className="mt-8 text-sm text-muted-foreground">{dict.products.noProducts}</p>
+      )}
+
+      {data.mode !== "all" && (
+        <div className="mt-8 text-center">
+          <Link
+            href={collectionPath(locale, COLLECTION)}
+            className="text-sm font-medium text-accent hover:opacity-80"
+          >
+            {dict.products.viewAll}
+          </Link>
+        </div>
+      )}
+
+      {pagination && (
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          basePath={collectionPath(locale, COLLECTION)}
+          locale={locale}
+        />
       )}
     </section>
   );

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getBlogPostQuery, getSiteSettings } from "@/lib/tina-content";
+import { getBlogPostQuery, getBlogPosts, getRelatedEntries, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
 import { collectionPath } from "@/lib/collection-slugs";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
@@ -44,7 +44,10 @@ export default async function BlogDetailPage({
 }) {
   const { locale: rawLocale, slug } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
-  const result = await getBlogPostQuery(locale, slug);
+  const [result, allPosts] = await Promise.all([
+    getBlogPostQuery(locale, slug),
+    getBlogPosts(locale),
+  ]);
 
   // getBlogPostQuery resolves the slug via a draft-filtered query, so a
   // draft post already can't be reached here — including inside Tina's own
@@ -52,12 +55,15 @@ export default async function BlogDetailPage({
   // CLAUDE.md for what full draft-preview support would additionally need.
   if (!result) notFound();
 
+  const relatedPosts = getRelatedEntries("blog", allPosts, slug, 3);
+
   return (
     <BlogPostView
       query={result.query}
       variables={result.variables}
       data={result.data}
       locale={locale}
+      relatedPosts={relatedPosts}
     />
   );
 }

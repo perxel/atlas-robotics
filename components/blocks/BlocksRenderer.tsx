@@ -1,5 +1,5 @@
 import { tinaField } from "tinacms/dist/react";
-import type { PagesBlocks } from "@/tina/__generated__/types";
+import type { PagesQuery } from "@/tina/__generated__/types";
 import type { Locale } from "@/lib/i18n";
 import type { getBlogPosts, getProducts } from "@/lib/tina-content";
 import Hero from "./Hero";
@@ -28,16 +28,33 @@ import ProductListingBlock from "./ProductListingBlock";
 // and ContactFormBlock's field-level copy (labels/placeholders/button text)
 // is optional on the block itself, falling back to lib/dictionary.ts (UI
 // chrome) when unset — see NewsletterForm.tsx/ContactForm.tsx.
+//
+// `currentPage` is the same idea but comes from the URL (see
+// app/[locale]/blog/listing.tsx and .../products/listing.tsx), not CMS
+// content — only BlogListingBlock and ProductListingBlock's "all" mode
+// read it, everything else ignores it.
+//
+// `blocks` is typed from PagesQuery directly rather than the generated
+// `PagesBlocks` union — see ProductListingBlock.tsx's comment on
+// `ProductListingData` for why: `PagesBlocks` (via `PagesBlocksProductListing`)
+// types `manualProducts[].product` against the reusable single-document
+// `Products` type, which isn't quite what a `reference` field nested inside
+// this query actually resolves to. Deriving from PagesQuery matches what's
+// really on the wire.
+type Blocks = NonNullable<PagesQuery["pages"]["blocks"]>;
+
 export default function BlocksRenderer({
   blocks,
   locale,
   latestPosts,
   products,
+  currentPage = 1,
 }: {
-  blocks: (PagesBlocks | null)[];
+  blocks: Blocks;
   locale: Locale;
   latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
   products: Awaited<ReturnType<typeof getProducts>>;
+  currentPage?: number;
 }) {
   return (
     <>
@@ -59,10 +76,20 @@ export default function BlocksRenderer({
               <ContactFormBlock data={block} locale={locale} />
             )}
             {block.__typename === "PagesBlocksBlogListing" && (
-              <BlogListingBlock data={block} posts={latestPosts} locale={locale} />
+              <BlogListingBlock
+                data={block}
+                posts={latestPosts}
+                locale={locale}
+                currentPage={currentPage}
+              />
             )}
             {block.__typename === "PagesBlocksProductListing" && (
-              <ProductListingBlock data={block} products={products} locale={locale} />
+              <ProductListingBlock
+                data={block}
+                products={products}
+                locale={locale}
+                currentPage={currentPage}
+              />
             )}
           </div>
         );
