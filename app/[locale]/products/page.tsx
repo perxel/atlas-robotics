@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getProducts, getSiteSettings } from "@/lib/tina-content";
+import { collectionPath } from "@/lib/collection-slugs";
+import { resolveLocaleAlternates } from "@/lib/locale-alternates";
+import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
-import { sectionPath } from "@/lib/section-slugs";
+import PageView from "@/components/pages/PageView";
 
+// Same pattern as app/[locale]/blog/page.tsx — a `pages` document with the
+// fixed, locked filename "products", rendered here (not the generic [slug]
+// catch-all) because this physical route folder has to exist anyway for
+// the nested detail/taxonomy-archive routes.
 export async function generateMetadata({
   params,
 }: {
@@ -15,14 +21,22 @@ export async function generateMetadata({
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || sectionPath(locale, "products");
-  const settings = await getSiteSettings(locale);
+  const pathname = headersList.get("x-pathname") || collectionPath(locale, "products");
+  const [result, settings, alternates] = await Promise.all([
+    getPageQuery(locale, "products"),
+    getSiteSettings(locale),
+    resolveLocaleAlternates(locale, pathname),
+  ]);
+  const page = result?.data.pages;
   const dict = getDictionary(locale);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
-    fallbackTitle: `${dict.products.pageTitle} — ${settings?.title || dict.siteName}`,
+    alternates,
+    seo: page?.seo,
+    fallbackTitle:
+      page?.title || `${dict.products.pageTitle} — ${settings?.title || dict.siteName}`,
     fallbackDescription: dict.products.pageDescription,
   });
 }
@@ -34,69 +48,20 @@ export default async function ProductsPage({
 }) {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
-  const products = await getProducts(locale);
-  const dict = getDictionary(locale);
+  const result = await getPageQuery(locale, "products");
+
+  if (!result) notFound();
+
+  const { latestPosts, products } = await getPageBlockData(locale, result.data.pages.blocks);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="text-2xl font-semibold">{dict.products.pageTitle}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{dict.products.pageDescription}</p>
-
-      <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
-          >
-            <Link href={sectionPath(locale, "products", `/${product.slug}`)}>
-              {product.coverImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={product.coverImage}
-                  alt={product.coverImageAlt || ""}
-                  className="aspect-video w-full object-cover"
-                />
-              )}
-            </Link>
-            <div className="flex flex-1 flex-col p-4">
-              {product.productCategories && product.productCategories.length > 0 && (
-                <div className="mb-2 flex flex-wrap gap-1.5">
-                  {product.productCategories.map((c) =>
-                    c?.term ? (
-                      <Link
-                        key={c.term.slug}
-                        href={sectionPath(locale, "products", `/category/${c.term.slug}`)}
-                        className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
-                      >
-                        {c.term.title}
-                      </Link>
-                    ) : null
-                  )}
-                </div>
-              )}
-              <h2 className="font-semibold">
-                <Link href={sectionPath(locale, "products", `/${product.slug}`)}>{product.title}</Link>
-              </h2>
-              {product.excerpt && (
-                <p className="mt-2 text-sm text-muted-foreground">{product.excerpt}</p>
-              )}
-              <div className="mt-4 flex flex-1 items-end justify-between gap-3">
-                {product.price && <span className="text-sm font-semibold">{product.price}</span>}
-                <Link
-                  href={sectionPath(locale, "products", `/${product.slug}`)}
-                  className="text-sm font-medium text-accent hover:opacity-80"
-                >
-                  {dict.products.viewDetails}
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {products.length === 0 && (
-        <p className="mt-8 text-sm text-muted-foreground">{dict.products.noProducts}</p>
-      )}
-    </div>
+    <PageView
+      query={result.query}
+      variables={result.variables}
+      data={result.data}
+      locale={locale}
+      latestPosts={latestPosts}
+      products={products}
+    />
   );
 }

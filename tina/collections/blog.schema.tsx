@@ -1,9 +1,10 @@
 import type { Collection } from "tinacms";
-import { slugField, slugUniquenessGuard } from "./shared-fields/slug.schema";
+import { slugField, previousSlugsField, slugLifecycleGuard } from "./shared-fields/slug.schema";
 import { draftField } from "./shared-fields/draft.schema";
 import { seoField } from "./shared-fields/seo.schema";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
-import { localePath, type Locale } from "@/lib/i18n";
+import { collectionPath } from "@/lib/collection-slugs";
+import type { Locale } from "@/lib/i18n";
 
 export const blogCollection: Collection = {
   name: "blog",
@@ -23,16 +24,20 @@ export const blogCollection: Collection = {
     // filename, this link can point at the wrong preview URL — the
     // actual page route is unaffected, since rendering resolves the
     // `slug` field via a GraphQL query (lib/tina-content.ts), not this.
+    // Uses collectionPath (lib/collection-slugs.ts), not a literal "/blog"
+    // — this used to hardcode the English segment, which broke the vi
+    // preview link once "blog" got a translated URL ("tin-tuc").
     router: ({ document }) => {
       const locale = document._sys.breadcrumbs[0] as Locale;
       const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
-      return `${localePath(locale, "/blog")}/${filename}`;
+      return collectionPath(locale, "blog", `/${filename}`);
     },
-    beforeSubmit: slugUniquenessGuard("blog"),
+    beforeSubmit: slugLifecycleGuard("blog"),
   },
   fields: [
     { type: "string", name: "title", label: "Title", required: true },
     slugField(),
+    previousSlugsField(),
     draftField(),
     { type: "image", name: "coverImage", label: "Cover Image" },
     {

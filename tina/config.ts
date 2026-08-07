@@ -1,7 +1,6 @@
 import { defineConfig, type Collection } from "tinacms";
 import { assertSlugFieldsHaveGuard } from "./collections/shared-fields/slug.schema";
 import { siteSettingsCollection } from "./collections/site-settings.schema";
-import { formsCollection } from "./collections/forms.schema";
 import { navCollection } from "./collections/nav.schema";
 import { footerCollection } from "./collections/footer.schema";
 import { categoriesCollection } from "./collections/categories.schema";
@@ -22,7 +21,6 @@ const branch =
 // render component as components/blocks/<Name>.template.tsx.
 const collections: Collection[] = [
   siteSettingsCollection,
-  formsCollection,
   navCollection,
   footerCollection,
   categoriesCollection,

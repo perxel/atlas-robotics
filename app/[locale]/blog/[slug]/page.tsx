@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getBlogPostQuery, getSiteSettings } from "@/lib/tina-content";
+import { getBlogPostQuery, getSiteSettings, resolveBlogRedirectSlug } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
-import { sectionPath } from "@/lib/section-slugs";
+import { collectionPath } from "@/lib/collection-slugs";
+import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import BlogPostView from "@/components/blog/BlogPostView";
 
 export async function generateMetadata({
@@ -16,10 +17,11 @@ export async function generateMetadata({
   const { locale: rawLocale, slug } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || sectionPath(locale, "blog", `/${slug}`);
-  const [result, settings] = await Promise.all([
+  const pathname = headersList.get("x-pathname") || collectionPath(locale, "blog", `/${slug}`);
+  const [result, settings, alternates] = await Promise.all([
     getBlogPostQuery(locale, slug),
     getSiteSettings(locale),
+    resolveLocaleAlternates(locale, pathname),
   ]);
   const post = result?.data.blog;
   const dict = getDictionary(locale);
@@ -27,6 +29,7 @@ export async function generateMetadata({
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
+    alternates,
     seo: post?.seo,
     fallbackTitle: post?.title || `${dict.blog.pageTitle} — ${settings?.title || dict.siteName}`,
     fallbackDescription: post?.excerpt,
@@ -47,7 +50,15 @@ export default async function BlogDetailPage({
   // draft post already can't be reached here — including inside Tina's own
   // admin preview pane while editing it. See the "Drafts" note in
   // CLAUDE.md for what full draft-preview support would additionally need.
-  if (!result) notFound();
+  if (!result) {
+    // Not found by current slug — check slug history (auto-captured by
+    // slugLifecycleGuard on rename) before giving up.
+    const currentSlug = await resolveBlogRedirectSlug(locale, slug);
+    if (currentSlug) {
+      permanentRedirect(collectionPath(locale, "blog", `/${currentSlug}`));
+    }
+    notFound();
+  }
 
   return (
     <BlogPostView

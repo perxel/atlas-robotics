@@ -1,11 +1,19 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { getNav, getSiteSettings } from "@/lib/tina-content";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
+import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default async function Header({ locale }: { locale: Locale }) {
-  const [nav, settings] = await Promise.all([getNav(locale), getSiteSettings(locale)]);
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") || localePath(locale, "/");
+  const [nav, settings, alternates] = await Promise.all([
+    getNav(locale),
+    getSiteSettings(locale),
+    resolveLocaleAlternates(locale, pathname),
+  ]);
   const dict = getDictionary(locale);
 
   return (
@@ -39,7 +47,7 @@ export default async function Header({ locale }: { locale: Locale }) {
           )}
         </nav>
 
-        <LanguageSwitcher currentLocale={locale} />
+        <LanguageSwitcher currentLocale={locale} urls={alternates} />
       </div>
     </header>
   );

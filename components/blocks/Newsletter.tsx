@@ -1,16 +1,13 @@
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksNewsletter } from "@/tina/__generated__/types";
 import type { Locale } from "@/lib/i18n";
-import type { NewsletterFormCopy } from "./NewsletterForm";
 import NewsletterForm from "./NewsletterForm";
 
 export default function Newsletter({
   data,
-  formsCopy,
   locale,
 }: {
   data: PagesBlocksNewsletter;
-  formsCopy: NewsletterFormCopy | null | undefined;
   locale: Locale;
 }) {
   return (
@@ -27,7 +24,7 @@ export default function Newsletter({
         </p>
       )}
       <div className="mt-8">
-        <NewsletterForm fields={formsCopy} locale={locale} />
+        <NewsletterForm locale={locale} />
       </div>
     </section>
   );

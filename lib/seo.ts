@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { locales, defaultLocale, localePath, stripLocalePrefix, type Locale } from "@/lib/i18n";
-import { translateSectionPath } from "@/lib/section-slugs";
+import { locales, localePath, stripLocalePrefix, type Locale } from "@/lib/i18n";
 
 export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
@@ -9,22 +8,31 @@ export function stripLocale(pathname: string): string {
   return stripLocalePrefix(pathname);
 }
 
-export function buildAlternates(pathWithoutLocale: string, locale: Locale) {
-  // `pathWithoutLocale` is the current locale's own path, which may start
-  // with a translated section segment (e.g. "/tin-tuc" for vi's blog) —
-  // translateSectionPath maps that leading segment to each other locale's
-  // equivalent before it's prefixed, so hreflang/x-default point at the
-  // real translated URL instead of e.g. "/vi/blog" (a path that redirects,
-  // not the canonical one). No-op for paths that aren't a known section,
-  // e.g. a `pages` document's own per-locale slug.
+/**
+ * `alternates` is a locale -> locale-prefixed-path map for the CURRENT
+ * page's equivalent in each locale, from lib/locale-alternates.ts's
+ * `resolveLocaleAlternates` — the single place that knows how to resolve
+ * that (collection routes via string transform, `pages` documents via a
+ * real cross-locale lookup, since their slugs can genuinely diverge).
+ * A locale missing from the map just doesn't get an hreflang entry,
+ * rather than guessing at a URL that might not exist.
+ */
+export function buildAlternates(
+  pathWithoutLocale: string,
+  locale: Locale,
+  alternates: Partial<Record<Locale, string>>
+) {
   const languages: Record<string, string> = {};
   for (const l of locales) {
-    languages[l] = `${siteUrl}${localePath(l, translateSectionPath(pathWithoutLocale, l))}`;
+    if (alternates[l]) languages[l] = `${siteUrl}${alternates[l]}`;
   }
-  languages["x-default"] = `${siteUrl}${localePath(
-    defaultLocale,
-    translateSectionPath(pathWithoutLocale, defaultLocale)
-  )}`;
+  const defaultUrl = alternates[locale] ? alternates[locale] : localePath(locale, pathWithoutLocale);
+  if (Object.keys(languages).length > 0) {
+    // x-default points at whichever locale's URL is available, preferring
+    // the current one — there's no meaningful "default" once alternates
+    // genuinely diverge, so this just needs to be *a* valid URL.
+    languages["x-default"] = `${siteUrl}${defaultUrl}`;
+  }
 
   return {
     canonical: `${siteUrl}${localePath(locale, pathWithoutLocale)}`,
@@ -41,13 +49,24 @@ export type SeoFields = {
 export function buildMetadata(options: {
   locale: Locale;
   pathWithoutLocale: string;
+  /** From resolveLocaleAlternates (lib/locale-alternates.ts). Omit only for
+   * generic/fallback metadata (e.g. the root layout) that isn't about one
+   * specific resolvable page. */
+  alternates?: Partial<Record<Locale, string>>;
   seo?: SeoFields;
   fallbackTitle: string;
   fallbackDescription?: string | null;
   fallbackOgImage?: string | null;
 }): Metadata {
-  const { locale, pathWithoutLocale, seo, fallbackTitle, fallbackDescription, fallbackOgImage } =
-    options;
+  const {
+    locale,
+    pathWithoutLocale,
+    alternates = {},
+    seo,
+    fallbackTitle,
+    fallbackDescription,
+    fallbackOgImage,
+  } = options;
 
   const title = seo?.metaTitle || fallbackTitle;
   const description = seo?.metaDescription || fallbackDescription || undefined;
@@ -56,7 +75,7 @@ export function buildMetadata(options: {
   return {
     title,
     description,
-    alternates: buildAlternates(pathWithoutLocale, locale),
+    alternates: buildAlternates(pathWithoutLocale, locale, alternates),
     openGraph: {
       title,
       description,

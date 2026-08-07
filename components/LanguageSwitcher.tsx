@@ -1,19 +1,23 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { locales, localePath, stripLocalePrefix, type Locale } from "@/lib/i18n";
+import { locales, localePath, type Locale } from "@/lib/i18n";
 
-export default function LanguageSwitcher({ currentLocale }: { currentLocale: Locale }) {
-  const pathname = usePathname() || "/";
-  const rest = stripLocalePrefix(pathname);
-
+export default function LanguageSwitcher({
+  currentLocale,
+  urls,
+}: {
+  currentLocale: Locale;
+  /** From Header.tsx's resolveLocaleAlternates (lib/locale-alternates.ts) —
+   * a real per-locale URL, not a guess. A locale missing from this map
+   * (translation not found) falls back to that locale's homepage rather
+   * than linking to a URL that might not exist. */
+  urls: Partial<Record<Locale, string>>;
+}) {
   return (
     <div className="flex items-center gap-2 text-sm">
       {locales.map((locale) => (
         <Link
           key={locale}
-          href={localePath(locale, rest)}
+          href={urls[locale] ?? localePath(locale, "/")}
           hrefLang={locale}
           aria-current={locale === currentLocale ? "true" : undefined}
           className={

@@ -7,7 +7,8 @@ import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getBlogPosts, getCategories, getSiteSettings, filterByTaxonomyTerm } from "@/lib/tina-content";
 import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
-import { sectionPath } from "@/lib/section-slugs";
+import { collectionPath } from "@/lib/collection-slugs";
+import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import type { Locale } from "@/lib/i18n";
 
 /**
@@ -55,16 +56,18 @@ export async function generateMetadata({
   const headersList = await headers();
   const pathname =
     headersList.get("x-pathname") ||
-    sectionPath(locale, "blog", `/${taxonomySegment}/${termSlug}`);
-  const [archive, settings] = await Promise.all([
+    collectionPath(locale, "blog", `/${taxonomySegment}/${termSlug}`);
+  const [archive, settings, alternates] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
+    resolveLocaleAlternates(locale, pathname),
   ]);
   const dict = getDictionary(locale);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
+    alternates,
     fallbackTitle: archive
       ? `${archive.term.title} — ${dict.blog.pageTitle} — ${settings?.title || dict.siteName}`
       : dict.blog.pageTitle,
@@ -86,7 +89,7 @@ export default async function BlogTaxonomyArchivePage({
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
-        <Link href={sectionPath(locale, "blog")} className="hover:text-accent">
+        <Link href={collectionPath(locale, "blog")} className="hover:text-accent">
           {dict.blog.pageTitle}
         </Link>
       </p>
@@ -96,7 +99,7 @@ export default async function BlogTaxonomyArchivePage({
         {archive.posts.map((post) => (
           <Link
             key={post.id}
-            href={sectionPath(locale, "blog", `/${post.slug}`)}
+            href={collectionPath(locale, "blog", `/${post.slug}`)}
             className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             {post.coverImage && (

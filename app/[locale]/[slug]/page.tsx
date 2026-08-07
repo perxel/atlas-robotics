@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, redirect, permanentRedirect } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
+import { resolveLocaleAlternates } from "@/lib/locale-alternates";
+import {
+  getPageQuery,
+  getPageBlockData,
+  getSiteSettings,
+  resolvePageRedirectSlug,
+} from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
 import PageView from "@/components/pages/PageView";
 
@@ -16,9 +22,10 @@ export async function generateMetadata({
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || localePath(locale, `/${slug}`);
-  const [result, settings] = await Promise.all([
+  const [result, settings, alternates] = await Promise.all([
     getPageQuery(locale, slug),
     getSiteSettings(locale),
+    resolveLocaleAlternates(locale, pathname),
   ]);
   const page = result?.data.pages;
   const dict = getDictionary(locale);
@@ -26,6 +33,7 @@ export async function generateMetadata({
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
+    alternates,
     seo: page?.seo,
     fallbackTitle: page?.title || settings?.title || dict.siteName,
   });
@@ -46,12 +54,18 @@ export default async function GenericPage({
 
   const result = await getPageQuery(locale, slug);
 
-  if (!result) notFound();
+  if (!result) {
+    // Not found by current slug — check whether it's a slug this document
+    // used to have (auto-captured by slugLifecycleGuard on rename) before
+    // giving up, so a renamed page's old URL redirects instead of 404ing.
+    const currentSlug = await resolvePageRedirectSlug(locale, slug);
+    if (currentSlug) {
+      permanentRedirect(localePath(locale, currentSlug === "home" ? "/" : `/${currentSlug}`));
+    }
+    notFound();
+  }
 
-  const { latestPosts, newsletterFormCopy } = await getPageBlockData(
-    locale,
-    result.data.pages.blocks
-  );
+  const { latestPosts, products } = await getPageBlockData(locale, result.data.pages.blocks);
 
   return (
     <PageView
@@ -60,7 +74,7 @@ export default async function GenericPage({
       data={result.data}
       locale={locale}
       latestPosts={latestPosts}
-      newsletterFormCopy={newsletterFormCopy}
+      products={products}
     />
   );
 }

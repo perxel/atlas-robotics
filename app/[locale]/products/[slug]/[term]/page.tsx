@@ -12,7 +12,8 @@ import {
 } from "@/lib/tina-content";
 import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
-import { sectionPath } from "@/lib/section-slugs";
+import { collectionPath } from "@/lib/collection-slugs";
+import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import type { Locale } from "@/lib/i18n";
 
 /**
@@ -49,16 +50,18 @@ export async function generateMetadata({
   const headersList = await headers();
   const pathname =
     headersList.get("x-pathname") ||
-    sectionPath(locale, "products", `/${taxonomySegment}/${termSlug}`);
-  const [archive, settings] = await Promise.all([
+    collectionPath(locale, "products", `/${taxonomySegment}/${termSlug}`);
+  const [archive, settings, alternates] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
+    resolveLocaleAlternates(locale, pathname),
   ]);
   const dict = getDictionary(locale);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
+    alternates,
     fallbackTitle: archive
       ? `${archive.term.title} — ${dict.products.pageTitle} — ${settings?.title || dict.siteName}`
       : dict.products.pageTitle,
@@ -80,7 +83,7 @@ export default async function ProductsTaxonomyArchivePage({
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
-        <Link href={sectionPath(locale, "products")} className="hover:text-accent">
+        <Link href={collectionPath(locale, "products")} className="hover:text-accent">
           {dict.products.pageTitle}
         </Link>
       </p>
@@ -90,7 +93,7 @@ export default async function ProductsTaxonomyArchivePage({
         {archive.products.map((product) => (
           <Link
             key={product.id}
-            href={sectionPath(locale, "products", `/${product.slug}`)}
+            href={collectionPath(locale, "products", `/${product.slug}`)}
             className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             {product.coverImage && (

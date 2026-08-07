@@ -1,14 +1,16 @@
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocks } from "@/tina/__generated__/types";
 import type { Locale } from "@/lib/i18n";
-import type { getBlogPosts } from "@/lib/tina-content";
-import type { NewsletterFormCopy } from "./NewsletterForm";
+import type { getBlogPosts, getProducts } from "@/lib/tina-content";
 import Hero from "./Hero";
 import RichTextBlock from "./RichTextBlock";
 import Cta from "./Cta";
 import FeatureGrid from "./FeatureGrid";
 import Newsletter from "./Newsletter";
 import FeaturedBlogPosts from "./FeaturedBlogPosts";
+import ContactFormBlock from "./ContactFormBlock";
+import BlogListingBlock from "./BlogListingBlock";
+import ProductListingBlock from "./ProductListingBlock";
 
 // Add a new block: create <Name>.template.tsx next to its render component
 // (see Hero.template.tsx), add it to `pageBlocks` in
@@ -18,21 +20,23 @@ import FeaturedBlogPosts from "./FeaturedBlogPosts";
 // click-to-edit in Tina's admin preview — a no-op outside that context,
 // since tinaField() returns "" when the object has no live-edit metadata.
 //
-// `locale`/`latestPosts`/`newsletterFormCopy` are extra data blocks need
-// but don't carry themselves (FeaturedBlogPosts needs blog posts,
-// Newsletter needs the global forms doc's copy) — threaded down from the
-// page component through PageView rather than fetched by the block itself,
-// since blocks render inside PageView's client component tree.
+// `locale`/`latestPosts`/`products` are extra data blocks need but don't
+// carry themselves (FeaturedBlogPosts/BlogListingBlock need blog posts,
+// ProductListingBlock needs products) — threaded down from the page
+// component through PageView rather than fetched by the block itself,
+// since blocks render inside PageView's client component tree. Newsletter
+// and ContactFormBlock only need `locale` — their copy comes entirely from
+// lib/dictionary.ts (UI chrome), not CMS content.
 export default function BlocksRenderer({
   blocks,
   locale,
   latestPosts,
-  newsletterFormCopy,
+  products,
 }: {
   blocks: (PagesBlocks | null)[];
   locale: Locale;
   latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
-  newsletterFormCopy: NewsletterFormCopy | null | undefined;
+  products: Awaited<ReturnType<typeof getProducts>>;
 }) {
   return (
     <>
@@ -45,10 +49,19 @@ export default function BlocksRenderer({
             {block.__typename === "PagesBlocksCta" && <Cta data={block} />}
             {block.__typename === "PagesBlocksFeatureGrid" && <FeatureGrid data={block} />}
             {block.__typename === "PagesBlocksNewsletter" && (
-              <Newsletter data={block} formsCopy={newsletterFormCopy} locale={locale} />
+              <Newsletter data={block} locale={locale} />
             )}
             {block.__typename === "PagesBlocksFeaturedBlogPosts" && (
               <FeaturedBlogPosts data={block} posts={latestPosts} locale={locale} />
+            )}
+            {block.__typename === "PagesBlocksContactForm" && (
+              <ContactFormBlock data={block} locale={locale} />
+            )}
+            {block.__typename === "PagesBlocksBlogListing" && (
+              <BlogListingBlock data={block} posts={latestPosts} locale={locale} />
+            )}
+            {block.__typename === "PagesBlocksProductListing" && (
+              <ProductListingBlock data={block} products={products} locale={locale} />
             )}
           </div>
         );

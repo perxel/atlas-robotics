@@ -4,18 +4,7 @@ import { useState } from "react";
 import { getDictionary } from "@/lib/dictionary";
 import type { Locale } from "@/lib/i18n";
 
-export type NewsletterFormCopy = {
-  email?: { label?: string | null; placeholder?: string | null } | null;
-  submitLabel?: string | null;
-};
-
-export default function NewsletterForm({
-  fields,
-  locale,
-}: {
-  fields: NewsletterFormCopy | null | undefined;
-  locale: Locale;
-}) {
+export default function NewsletterForm({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale).newsletter;
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -41,14 +30,14 @@ export default function NewsletterForm({
     <div className="mx-auto max-w-md">
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
         <label htmlFor="newsletter-email" className="sr-only">
-          {fields?.email?.label || dict.emailLabel}
+          {dict.emailLabel}
         </label>
         <input
           id="newsletter-email"
           name="email"
           type="email"
           required
-          placeholder={fields?.email?.placeholder || dict.emailPlaceholder}
+          placeholder={dict.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full flex-1 rounded border border-border bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none"
@@ -58,7 +47,7 @@ export default function NewsletterForm({
           disabled={status === "submitting"}
           className="shrink-0 rounded bg-accent px-5 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-50"
         >
-          {status === "submitting" ? dict.sending : fields?.submitLabel || dict.submitLabel}
+          {status === "submitting" ? dict.sending : dict.submitLabel}
         </button>
       </form>
 

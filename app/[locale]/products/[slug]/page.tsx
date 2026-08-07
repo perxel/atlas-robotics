@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getProductQuery, getSiteSettings } from "@/lib/tina-content";
+import { getProductQuery, getSiteSettings, resolveProductRedirectSlug } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
-import { sectionPath } from "@/lib/section-slugs";
+import { collectionPath } from "@/lib/collection-slugs";
+import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import ProductView from "@/components/products/ProductView";
 
 export async function generateMetadata({
@@ -16,10 +17,11 @@ export async function generateMetadata({
   const { locale: rawLocale, slug } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || sectionPath(locale, "products", `/${slug}`);
-  const [result, settings] = await Promise.all([
+  const pathname = headersList.get("x-pathname") || collectionPath(locale, "products", `/${slug}`);
+  const [result, settings, alternates] = await Promise.all([
     getProductQuery(locale, slug),
     getSiteSettings(locale),
+    resolveLocaleAlternates(locale, pathname),
   ]);
   const product = result?.data.products;
   const dict = getDictionary(locale);
@@ -27,6 +29,7 @@ export async function generateMetadata({
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
+    alternates,
     seo: product?.seo,
     fallbackTitle:
       product?.title || `${dict.products.pageTitle} — ${settings?.title || dict.siteName}`,
@@ -47,7 +50,15 @@ export default async function ProductDetailPage({
   // getProductQuery resolves the slug via a draft-filtered query, so a
   // draft product already can't be reached here — same tradeoff as blog,
   // see the "Drafts" note in CLAUDE.md.
-  if (!result) notFound();
+  if (!result) {
+    // Not found by current slug — check slug history (auto-captured by
+    // slugLifecycleGuard on rename) before giving up.
+    const currentSlug = await resolveProductRedirectSlug(locale, slug);
+    if (currentSlug) {
+      permanentRedirect(collectionPath(locale, "products", `/${currentSlug}`));
+    }
+    notFound();
+  }
 
   return (
     <ProductView

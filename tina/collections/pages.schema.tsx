@@ -1,5 +1,5 @@
 import type { Collection, Template } from "tinacms";
-import { slugField, slugUniquenessGuard } from "./shared-fields/slug.schema";
+import { slugField, previousSlugsField, slugLifecycleGuard } from "./shared-fields/slug.schema";
 import { draftField } from "./shared-fields/draft.schema";
 import { seoField } from "./shared-fields/seo.schema";
 import { heroTemplate } from "@/components/blocks/Hero.template";
@@ -8,8 +8,12 @@ import { ctaTemplate } from "@/components/blocks/Cta.template";
 import { featureGridTemplate } from "@/components/blocks/FeatureGrid.template";
 import { newsletterTemplate } from "@/components/blocks/Newsletter.template";
 import { featuredBlogPostsTemplate } from "@/components/blocks/FeaturedBlogPosts.template";
-import { localePath, type Locale } from "@/lib/i18n";
+import { contactFormTemplate } from "@/components/blocks/ContactFormBlock.template";
+import { blogListingTemplate } from "@/components/blocks/BlogListingBlock.template";
+import { productListingTemplate } from "@/components/blocks/ProductListingBlock.template";
+import type { Locale } from "@/lib/i18n";
 import { reservedSlugs } from "@/lib/pages-config";
+import { resolvePagesDocumentUrl } from "@/lib/collection-slugs";
 
 // Block set for the `pages` collection's block-based editing.
 // https://tina.io/docs/editing/blocks
@@ -23,6 +27,9 @@ export const pageBlocks: Template[] = [
   featureGridTemplate,
   newsletterTemplate,
   featuredBlogPostsTemplate,
+  contactFormTemplate,
+  blogListingTemplate,
+  productListingTemplate,
 ];
 
 export const pagesCollection: Collection = {
@@ -36,24 +43,26 @@ export const pagesCollection: Collection = {
       // not create new ones.
       create: true,
     },
-    beforeSubmit: slugUniquenessGuard("pages"),
+    beforeSubmit: slugLifecycleGuard("pages"),
     // Same reasoning as blog's router (see its comment): derived from the
     // filename (_sys.breadcrumbs), not the `slug` field — `document` in
     // this callback only reliably carries `_sys` (confirmed live: reading
-    // `document.slug` here produced a broken preview URL). The `home`
-    // document is special-cased to the site root by filename — see
-    // app/[locale]/page.tsx and the matching redirect for /home in
-    // app/[locale]/[slug]/page.tsx (avoids the same content being
-    // reachable at two URLs).
+    // `document.slug` here produced a broken preview URL). Delegates to
+    // resolvePagesDocumentUrl (lib/collection-slugs.ts), passing `filename`
+    // as a stand-in for `slug` since the real field isn't available here —
+    // only correct when filename === slug, same limitation as before; that
+    // helper's `home`/listing-page special cases don't depend on it, only
+    // its fallback branch does.
     router: ({ document }) => {
       const locale = document._sys.breadcrumbs[0] as Locale;
       const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
-      return filename === "home" ? localePath(locale, "/") : localePath(locale, `/${filename}`);
+      return resolvePagesDocumentUrl(locale, filename, filename);
     },
   },
   fields: [
     { type: "string", name: "title", label: "Title", required: true },
     slugField({ reserved: reservedSlugs }),
+    previousSlugsField(),
     draftField(),
     {
       type: "boolean",

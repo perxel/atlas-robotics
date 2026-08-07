@@ -5,7 +5,7 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
-import { sectionPath } from "@/lib/section-slugs";
+import { collectionPath } from "@/lib/collection-slugs";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
 import Breadcrumb from "@/components/Breadcrumb";
 
@@ -53,7 +53,7 @@ export default function BlogPostView({
         <Breadcrumb
           items={[
             { label: dict.breadcrumb.home, href: localePath(locale, "/") },
-            { label: dict.blog.pageTitle, href: sectionPath(locale, "blog") },
+            { label: dict.blog.pageTitle, href: collectionPath(locale, "blog") },
             { label: post.title },
           ]}
         />
@@ -74,7 +74,7 @@ export default function BlogPostView({
           {categories.map((c) => (
             <Link
               key={c.term.slug}
-              href={sectionPath(locale, "blog", `/category/${c.term.slug}`)}
+              href={collectionPath(locale, "blog", `/category/${c.term.slug}`)}
               data-tina-field={tinaField(c)}
               className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
             >

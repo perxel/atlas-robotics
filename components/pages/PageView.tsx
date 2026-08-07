@@ -6,8 +6,7 @@ import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types
 import { isBlocksEnabled } from "@/lib/pages-config";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
-import type { getBlogPosts } from "@/lib/tina-content";
-import type { NewsletterFormCopy } from "@/components/blocks/NewsletterForm";
+import type { getBlogPosts, getProducts } from "@/lib/tina-content";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
 
@@ -17,14 +16,14 @@ export default function PageView({
   data,
   locale,
   latestPosts,
-  newsletterFormCopy,
+  products,
 }: {
   query: string;
   variables: PagesQueryVariables;
   data: PagesQuery;
   locale: Locale;
   latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
-  newsletterFormCopy: NewsletterFormCopy | null | undefined;
+  products: Awaited<ReturnType<typeof getProducts>>;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,
   // so this renders identically for normal visitors and the production build.
@@ -74,7 +73,7 @@ export default function PageView({
           blocks={page.blocks}
           locale={locale}
           latestPosts={latestPosts}
-          newsletterFormCopy={newsletterFormCopy}
+          products={products}
         />
       )}
     </article>

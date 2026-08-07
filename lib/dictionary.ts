@@ -28,8 +28,6 @@ export type Dictionary = {
     error: string;
   };
   contact: {
-    pageTitle: string;
-    pageDescription: string;
     send: string;
     sending: string;
     success: string;
@@ -74,8 +72,6 @@ const dictionaries: Record<Locale, Dictionary> = {
       error: "Something went wrong. Please try again.",
     },
     contact: {
-      pageTitle: "Contact",
-      pageDescription: "Send us a message and we'll get back to you.",
       send: "Send",
       sending: "Sending…",
       success: "Thanks — your message was logged server side.",
@@ -114,8 +110,6 @@ const dictionaries: Record<Locale, Dictionary> = {
       error: "Đã xảy ra lỗi. Vui lòng thử lại.",
     },
     contact: {
-      pageTitle: "Liên Hệ",
-      pageDescription: "Gửi tin nhắn cho chúng tôi, chúng tôi sẽ phản hồi sớm nhất.",
       send: "Gửi",
       sending: "Đang gửi…",
       success: "Cảm ơn — tin nhắn của bạn đã được ghi lại ở phía máy chủ.",

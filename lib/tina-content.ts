@@ -1,9 +1,9 @@
 import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
-import type { Locale } from "@/lib/i18n";
+import { locales, localePath, type Locale } from "@/lib/i18n";
 
-/** Directory-based localization: content/<collection>/<locale>/<file>. */
-function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
+/** Directory-based localization: content/<collection>/<locale>/<file>. Exported for app/sitemap.ts. */
+export function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
   edges: Array<{ node?: T | null } | null> | null | undefined,
   locale: Locale
 ): T[] {
@@ -36,15 +36,6 @@ export async function getFooter(locale: Locale) {
   try {
     const res = await client.queries.footer({ relativePath: `${locale}.json` });
     return res.data.footer;
-  } catch {
-    return null;
-  }
-}
-
-export async function getForms(locale: Locale) {
-  try {
-    const res = await client.queries.forms({ relativePath: `${locale}.json` });
-    return res.data.forms;
   } catch {
     return null;
   }
@@ -108,7 +99,7 @@ export function filterByTaxonomyTerm<T extends Record<string, unknown>>(
  * Single-document query by relativePath, resolved in two steps from the
  * `slug` field — not by assuming filename === slug, since Tina lets editors
  * set the filename and the slug field independently. Safe to trust `slug`
- * as unique per locale because `slugUniquenessGuard`
+ * as unique per locale because `slugLifecycleGuard`
  * (tina/collections/shared-fields/slug.schema.tsx)
  * blocks saving a duplicate through the admin. Returns the raw
  * {data, query, variables} response shape `useTina()` needs to enable
@@ -128,6 +119,27 @@ export const getBlogPostQuery = cache(async (locale: Locale, slug: string) => {
   }
 });
 
+/**
+ * Fallback for when getBlogPostQuery finds nothing by the requested slug —
+ * checks whether any post's `previousSlugsField()` history (auto-captured
+ * by slugLifecycleGuard on save) contains it instead, so a renamed post's
+ * old URL can redirect to the current one rather than 404ing. Filters in
+ * application code, same as filterByTaxonomyTerm above — not a GraphQL
+ * `filter` clause, since list-contains filter semantics on a plain string
+ * list aren't worth relying on unverified.
+ */
+export async function resolveBlogRedirectSlug(locale: Locale, slug: string): Promise<string | null> {
+  try {
+    const res = await client.queries.blogConnection({ filter: { draft: { eq: false } } });
+    const doc = inLocale(res.data.blogConnection.edges, locale).find((d) =>
+      (d.previousSlugs ?? []).includes(slug)
+    );
+    return doc?.slug ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Same two-step slug resolution as getBlogPostQuery — see its comment. */
 export const getProductQuery = cache(async (locale: Locale, slug: string) => {
   try {
@@ -142,25 +154,44 @@ export const getProductQuery = cache(async (locale: Locale, slug: string) => {
   }
 });
 
+/** Same fallback as resolveBlogRedirectSlug, for `products` — see its comment. */
+export async function resolveProductRedirectSlug(
+  locale: Locale,
+  slug: string
+): Promise<string | null> {
+  try {
+    const res = await client.queries.productsConnection({ filter: { draft: { eq: false } } });
+    const doc = inLocale(res.data.productsConnection.edges, locale).find((d) =>
+      (d.previousSlugs ?? []).includes(slug)
+    );
+    return doc?.slug ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Extra data some page blocks need but don't carry themselves —
- * `FeaturedBlogPosts` needs blog posts, `Newsletter` needs the global
- * forms doc's copy (lib/tina-content.ts's `getForms`). Fetched only when a
- * page actually uses the block, and shared between the home route
- * (app/[locale]/page.tsx) and the generic pages route
- * (app/[locale]/[slug]/page.tsx) so the conditional-fetch logic lives in
- * one place instead of being duplicated across both.
+ * Extra data some blocks need but don't carry themselves — fetched only
+ * when a page actually uses that block, and shared between every route
+ * that renders `pages` blocks (home, generic [slug], and now the
+ * blog/products listing pages too) so the conditional-fetch logic lives in
+ * one place instead of being duplicated across all of them.
  */
 export async function getPageBlockData(
   locale: Locale,
   blocks: Array<{ __typename?: string | null } | null> | null | undefined
 ) {
   const typenames = new Set((blocks ?? []).map((b) => b?.__typename));
-  const [latestPosts, forms] = await Promise.all([
-    typenames.has("PagesBlocksFeaturedBlogPosts") ? getBlogPosts(locale) : Promise.resolve([]),
-    typenames.has("PagesBlocksNewsletter") ? getForms(locale) : Promise.resolve(null),
+  const needsPosts =
+    typenames.has("PagesBlocksFeaturedBlogPosts") || typenames.has("PagesBlocksBlogListing");
+  const needsProducts = typenames.has("PagesBlocksProductListing");
+
+  const [latestPosts, products] = await Promise.all([
+    needsPosts ? getBlogPosts(locale) : Promise.resolve([]),
+    needsProducts ? getProducts(locale) : Promise.resolve([]),
   ]);
-  return { latestPosts, newsletterFormCopy: forms?.newsletterForm };
+
+  return { latestPosts, products };
 }
 
 /** Same two-step slug resolution as getBlogPostQuery — see its comment. */
@@ -176,3 +207,49 @@ export const getPageQuery = cache(async (locale: Locale, slug: string) => {
     return null;
   }
 });
+
+/** Same fallback as resolveBlogRedirectSlug, for `pages` — see its comment. */
+export async function resolvePageRedirectSlug(locale: Locale, slug: string): Promise<string | null> {
+  try {
+    const res = await client.queries.pagesConnection({ filter: { draft: { eq: false } } });
+    const doc = inLocale(res.data.pagesConnection.edges, locale).find((d) =>
+      (d.previousSlugs ?? []).includes(slug)
+    );
+    return doc?.slug ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Cross-locale sibling lookup for `pages` documents, keyed by filename —
+ * e.g. getPageAlternates("about") finds en/about.md AND vi/about.md (even
+ * though the vi one's `slug` field is "ve-chung-toi", a different word),
+ * and returns each locale's real public URL built from that document's
+ * own `slug`. Matching filename is what links translations together (see
+ * "Migrating an existing fixed route to a pages document" and the
+ * companion note on locked slugs in CLAUDE.md) — nothing else does, since
+ * each locale's document is otherwise a fully independent file. Used by
+ * lib/locale-alternates.ts for both hreflang (lib/seo.ts) and the language
+ * switcher (Header.tsx) — wrapped in `cache()` so both call sites in the
+ * same request share one fetch.
+ */
+export const getPageAlternates = cache(
+  async (filename: string): Promise<Partial<Record<Locale, string>>> => {
+    try {
+      const res = await client.queries.pagesConnection({ filter: { draft: { eq: false } } });
+      const result: Partial<Record<Locale, string>> = {};
+      for (const l of locales) {
+        const doc = inLocale(res.data.pagesConnection.edges, l).find(
+          (d) => d._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") === filename
+        );
+        if (doc) {
+          result[l] = doc.slug === "home" ? localePath(l, "/") : localePath(l, `/${doc.slug}`);
+        }
+      }
+      return result;
+    } catch {
+      return {};
+    }
+  }
+);

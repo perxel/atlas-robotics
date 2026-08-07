@@ -82,7 +82,7 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
 - Each collection lives in its own `tina/collections/<name>.schema.tsx`
   file; `tina/config.ts` only imports and composes them into the
   `collections` array passed to `defineConfig`. Shared field helpers
-  (`seoField()`, `draftField()`, `slugField()`/`slugUniquenessGuard()`,
+  (`seoField()`, `draftField()`, `slugField()`/`previousSlugsField()`/`slugLifecycleGuard()`,
   `defineTaxonomy()`/`taxonomyField()` — see "Taxonomies" below) live under
   `tina/collections/shared-fields/`, one `<name>.schema.tsx` per helper.
   Block templates live next to their render component as
@@ -135,7 +135,7 @@ page, in a split preview pane) needs three pieces per collection:
    `document._sys.breadcrumbs` (filename), never a custom field like
    `slug` — `document` in this callback is typed with only `_sys`, and that
    type is accurate: an earlier version of this code read `document.slug`
-   via a cast (reasoning it was safe because `slugUniquenessGuard`
+   via a cast (reasoning it was safe because `slugLifecycleGuard`
    guarantees uniqueness — true, but beside the point), and it broke live:
    clicking "edit" in the admin produced a preview URL with a literal
    `undefined` slug and 404'd, because the field genuinely isn't populated
@@ -169,7 +169,7 @@ finer click targets. Same pattern for any other list field.
 To extend this to another collection, copy the query pattern +
 a `*View.tsx` client component + a `ui.router`, swapping in that
 collection's query/fields. Skip it for collections edited rarely or by
-developers only (this repo intentionally leaves `forms`, `categories`,
+developers only (this repo intentionally leaves `categories`,
 `productCategories`, and the singleton `site-settings`/`nav`/`footer` docs
 on the plain admin).
 
@@ -183,28 +183,41 @@ for high-traffic editorial content, not for rarely-touched config.
 ## Routable slugs — a field, not a filename, and it's enforced
 
 Any collection where a document's URL is driven by an editable `slug`
-field (not by whatever Tina named the underlying file) uses two paired
+field (not by whatever Tina named the underlying file) uses three paired
 helpers from `tina/collections/shared-fields/slug.schema.tsx`:
 
 - **`slugField({ reserved? })`** — the field itself. `reserved` is an
-  optional `Set<string>` of words that can't be used (see "Pages" below);
-  omit it for collections that don't need one (`blog` posts live under
-  `/blog/`, so they can't collide with a root-level page slug).
-- **`slugUniquenessGuard(collectionName)`** — a `ui.beforeSubmit` hook that
-  blocks saving a document whose `slug` is already used by another document
-  in the same collection *and locale* (the same slug validly exists in both
-  `en/` and `vi/` — those are different URLs). Verified against
-  `tinacms/dist/index.js` directly (not just docs, which don't say either
-  way): `beforeSubmit` runs inside `handleSubmit`'s `try/catch`, and
-  throwing there stops the write from ever reaching disk — Tina shows the
-  message as a form error.
+  optional `Set<string>` of words that can't be used (see "Pages collection"
+  below); omit it for collections that don't need one (`blog` posts live
+  under `/blog/`, so they can't collide with a root-level page slug).
+- **`previousSlugsField()`** — a plain string list, paired with `slugField()`
+  on the same collection. Never hand-edited; `slugLifecycleGuard` appends to
+  it automatically whenever `slug` changes, so a renamed document's old URL
+  can redirect to the current one instead of 404ing — see "Slug lifecycle"
+  below.
+- **`slugLifecycleGuard(collectionName)`** — a `ui.beforeSubmit` hook doing
+  three things: (1) blocks saving a document whose `slug` is already used by
+  another document in the same collection *and locale* (the same slug
+  validly exists in both `en/` and `vi/` — those are different URLs); (2)
+  for the `pages` collection, blocks changing `slug` at all on a
+  filename listed in `lockedSlugFilenames` (`lib/pages-config.ts`); (3)
+  otherwise, when `slug` changes, appends the old value to
+  `previousSlugsField()`. Verified against `tinacms/dist/index.js` directly
+  (not just docs, which don't say either way): `beforeSubmit` runs inside
+  `handleSubmit`'s `try/catch`, and throwing there stops the write from ever
+  reaching disk — Tina shows the message as a form error. Also confirmed
+  directly in that file, and non-obvious enough to be worth calling out:
+  Tina only uses this hook's **return value** to decide what gets saved
+  (`submittedValues = valOverride || values`) — mutating `values` in place
+  and returning nothing is silently a no-op, so every branch that needs to
+  persist a change returns a full values object rather than mutating.
 
 **Why this exists:** routing by filename (`relativePath: ${locale}/${slug}.md`)
 silently breaks the moment a document's `slug` field doesn't match its
 actual filename — whichever document isn't literally named `<slug>.md`
 becomes an unreachable 404 with no error shown anywhere. So lookups
 (`lib/tina-content.ts`) resolve a slug by **querying the `slug` field**
-(`getBlogPostQuery`/`getPageBySlug`: a filtered `*Connection` query first to
+(`getBlogPostQuery`/`getPageQuery`: a filtered `*Connection` query first to
 find the matching document's `relativePath`, then a single-doc fetch) and
 only then read the resolved document — never by assuming filename === slug.
 That's only safe because uniqueness is guaranteed at write time by the
@@ -215,8 +228,9 @@ guard above.
 named `slug` but no `ui.beforeSubmit`, it throws immediately with the
 offending collection's name. Adding a new routable collection *without*
 wiring the guard fails the build loudly rather than shipping a latent
-404 bug. Use `slugField()` + `beforeSubmit: slugUniquenessGuard("name")`
-together on every new collection that needs an editable slug.
+404 bug. Use `slugField()` + `previousSlugsField()` +
+`beforeSubmit: slugLifecycleGuard("name")` together on every new collection
+that needs an editable slug.
 
 **Real limitation, not fully closed:** `beforeSubmit` only runs when a
 document is saved *through Tina's admin form*. A document created by a
@@ -232,12 +246,12 @@ proof the guard works, only that nothing violated it.
 Tina docs are explicit that draft fields aren't special, application code
 is responsible for filtering: https://tina.io/docs/drafts/drafts-fields.
 Applied to `products`, `blog`, and `pages` (collections whose documents are
-individually publishable); not on `forms` (field definitions, not content)
-or the `site-settings`/`nav`/`footer` singletons.
+individually publishable); not on the `site-settings`/`nav`/`footer`
+singletons, which aren't individually publishable content at all.
 
 - **Listing queries** filter it at the GraphQL level: `filter: { draft: { eq: false } } }`
   on every `*Connection` call in `lib/tina-content.ts`.
-- **Single-document lookups** (`getBlogPostQuery`/`getPageBySlug`, see
+- **Single-document lookups** (`getBlogPostQuery`/`getPageQuery`, see
   above) apply the same `draft: { eq: false }` filter during the
   slug-resolution step — a draft simply won't resolve to a `relativePath`,
   so it 404s the same way a nonexistent slug would.
@@ -350,8 +364,11 @@ always resolves a literal folder over a same-level dynamic sibling, so
 `/blog` hits `app/[locale]/blog/page.tsx` and never falls through to the
 catch-all as long as that literal route exists. `lib/pages-config.ts`'s
 `reservedSlugs` set (enforced via `slugField({ reserved: reservedSlugs })`
-on `pages`) stops an editor from creating a page that *would* collide if
-one of those dedicated routes were ever removed.
+on `pages`) is deliberately small now (just `"admin"`, `"api"`) — `blog`
+and `products` used to be reserved words here too, but they're not
+generic collisions anymore, they're the exact slugs the locked listing-page
+documents legitimately use (see "Collection-backed listing pages" below),
+so reserving them would block saving the very documents meant to hold them.
 
 **Creation lock:** `pages.ui.allowedActions.create` — `true` by default (a
 generic pages collection is only useful if editors can add pages).
@@ -366,13 +383,22 @@ ignoring whatever's in its `blocks` field, regardless of what the admin
 shows. The schema itself doesn't change per document; only the frontend's
 rendering decision does.
 
-**Migrating an existing fixed route (e.g. `/blog`) to a `pages` document:**
-delete the dedicated `page.tsx`, extract its markup into a reusable
-component, wrap that component in a new block type, create the
-`content/pages/<locale>/<slug>.md` document, add the block to it. Detail
-routes with their own data shape (`/blog/[slug]`) are unaffected either
-way — they're a structurally different URL shape, not competing for the
-same route.
+**Migrating an existing fixed route to a `pages` document:** two variants,
+both used in this repo.
+- **Full migration** (`/about`, `/contact`): delete the dedicated
+  `page.tsx` entirely, extract its markup into a block, create the
+  `content/pages/<locale>/<slug>.md` document, add the block to it. Works
+  cleanly whenever the route has no nested children of its own.
+- **Content-only migration** (`/blog`, `/products`): the dedicated
+  `page.tsx` has to stay — it has sibling children (`blog/[slug]`,
+  `blog/[slug]/[term]`) that need that literal folder to keep existing, and
+  Next.js resolving a literal folder over a same-level dynamic sibling
+  means deleting `blog/page.tsx` would make `/blog` 404 rather than fall
+  through to the `[slug]` catch-all. So the route file stays, but its body
+  changes from hardcoded markup to `getPageQuery(locale, "blog")` +
+  `PageView` — same pattern the home page already used. See "Collection-backed
+  listing pages" below for the rest of what this needed (a locked slug, a
+  fixed lookup key, a listing block).
 
 **Home page is a `pages` document too** (`content/pages/<locale>/home.md`,
 `slug: "home"`), rendered by `app/[locale]/page.tsx` — same `PageView` +
@@ -389,10 +415,108 @@ Because the `home` document is still a normal `pages` document with a real
 content at two URLs. `app/[locale]/[slug]/page.tsx` special-cases
 `slug === "home"` with a `redirect()` to `/` rather than rendering it a
 second time. `"home"` is deliberately **not** in `reservedSlugs` — that
-list blocks a slug from being *used*, but the home document needs exactly
-that slug to be resolvable by `getPageQuery(locale, "home")`; uniqueness
-(so no second document can also claim `"home"`) is already guaranteed by
-`slugUniquenessGuard`, same as any other page.
+list blocks a slug from being *used* elsewhere, but the home document needs
+exactly that slug to be resolvable by `getPageQuery(locale, "home")`.
+Uniqueness (so no second document can also claim `"home"`) is guaranteed by
+`slugLifecycleGuard`, same as any other page — and unlike any other page,
+`home`'s slug can't be *changed* at all; see the next section.
+
+## Collection-backed listing pages, locked slugs & cross-locale linking
+
+`lib/collection-slugs.ts` is the single source of truth for `blog` and
+`products` — the two collections with their own dedicated route folders
+(listing, detail, taxonomy archive) rather than a `pages` document, because
+they have children a `pages` document can't (see the content-only migration
+note above). Two things per collection, both code-level because they
+concern the physical route, not CMS content:
+
+- **`locales`** — the per-locale URL segment, e.g. `{ en: "blog", vi: "tin-tuc" }`.
+  A `pages` document gets a translated URL for free via its own per-locale
+  `slug` field; these can't, since their segment is a literal folder name.
+  Adding a locale here needs a matching redirect+rewrite pair in
+  `next.config.ts` (only for non-default locales — the default locale's
+  segment already matches the physical folder name verbatim) so the
+  translated segment resolves and the untranslated one 308s to it.
+  `collectionPath(locale, key, rest?)` is the one place allowed to spell
+  out `"/blog"`/`"/products"` as a literal string — every link builder goes
+  through it, the `resolveTerm`/breadcrumb/CTA code included.
+- **`listingPageFilename`** — the `pages` document (matched by filename,
+  same in every locale) backing that collection's listing page, e.g.
+  `content/pages/en/blog.md` + `content/pages/vi/blog.md`, each with a
+  `BlogListingBlock` doing the actual rendering.
+
+**Locked slugs:** `lib/pages-config.ts`'s `lockedSlugFilenames` — `home`
+plus every collection's `listingPageFilename`, derived from the registry
+above rather than hand-duplicated. `slugLifecycleGuard` (see "Routable
+slugs") refuses to save a `slug` change on any `pages` document whose
+*filename* is in this set. This isn't the same kind of protection
+`reservedSlugs` gives everyone else: `blog`/`tin-tuc` aren't forbidden
+words here, they're precisely the slug the locked document is supposed to
+hold — the real public URL is owned by `collectionSlugs` above and never
+reads this document's `slug` field at all, so letting an editor "change"
+it would silently do nothing except lie about what the URL actually is.
+**Also don't delete these three documents** — nothing enforces that: Tina
+has no per-document delete-protection hook the way it has `beforeSubmit`
+for saves (`allowedActions.delete` is collection-wide, all-or-nothing, and
+would break `pages` being freely creatable/deletable for everything else),
+so this is a documented convention, not a hard guarantee.
+
+**Cross-locale linking is by filename, not by slug or by a translation-key
+field.** Two locale documents are "the same page" purely because they share
+a filename (`content/pages/en/about.md` / `content/pages/vi/about.md`) —
+nothing else pairs them, and their `slug` fields can (and for `about`, do)
+genuinely diverge (`about` / `ve-chung-toi`). This is why filenames are
+**set once at creation and never renamed** — renaming breaks the pairing
+*and* discards git history for that file, which is the whole reason this
+approach won over a dedicated `translationKey` field: it reuses data that
+already has to exist (the filename) instead of asking editors to
+hand-maintain a second identifier in parallel with it.
+- `getPageAlternates(filename)` (`lib/tina-content.ts`) — the actual
+  cross-locale lookup: given a filename, finds the matching document in
+  every locale and reads each one's own `slug` to build its real URL.
+  Wrapped in `cache()`.
+- `resolveLocaleAlternates(locale, pathname)` (`lib/locale-alternates.ts`)
+  — the single function both hreflang and the language switcher call.
+  Branches on whether the path is a known `collectionSlugs` route (pure
+  string transform, since an individual post's/product's own slug is
+  assumed identical across locales by convention) or a `pages` slug (a real
+  `getPageAlternates` lookup, since those can diverge). Used by
+  `buildAlternates` (`lib/seo.ts`, for `<link rel="alternate" hreflang>`)
+  and by `Header.tsx` (server-resolved, passed into `LanguageSwitcher` as a
+  plain `{ locale: url }` map — the switcher itself has no logic left,
+  it just renders whatever URL it's given). Before this, both hreflang and
+  the switcher independently guessed "same path, swap the locale prefix" —
+  correct for collection routes (protected by the redirect above even when
+  wrong) but silently broken for `about`/`contact` once their slugs
+  diverged: hreflang pointed `vi` at `/vi/about`, which 404s: the real
+  slug is `/vi/ve-chung-toi`. Confirmed live before the fix, not assumed.
+
+**Slug history and redirects:** `previousSlugsField()` + `slugLifecycleGuard`
+(see "Routable slugs") capture a document's prior slug automatically on
+every rename made through the admin. `resolvePageRedirectSlug`/
+`resolveBlogRedirectSlug`/`resolveProductRedirectSlug` (`lib/tina-content.ts`)
+are the read side — when the primary slug lookup finds nothing, these check
+whether the requested slug shows up in any document's `previousSlugs`
+instead (filtered in application code, same reasoning as
+`filterByTaxonomyTerm`: not worth relying on unverified list-contains
+GraphQL filter semantics). Each detail route
+(`app/[locale]/[slug]/page.tsx`, `blog/[slug]/page.tsx`,
+`products/[slug]/page.tsx`) calls the matching resolver on a miss and
+`permanentRedirect()`s (a real 308, not `next/navigation`'s `redirect()`,
+which defaults to a 307 — confirmed live: the fix mattered, an SEO-motivated
+slug change deserves a permanent redirect) to the current URL before
+falling through to `notFound()`. Real limitation: same as
+`slugLifecycleGuard` everywhere else, this only captures history for
+renames made through the Tina admin form.
+
+**Sitemap** (`app/sitemap.ts`) walks every non-draft `pages`/`blog`/`products`
+document in every locale and builds each URL with the exact same helpers
+everything else uses (`resolvePagesDocumentUrl`, `collectionPath`) — no
+separate URL-building logic to keep in sync. `export const dynamic =
+"force-dynamic"` for the same reason the rest of this app already renders
+every route dynamically (see "Production builds require Tina Cloud" under
+Known issues): a statically-generated sitemap would go stale the moment a
+slug changes without a rebuild, defeating the point.
 
 ## Known issues
 

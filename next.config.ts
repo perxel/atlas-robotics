@@ -15,7 +15,6 @@ const nextConfig: NextConfig = {
       { source: "/vi/blog/:path*", destination: "/vi/tin-tuc/:path*", permanent: true },
       { source: "/vi/products", destination: "/vi/san-pham", permanent: true },
       { source: "/vi/products/:path*", destination: "/vi/san-pham/:path*", permanent: true },
-      { source: "/vi/contact", destination: "/vi/lien-he", permanent: true },
     ];
   },
   async rewrites() {
@@ -24,7 +23,6 @@ const nextConfig: NextConfig = {
       { source: "/vi/tin-tuc/:path*", destination: "/vi/blog/:path*" },
       { source: "/vi/san-pham", destination: "/vi/products" },
       { source: "/vi/san-pham/:path*", destination: "/vi/products/:path*" },
-      { source: "/vi/lien-he", destination: "/vi/contact" },
     ];
   },
 };
