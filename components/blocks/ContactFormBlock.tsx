@@ -20,7 +20,7 @@ export default function ContactFormBlock({
           {data.subheading}
         </p>
       )}
-      <ContactForm locale={locale} />
+      <ContactForm locale={locale} fields={data} />
     </section>
   );
 }

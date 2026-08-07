@@ -25,8 +25,9 @@ import ProductListingBlock from "./ProductListingBlock";
 // ProductListingBlock needs products) — threaded down from the page
 // component through PageView rather than fetched by the block itself,
 // since blocks render inside PageView's client component tree. Newsletter
-// and ContactFormBlock only need `locale` — their copy comes entirely from
-// lib/dictionary.ts (UI chrome), not CMS content.
+// and ContactFormBlock's field-level copy (labels/placeholders/button text)
+// is optional on the block itself, falling back to lib/dictionary.ts (UI
+// chrome) when unset — see NewsletterForm.tsx/ContactForm.tsx.
 export default function BlocksRenderer({
   blocks,
   locale,

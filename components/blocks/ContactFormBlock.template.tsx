@@ -8,9 +8,13 @@ import type { Template } from "tinacms";
 // nullability mismatch: "Fields \"heading\" conflict because they return
 // conflicting types \"String!\" and \"String\"" (confirmed by hitting that
 // error directly). `subheading` is optional on every other block that has
-// it too, so it's safe. GraphQL object types can't have zero fields
-// either (confirmed: "Type PagesBlocksContactForm must define one or more
-// fields"), so this also can't just be `fields: []`.
+// it too, so it's safe.
+//
+// name/email/message/submitLabel are all optional per-instance overrides —
+// components/blocks/ContactForm.tsx falls back to lib/dictionary.ts (the
+// UI-chrome translation) whenever one isn't set, so an editor only needs
+// to touch these if a specific page's form should say something different
+// from the site default.
 export const contactFormTemplate: Template = {
   name: "contactForm",
   label: "Contact Form",
@@ -20,6 +24,42 @@ export const contactFormTemplate: Template = {
       name: "subheading",
       label: "Note",
       description: "Optional short note shown above the form.",
+    },
+    {
+      type: "object",
+      name: "name",
+      label: "Name Field",
+      description: "Leave blank to use the site default label/placeholder.",
+      fields: [
+        { type: "string", name: "label", label: "Label" },
+        { type: "string", name: "placeholder", label: "Placeholder" },
+      ],
+    },
+    {
+      type: "object",
+      name: "email",
+      label: "Email Field",
+      description: "Leave blank to use the site default label/placeholder.",
+      fields: [
+        { type: "string", name: "label", label: "Label" },
+        { type: "string", name: "placeholder", label: "Placeholder" },
+      ],
+    },
+    {
+      type: "object",
+      name: "message",
+      label: "Message Field",
+      description: "Leave blank to use the site default label/placeholder.",
+      fields: [
+        { type: "string", name: "label", label: "Label" },
+        { type: "string", name: "placeholder", label: "Placeholder" },
+      ],
+    },
+    {
+      type: "string",
+      name: "submitLabel",
+      label: "Submit Button Label",
+      description: "Leave blank to use the site default.",
     },
   ],
 };

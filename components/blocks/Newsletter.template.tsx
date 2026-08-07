@@ -6,5 +6,24 @@ export const newsletterTemplate: Template = {
   fields: [
     { type: "string", name: "heading", label: "Heading", required: true },
     { type: "string", name: "subheading", label: "Subheading" },
+    // Optional per-instance overrides — components/blocks/NewsletterForm.tsx
+    // falls back to lib/dictionary.ts (the UI-chrome translation) whenever
+    // one isn't set.
+    {
+      type: "object",
+      name: "email",
+      label: "Email Field",
+      description: "Leave blank to use the site default label/placeholder.",
+      fields: [
+        { type: "string", name: "label", label: "Label" },
+        { type: "string", name: "placeholder", label: "Placeholder" },
+      ],
+    },
+    {
+      type: "string",
+      name: "submitLabel",
+      label: "Submit Button Label",
+      description: "Leave blank to use the site default.",
+    },
   ],
 };

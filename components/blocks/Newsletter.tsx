@@ -24,7 +24,7 @@ export default function Newsletter({
         </p>
       )}
       <div className="mt-8">
-        <NewsletterForm locale={locale} />
+        <NewsletterForm locale={locale} fields={data} />
       </div>
     </section>
   );

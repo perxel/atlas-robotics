@@ -40,23 +40,19 @@ export default function PageView({
 
   return (
     <article>
-      {(titleEnabled || hasIntro) && (
+      {titleEnabled && (
         <div className="mx-auto max-w-3xl px-4 py-12">
-          {titleEnabled && (
-            <>
-              <h1 data-tina-field={tinaField(page, "title")} className="text-3xl font-semibold">
-                {page.title}
-              </h1>
-              <div className="mt-2">
-                <Breadcrumb
-                  items={[
-                    { label: dict.breadcrumb.home, href: localePath(locale, "/") },
-                    { label: page.title },
-                  ]}
-                />
-              </div>
-            </>
-          )}
+          <h1 data-tina-field={tinaField(page, "title")} className="text-3xl font-semibold">
+            {page.title}
+          </h1>
+          <div className="mt-2">
+            <Breadcrumb
+              items={[
+                { label: dict.breadcrumb.home, href: localePath(locale, "/") },
+                { label: page.title },
+              ]}
+            />
+          </div>
           {hasIntro && (
             <div
               data-tina-field={tinaField(page, "intro")}

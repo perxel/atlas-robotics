@@ -68,7 +68,7 @@ export const pagesCollection: Collection = {
       name: "hideTitle",
       label: "Hide Page Title",
       description:
-        "Hide the page title (and breadcrumb, where shown) above this page's content. Off by default; turn on for pages like the homepage where a block below — a hero, for example — already carries its own heading.",
+        "Hide the entire title/breadcrumb/intro section above this page's blocks — not just the title, the whole section, Intro Copy included. Off by default; turn on for pages like the homepage where a block below — a hero, for example — already carries its own heading.",
     },
     {
       type: "rich-text",
