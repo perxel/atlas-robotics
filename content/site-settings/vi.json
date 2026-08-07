@@ -1,15 +1,27 @@
 {
-  "title": "Trang Demo",
+  "title": "Lorem ipsum",
   "logo": "/uploads/placeholder-logo.svg",
-  "favicon": "/favicon.ico",
+  "favicon": "/uploads/favicon.ico",
   "defaultSeo": {
     "metaTitle": "Trang Demo — Bằng Chứng Khái Niệm Công Nghệ",
     "metaDescription": "Bản demo nội bộ dùng lại được, xác thực Next.js, TinaCMS và biên tập nội dung hai ngôn ngữ.",
     "ogImage": ""
   },
   "socialLinks": [
-    { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },
-    { "platform": "Instagram", "url": "https://instagram.com/example", "icon": "instagram" },
-    { "platform": "YouTube", "url": "https://youtube.com/example", "icon": "youtube" }
+    {
+      "platform": "Facebook",
+      "url": "https://facebook.com/example",
+      "icon": "facebook"
+    },
+    {
+      "platform": "Instagram",
+      "url": "https://instagram.com/example",
+      "icon": "instagram"
+    },
+    {
+      "platform": "YouTube",
+      "url": "https://youtube.com/example",
+      "icon": "youtube"
+    }
   ]
 }
