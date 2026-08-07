@@ -1,5 +1,5 @@
 ---
-title: Bằng Chứng Khái Niệm Nền Tảng TinaCMS
+title: TinaCMS x Nextjs
 slug: home
 draft: false
 intro: |
@@ -27,6 +27,7 @@ blocks:
     _template: cta
 seo:
   metaTitle: Trang Demo — Bằng Chứng Khái Niệm Công Nghệ
-  metaDescription: Một bản demo nội bộ dùng lại được, xác thực Next.js App Router, TinaCMS với media lưu trong repo, định tuyến hai ngôn ngữ và bộ thành phần nội dung có cấu trúc.
+  metaDescription: 'Một bản demo nội bộ dùng lại được, xác thực Next.js App Router, TinaCMS với media lưu trong repo, định tuyến hai ngôn ngữ và bộ thành phần nội dung có cấu trúc.'
   ogImage: ''
 ---
+
