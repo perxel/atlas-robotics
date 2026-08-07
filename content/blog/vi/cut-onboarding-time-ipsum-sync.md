@@ -23,7 +23,7 @@ Chúng tôi có tài liệu hòa nhập. Có kênh Slack. Có wiki. Điều chú
 
 ## Những gì chúng tôi đã thay đổi
 
-Chúng tôi chuyển quy trình hòa nhập vào một không gian [Ipsum Sync](/products/ipsum-sync) duy nhất: một nơi có danh sách việc cần làm, tài liệu, lịch, và cuộc trò chuyện đang diễn ra, thay vì sáu điểm đến riêng biệt.
+Chúng tôi chuyển quy trình hòa nhập vào một không gian [Ipsum Sync](/vi/san-pham/ipsum-sync) duy nhất: một nơi có danh sách việc cần làm, tài liệu, lịch, và cuộc trò chuyện đang diễn ra, thay vì sáu điểm đến riêng biệt.
 
 - **Trước đây:** nhân viên mới nhắn tin cho năm người khác nhau để tìm năm thứ khác nhau
 - **Bây giờ:** nhân viên mới mở một không gian làm việc và mọi thứ đều liên kết từ đó

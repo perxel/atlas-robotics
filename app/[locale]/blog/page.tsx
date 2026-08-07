@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getBlogPosts, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 
 export async function generateMetadata({
   params,
@@ -14,7 +15,7 @@ export async function generateMetadata({
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || localePath(locale, "/blog");
+  const pathname = headersList.get("x-pathname") || sectionPath(locale, "blog");
   const settings = await getSiteSettings(locale);
   const dict = getDictionary(locale);
 
@@ -45,7 +46,7 @@ export default async function BlogPage({
             key={post.id}
             className="overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
-            <Link href={localePath(locale, `/blog/${post.slug}`)}>
+            <Link href={sectionPath(locale, "blog", `/${post.slug}`)}>
               {post.coverImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -62,7 +63,7 @@ export default async function BlogPage({
                     c?.term ? (
                       <Link
                         key={c.term.slug}
-                        href={localePath(locale, `/blog/category/${c.term.slug}`)}
+                        href={sectionPath(locale, "blog", `/category/${c.term.slug}`)}
                         className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
                       >
                         {c.term.title}
@@ -72,7 +73,7 @@ export default async function BlogPage({
                 </div>
               )}
               <h2 className="font-semibold">
-                <Link href={localePath(locale, `/blog/${post.slug}`)}>{post.title}</Link>
+                <Link href={sectionPath(locale, "blog", `/${post.slug}`)}>{post.title}</Link>
               </h2>
               {post.publishDate && (
                 <p className="mt-1 text-xs text-muted-foreground">

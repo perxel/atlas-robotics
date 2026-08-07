@@ -15,11 +15,11 @@ intro: >-
 blocks:
   - heading: See the products
     buttonLabel: Explore our products
-    buttonUrl: /en/products
+    buttonUrl: /products
     _template: cta
   - heading: Want playbooks, not just pitches?
     buttonLabel: Read our blog
-    buttonUrl: /en/blog
+    buttonUrl: /blog
     _template: cta
 seo:
   metaTitle: About — Lorem ipsum

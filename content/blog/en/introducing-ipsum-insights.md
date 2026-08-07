@@ -15,7 +15,7 @@ seo:
   ogImage: ''
 ---
 
-Today we're launching [Ipsum Insights](/en/products/ipsum-insights), our answer to a question a lot of customers asked us after using Ipsum Flow: "now that the process runs itself, how do we actually see what it's doing?"
+Today we're launching [Ipsum Insights](/products/ipsum-insights), our answer to a question a lot of customers asked us after using Ipsum Flow: "now that the process runs itself, how do we actually see what it's doing?"
 
 ## What's in this release
 
@@ -29,4 +29,4 @@ Most reporting tools ask you to remember to check them. We wanted the opposite: 
 
 ## Try it
 
-Ipsum Insights is available today on every plan that includes Ipsum Flow, with a standalone plan starting at $49/mo. [See what's included](/en/products/ipsum-insights).
+Ipsum Insights is available today on every plan that includes Ipsum Flow, with a standalone plan starting at $49/mo. [See what's included](/products/ipsum-insights).

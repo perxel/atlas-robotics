@@ -1,6 +1,6 @@
 ---
 title: Giới Thiệu Về Lorem ipsum
-slug: about
+slug: ve-chung-toi
 draft: false
 intro: >-
   Lorem ipsum bắt đầu từ một nhận định đơn giản: hầu hết các nhóm không cần
@@ -15,11 +15,11 @@ intro: >-
 blocks:
   - heading: Khám phá sản phẩm
     buttonLabel: Xem sản phẩm của chúng tôi
-    buttonUrl: /products
+    buttonUrl: /vi/san-pham
     _template: cta
   - heading: Muốn xem bí quyết vận hành, không chỉ là lời quảng cáo?
     buttonLabel: Đọc blog của chúng tôi
-    buttonUrl: /blog
+    buttonUrl: /vi/tin-tuc
     _template: cta
 seo:
   metaTitle: Giới Thiệu — Lorem ipsum

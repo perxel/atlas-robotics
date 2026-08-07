@@ -41,4 +41,4 @@ Những việc chỉ quan trọng vào một ngày cụ thể là thứ dễ qu�
 
 ---
 
-Chúng tôi xây dựng [Ipsum Flow](/products/ipsum-flow) dựa trên chính danh sách này — chọn điều kiện kích hoạt, thiết lập các bước, và ngừng làm cầu nối thủ công giữa hai hệ thống đáng lẽ nên tự nói chuyện với nhau.
+Chúng tôi xây dựng [Ipsum Flow](/vi/san-pham/ipsum-flow) dựa trên chính danh sách này — chọn điều kiện kích hoạt, thiết lập các bước, và ngừng làm cầu nối thủ công giữa hai hệ thống đáng lẽ nên tự nói chuyện với nhau.

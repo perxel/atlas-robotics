@@ -23,7 +23,7 @@ We had onboarding docs. We had a Slack channel. We had a wiki. What we didn't ha
 
 ## What we changed
 
-We moved onboarding into a single [Ipsum Sync](/en/products/ipsum-sync) workspace: one space with the checklist, the docs, the calendar, and the running conversation, instead of six separate destinations.
+We moved onboarding into a single [Ipsum Sync](/products/ipsum-sync) workspace: one space with the checklist, the docs, the calendar, and the running conversation, instead of six separate destinations.
 
 - **Before:** new hire pings five different people to find five different things
 - **After:** new hire opens one workspace and everything links from there

@@ -5,6 +5,7 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
 import Breadcrumb from "@/components/Breadcrumb";
 
@@ -48,7 +49,7 @@ export default function ProductView({
           {categories.map((c) => (
             <Link
               key={c.term.slug}
-              href={localePath(locale, `/products/category/${c.term.slug}`)}
+              href={sectionPath(locale, "products", `/category/${c.term.slug}`)}
               data-tina-field={tinaField(c)}
               className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
             >
@@ -68,7 +69,7 @@ export default function ProductView({
         <Breadcrumb
           items={[
             { label: dict.breadcrumb.home, href: localePath(locale, "/") },
-            { label: dict.products.pageTitle, href: localePath(locale, "/products") },
+            { label: dict.products.pageTitle, href: sectionPath(locale, "products") },
             { label: product.title },
           ]}
         />
@@ -104,7 +105,7 @@ export default function ProductView({
 
       <div className="mt-10">
         <Link
-          href={localePath(locale, "/contact")}
+          href={sectionPath(locale, "contact")}
           className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
         >
           {dict.products.getStarted}

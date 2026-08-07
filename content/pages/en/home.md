@@ -13,21 +13,21 @@ blocks:
         image: /uploads/hero-banner.jpg
         video: /uploads/hero-video-1.mp4
         buttonLabel: Get started free
-        buttonUrl: /en/contact
+        buttonUrl: /contact
       - heading: See what's actually happening, in real time
         subheading: >-
           Ipsum Insights turns scattered spreadsheets into live dashboards
           your whole team can trust.
         image: /uploads/hero-banner-2.jpg
         buttonLabel: Explore Ipsum Insights
-        buttonUrl: /en/products/ipsum-insights
+        buttonUrl: /products/ipsum-insights
       - heading: Keep your team in sync, always
         subheading: >-
           One shared workspace for projects, docs, and conversations —
           Ipsum Sync replaces the scavenger hunt.
         image: /uploads/hero-banner-3.jpg
         buttonLabel: Explore Ipsum Sync
-        buttonUrl: /en/products/ipsum-sync
+        buttonUrl: /products/ipsum-sync
     _template: hero
   - heading: Why teams choose Lorem ipsum
     items:
@@ -63,7 +63,7 @@ blocks:
     _template: newsletter
   - heading: Ready to get started?
     buttonLabel: Talk to us
-    buttonUrl: /en/contact
+    buttonUrl: /contact
     _template: cta
 seo:
   metaTitle: 'Lorem ipsum — Automate, Understand, and Sync Your Team''s Work'

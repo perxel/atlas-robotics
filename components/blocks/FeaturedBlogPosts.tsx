@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
-import { localePath, type Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 import type { getBlogPosts } from "@/lib/tina-content";
 
 export default function FeaturedBlogPosts({
@@ -38,7 +39,7 @@ export default function FeaturedBlogPosts({
           {shown.map((post) => (
             <Link
               key={post.id}
-              href={localePath(locale, `/blog/${post.slug}`)}
+              href={sectionPath(locale, "blog", `/${post.slug}`)}
               className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
             >
               {post.coverImage && (
@@ -62,7 +63,7 @@ export default function FeaturedBlogPosts({
 
       <div className="mt-8 text-center">
         <Link
-          href={localePath(locale, "/blog")}
+          href={sectionPath(locale, "blog")}
           className="text-sm font-medium text-accent hover:opacity-80"
         >
           {dict.blog.viewAll}

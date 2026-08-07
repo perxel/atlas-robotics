@@ -15,7 +15,7 @@ seo:
   ogImage: ''
 ---
 
-Hôm nay chúng tôi ra mắt [Ipsum Insights](/products/ipsum-insights), câu trả lời của chúng tôi cho một câu hỏi mà rất nhiều khách hàng đặt ra sau khi dùng Ipsum Flow: "giờ quy trình đã tự vận hành, làm sao để chúng tôi thực sự thấy nó đang làm gì?"
+Hôm nay chúng tôi ra mắt [Ipsum Insights](/vi/san-pham/ipsum-insights), câu trả lời của chúng tôi cho một câu hỏi mà rất nhiều khách hàng đặt ra sau khi dùng Ipsum Flow: "giờ quy trình đã tự vận hành, làm sao để chúng tôi thực sự thấy nó đang làm gì?"
 
 ## Có gì trong bản phát hành này
 
@@ -29,4 +29,4 @@ Hầu hết công cụ báo cáo yêu cầu bạn phải nhớ để kiểm tra 
 
 ## Dùng thử ngay
 
-Ipsum Insights có sẵn ngay hôm nay trên mọi gói có Ipsum Flow, với gói riêng bắt đầu từ $49/tháng. [Xem chi tiết những gì đi kèm](/products/ipsum-insights).
+Ipsum Insights có sẵn ngay hôm nay trên mọi gói có Ipsum Flow, với gói riêng bắt đầu từ $49/tháng. [Xem chi tiết những gì đi kèm](/vi/san-pham/ipsum-insights).

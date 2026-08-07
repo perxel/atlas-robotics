@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getBlogPosts, getCategories, getSiteSettings, filterByTaxonomyTerm } from "@/lib/tina-content";
 import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 import type { Locale } from "@/lib/i18n";
 
 /**
@@ -53,7 +54,8 @@ export async function generateMetadata({
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
   const pathname =
-    headersList.get("x-pathname") || localePath(locale, `/blog/${taxonomySegment}/${termSlug}`);
+    headersList.get("x-pathname") ||
+    sectionPath(locale, "blog", `/${taxonomySegment}/${termSlug}`);
   const [archive, settings] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
@@ -84,7 +86,7 @@ export default async function BlogTaxonomyArchivePage({
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
-        <Link href={localePath(locale, "/blog")} className="hover:text-accent">
+        <Link href={sectionPath(locale, "blog")} className="hover:text-accent">
           {dict.blog.pageTitle}
         </Link>
       </p>
@@ -94,7 +96,7 @@ export default async function BlogTaxonomyArchivePage({
         {archive.posts.map((post) => (
           <Link
             key={post.id}
-            href={localePath(locale, `/blog/${post.slug}`)}
+            href={sectionPath(locale, "blog", `/${post.slug}`)}
             className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             {post.coverImage && (

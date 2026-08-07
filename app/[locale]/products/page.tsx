@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getProducts, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 
 export async function generateMetadata({
   params,
@@ -14,7 +15,7 @@ export async function generateMetadata({
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || localePath(locale, "/products");
+  const pathname = headersList.get("x-pathname") || sectionPath(locale, "products");
   const settings = await getSiteSettings(locale);
   const dict = getDictionary(locale);
 
@@ -47,7 +48,7 @@ export default async function ProductsPage({
             key={product.id}
             className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
-            <Link href={localePath(locale, `/products/${product.slug}`)}>
+            <Link href={sectionPath(locale, "products", `/${product.slug}`)}>
               {product.coverImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -64,7 +65,7 @@ export default async function ProductsPage({
                     c?.term ? (
                       <Link
                         key={c.term.slug}
-                        href={localePath(locale, `/products/category/${c.term.slug}`)}
+                        href={sectionPath(locale, "products", `/category/${c.term.slug}`)}
                         className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
                       >
                         {c.term.title}
@@ -74,7 +75,7 @@ export default async function ProductsPage({
                 </div>
               )}
               <h2 className="font-semibold">
-                <Link href={localePath(locale, `/products/${product.slug}`)}>{product.title}</Link>
+                <Link href={sectionPath(locale, "products", `/${product.slug}`)}>{product.title}</Link>
               </h2>
               {product.excerpt && (
                 <p className="mt-2 text-sm text-muted-foreground">{product.excerpt}</p>
@@ -82,7 +83,7 @@ export default async function ProductsPage({
               <div className="mt-4 flex flex-1 items-end justify-between gap-3">
                 {product.price && <span className="text-sm font-semibold">{product.price}</span>}
                 <Link
-                  href={localePath(locale, `/products/${product.slug}`)}
+                  href={sectionPath(locale, "products", `/${product.slug}`)}
                   className="text-sm font-medium text-accent hover:opacity-80"
                 >
                   {dict.products.viewDetails}

@@ -4,9 +4,9 @@
 export const locales = ["vi", "en"] as const;
 export type Locale = (typeof locales)[number];
 
-// The default locale is served unprefixed at "/" (e.g. "/catalog").
-// Every other locale is served under its own prefix (e.g. "/en/catalog").
-export const defaultLocale: Locale = "vi";
+// The default locale is served unprefixed at "/" (e.g. "/products").
+// Every other locale is served under its own prefix (e.g. "/vi/products").
+export const defaultLocale: Locale = "en";
 
 export const localeLabels: Record<Locale, string> = {
   en: "English",

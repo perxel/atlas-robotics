@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getForms, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 import ContactForm from "@/components/contact/ContactForm";
 
 export async function generateMetadata({
@@ -14,7 +15,7 @@ export async function generateMetadata({
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || localePath(locale, "/contact");
+  const pathname = headersList.get("x-pathname") || sectionPath(locale, "contact");
   const settings = await getSiteSettings(locale);
   const dict = getDictionary(locale);
 

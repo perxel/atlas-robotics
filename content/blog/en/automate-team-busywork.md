@@ -41,4 +41,4 @@ The stuff that only matters on a specific date is the easiest thing to forget wh
 
 ---
 
-We built [Ipsum Flow](/en/products/ipsum-flow) around exactly this list — pick a trigger, set the steps, and stop being the glue between two systems that should just talk to each other.
+We built [Ipsum Flow](/products/ipsum-flow) around exactly this list — pick a trigger, set the steps, and stop being the glue between two systems that should just talk to each other.

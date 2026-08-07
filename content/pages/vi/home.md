@@ -13,21 +13,21 @@ blocks:
         image: /uploads/hero-banner.jpg
         video: /uploads/hero-video-1.mp4
         buttonLabel: Bắt đầu miễn phí
-        buttonUrl: /contact
+        buttonUrl: /vi/lien-he
       - heading: Thấy rõ mọi thứ đang diễn ra, theo thời gian thực
         subheading: >-
           Ipsum Insights biến những bảng tính rời rạc thành bảng điều khiển
           trực tiếp mà cả nhóm bạn có thể tin tưởng.
         image: /uploads/hero-banner-2.jpg
         buttonLabel: Khám phá Ipsum Insights
-        buttonUrl: /products/ipsum-insights
+        buttonUrl: /vi/san-pham/ipsum-insights
       - heading: Giữ cả nhóm luôn đồng bộ
         subheading: >-
           Một không gian làm việc chung cho dự án, tài liệu và hội thoại —
           Ipsum Sync thay thế cuộc truy lùng thông tin.
         image: /uploads/hero-banner-3.jpg
         buttonLabel: Khám phá Ipsum Sync
-        buttonUrl: /products/ipsum-sync
+        buttonUrl: /vi/san-pham/ipsum-sync
     _template: hero
   - heading: Vì sao các nhóm chọn Lorem ipsum
     items:
@@ -63,7 +63,7 @@ blocks:
     _template: newsletter
   - heading: Sẵn sàng bắt đầu?
     buttonLabel: Liên hệ với chúng tôi
-    buttonUrl: /contact
+    buttonUrl: /vi/lien-he
     _template: cta
 seo:
   metaTitle: 'Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn'

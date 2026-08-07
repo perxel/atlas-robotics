@@ -3,15 +3,15 @@
     {
       "title": "Khám Phá",
       "links": [
-        { "label": "Sản Phẩm", "url": "/products" },
-        { "label": "Blog", "url": "/blog" },
-        { "label": "Giới Thiệu", "url": "/about" }
+        { "label": "Sản Phẩm", "url": "/vi/san-pham" },
+        { "label": "Blog", "url": "/vi/tin-tuc" },
+        { "label": "Giới Thiệu", "url": "/vi/ve-chung-toi" }
       ]
     },
     {
       "title": "Công Ty",
       "links": [
-        { "label": "Liên Hệ", "url": "/contact" }
+        { "label": "Liên Hệ", "url": "/vi/lien-he" }
       ]
     }
   ],

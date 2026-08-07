@@ -1,3 +1,5 @@
+import { sectionSlugs } from "@/lib/section-slugs";
+
 /**
  * Pages listed here render as a fixed layout (title + intro only), ignoring
  * whatever sections editors have added in the admin. The `pages` collection
@@ -20,11 +22,16 @@ export function isBlocksEnabled(slug: string): boolean {
  * route silently (literal segments win over the dynamic sibling), leaving
  * the page unreachable rather than erroring. Enforced in the Tina schema
  * itself via the `slug` field's `ui.validate` (tina/config.ts).
+ *
+ * `reservedSlugs` is a single flat set applied to every `pages` document
+ * regardless of its own locale, so every locale's spelling of a section
+ * (see lib/section-slugs.ts — e.g. "blog" AND "tin-tuc") is reserved
+ * everywhere, not just for the locale it belongs to. A little
+ * conservative, but simple and safe — an English page can't be named
+ * "tin-tuc" either, which costs nothing.
  */
 export const reservedSlugs = new Set<string>([
-  "blog",
-  "products",
-  "contact",
+  ...Object.values(sectionSlugs).flatMap((byLocale) => Object.values(byLocale)),
   "admin",
   "api",
 ]);

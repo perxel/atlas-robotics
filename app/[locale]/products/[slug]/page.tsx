@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getProductQuery, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 import ProductView from "@/components/products/ProductView";
 
 export async function generateMetadata({
@@ -15,7 +16,7 @@ export async function generateMetadata({
   const { locale: rawLocale, slug } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || localePath(locale, `/products/${slug}`);
+  const pathname = headersList.get("x-pathname") || sectionPath(locale, "products", `/${slug}`);
   const [result, settings] = await Promise.all([
     getProductQuery(locale, slug),
     getSiteSettings(locale),

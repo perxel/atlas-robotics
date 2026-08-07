@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import {
   getProducts,
@@ -12,6 +12,7 @@ import {
 } from "@/lib/tina-content";
 import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
+import { sectionPath } from "@/lib/section-slugs";
 import type { Locale } from "@/lib/i18n";
 
 /**
@@ -48,7 +49,7 @@ export async function generateMetadata({
   const headersList = await headers();
   const pathname =
     headersList.get("x-pathname") ||
-    localePath(locale, `/products/${taxonomySegment}/${termSlug}`);
+    sectionPath(locale, "products", `/${taxonomySegment}/${termSlug}`);
   const [archive, settings] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
@@ -79,7 +80,7 @@ export default async function ProductsTaxonomyArchivePage({
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
-        <Link href={localePath(locale, "/products")} className="hover:text-accent">
+        <Link href={sectionPath(locale, "products")} className="hover:text-accent">
           {dict.products.pageTitle}
         </Link>
       </p>
@@ -89,7 +90,7 @@ export default async function ProductsTaxonomyArchivePage({
         {archive.products.map((product) => (
           <Link
             key={product.id}
-            href={localePath(locale, `/products/${product.slug}`)}
+            href={sectionPath(locale, "products", `/${product.slug}`)}
             className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             {product.coverImage && (
