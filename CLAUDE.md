@@ -82,7 +82,7 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
 - Each collection lives in its own `tina/collections/<name>.schema.tsx`
   file; `tina/config.ts` only imports and composes them into the
   `collections` array passed to `defineConfig`. Shared field helpers
-  (`seoField()`, `draftField()`, `slugField()`/`previousSlugsField()`/`slugLifecycleGuard()`,
+  (`seoField()`, `draftField()`, `slugField()`/`slugLifecycleGuard()`,
   `defineTaxonomy()`/`taxonomyField()` — see "Taxonomies" below) live under
   `tina/collections/shared-fields/`, one `<name>.schema.tsx` per helper.
   Block templates live next to their render component as
@@ -183,34 +183,31 @@ for high-traffic editorial content, not for rarely-touched config.
 ## Routable slugs — a field, not a filename, and it's enforced
 
 Any collection where a document's URL is driven by an editable `slug`
-field (not by whatever Tina named the underlying file) uses three paired
+field (not by whatever Tina named the underlying file) uses two paired
 helpers from `tina/collections/shared-fields/slug.schema.tsx`:
 
 - **`slugField({ reserved? })`** — the field itself. `reserved` is an
   optional `Set<string>` of words that can't be used (see "Pages collection"
   below); omit it for collections that don't need one (`blog` posts live
   under `/blog/`, so they can't collide with a root-level page slug).
-- **`previousSlugsField()`** — a plain string list, paired with `slugField()`
-  on the same collection. Never hand-edited; `slugLifecycleGuard` appends to
-  it automatically whenever `slug` changes, so a renamed document's old URL
-  can redirect to the current one instead of 404ing — see "Slug lifecycle"
-  below.
 - **`slugLifecycleGuard(collectionName)`** — a `ui.beforeSubmit` hook doing
-  three things: (1) blocks saving a document whose `slug` is already used by
+  two things: (1) blocks saving a document whose `slug` is already used by
   another document in the same collection *and locale* (the same slug
   validly exists in both `en/` and `vi/` — those are different URLs); (2)
-  for the `pages` collection, blocks changing `slug` at all on a
-  filename listed in `lockedSlugFilenames` (`lib/pages-config.ts`); (3)
-  otherwise, when `slug` changes, appends the old value to
-  `previousSlugsField()`. Verified against `tinacms/dist/index.js` directly
-  (not just docs, which don't say either way): `beforeSubmit` runs inside
-  `handleSubmit`'s `try/catch`, and throwing there stops the write from ever
-  reaching disk — Tina shows the message as a form error. Also confirmed
-  directly in that file, and non-obvious enough to be worth calling out:
-  Tina only uses this hook's **return value** to decide what gets saved
-  (`submittedValues = valOverride || values`) — mutating `values` in place
-  and returning nothing is silently a no-op, so every branch that needs to
-  persist a change returns a full values object rather than mutating.
+  for the `pages` collection only, blocks changing `slug` at all on a
+  filename listed in `lockedSlugFilenames` (`lib/pages-config.ts` — see
+  "Collection-backed listing pages" below). Verified against
+  `tinacms/dist/index.js` directly (not just docs, which don't say either
+  way): `beforeSubmit` runs inside `handleSubmit`'s `try/catch`, and
+  throwing there stops the write from ever reaching disk — Tina shows the
+  message as a form error.
+
+Deliberately does **not** track slug history or auto-redirect a renamed
+document's old URL — an earlier version did, but it meant a
+"Previous Slugs (auto-managed)" list field showing up in the admin with no
+clean way to hide it, for a case (an editor renaming an existing page's
+slug, not creating a new one) that doesn't come up often enough to justify
+that. If a slug does change, add a redirect by hand at that point instead.
 
 **Why this exists:** routing by filename (`relativePath: ${locale}/${slug}.md`)
 silently breaks the moment a document's `slug` field doesn't match its
@@ -228,7 +225,7 @@ guard above.
 named `slug` but no `ui.beforeSubmit`, it throws immediately with the
 offending collection's name. Adding a new routable collection *without*
 wiring the guard fails the build loudly rather than shipping a latent
-404 bug. Use `slugField()` + `previousSlugsField()` +
+404 bug. Use `slugField()` +
 `beforeSubmit: slugLifecycleGuard("name")` together on every new collection
 that needs an editable slug.
 
@@ -491,23 +488,11 @@ hand-maintain a second identifier in parallel with it.
   diverged: hreflang pointed `vi` at `/vi/about`, which 404s: the real
   slug is `/vi/ve-chung-toi`. Confirmed live before the fix, not assumed.
 
-**Slug history and redirects:** `previousSlugsField()` + `slugLifecycleGuard`
-(see "Routable slugs") capture a document's prior slug automatically on
-every rename made through the admin. `resolvePageRedirectSlug`/
-`resolveBlogRedirectSlug`/`resolveProductRedirectSlug` (`lib/tina-content.ts`)
-are the read side — when the primary slug lookup finds nothing, these check
-whether the requested slug shows up in any document's `previousSlugs`
-instead (filtered in application code, same reasoning as
-`filterByTaxonomyTerm`: not worth relying on unverified list-contains
-GraphQL filter semantics). Each detail route
-(`app/[locale]/[slug]/page.tsx`, `blog/[slug]/page.tsx`,
-`products/[slug]/page.tsx`) calls the matching resolver on a miss and
-`permanentRedirect()`s (a real 308, not `next/navigation`'s `redirect()`,
-which defaults to a 307 — confirmed live: the fix mattered, an SEO-motivated
-slug change deserves a permanent redirect) to the current URL before
-falling through to `notFound()`. Real limitation: same as
-`slugLifecycleGuard` everywhere else, this only captures history for
-renames made through the Tina admin form.
+**Renaming a slug does not auto-redirect the old URL** — deliberately, see
+"Routable slugs" above. A `pages`/`blog`/`products` document renamed
+through the admin just 404s at its old URL until a developer adds a
+redirect by hand (`next.config.ts`'s `redirects()`, same mechanism already
+used for the untranslated-collection-URL redirects above).
 
 **Sitemap** (`app/sitemap.ts`) walks every non-draft `pages`/`blog`/`products`
 document in every locale and builds each URL with the exact same helpers

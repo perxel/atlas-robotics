@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
-import { notFound, redirect, permanentRedirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
-import {
-  getPageQuery,
-  getPageBlockData,
-  getSiteSettings,
-  resolvePageRedirectSlug,
-} from "@/lib/tina-content";
+import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
 import PageView from "@/components/pages/PageView";
 
@@ -54,16 +49,7 @@ export default async function GenericPage({
 
   const result = await getPageQuery(locale, slug);
 
-  if (!result) {
-    // Not found by current slug — check whether it's a slug this document
-    // used to have (auto-captured by slugLifecycleGuard on rename) before
-    // giving up, so a renamed page's old URL redirects instead of 404ing.
-    const currentSlug = await resolvePageRedirectSlug(locale, slug);
-    if (currentSlug) {
-      permanentRedirect(localePath(locale, currentSlug === "home" ? "/" : `/${currentSlug}`));
-    }
-    notFound();
-  }
+  if (!result) notFound();
 
   const { latestPosts, products } = await getPageBlockData(locale, result.data.pages.blocks);
 

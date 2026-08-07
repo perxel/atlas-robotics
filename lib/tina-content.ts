@@ -119,27 +119,6 @@ export const getBlogPostQuery = cache(async (locale: Locale, slug: string) => {
   }
 });
 
-/**
- * Fallback for when getBlogPostQuery finds nothing by the requested slug —
- * checks whether any post's `previousSlugsField()` history (auto-captured
- * by slugLifecycleGuard on save) contains it instead, so a renamed post's
- * old URL can redirect to the current one rather than 404ing. Filters in
- * application code, same as filterByTaxonomyTerm above — not a GraphQL
- * `filter` clause, since list-contains filter semantics on a plain string
- * list aren't worth relying on unverified.
- */
-export async function resolveBlogRedirectSlug(locale: Locale, slug: string): Promise<string | null> {
-  try {
-    const res = await client.queries.blogConnection({ filter: { draft: { eq: false } } });
-    const doc = inLocale(res.data.blogConnection.edges, locale).find((d) =>
-      (d.previousSlugs ?? []).includes(slug)
-    );
-    return doc?.slug ?? null;
-  } catch {
-    return null;
-  }
-}
-
 /** Same two-step slug resolution as getBlogPostQuery — see its comment. */
 export const getProductQuery = cache(async (locale: Locale, slug: string) => {
   try {
@@ -153,22 +132,6 @@ export const getProductQuery = cache(async (locale: Locale, slug: string) => {
     return null;
   }
 });
-
-/** Same fallback as resolveBlogRedirectSlug, for `products` — see its comment. */
-export async function resolveProductRedirectSlug(
-  locale: Locale,
-  slug: string
-): Promise<string | null> {
-  try {
-    const res = await client.queries.productsConnection({ filter: { draft: { eq: false } } });
-    const doc = inLocale(res.data.productsConnection.edges, locale).find((d) =>
-      (d.previousSlugs ?? []).includes(slug)
-    );
-    return doc?.slug ?? null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Extra data some blocks need but don't carry themselves — fetched only
@@ -207,19 +170,6 @@ export const getPageQuery = cache(async (locale: Locale, slug: string) => {
     return null;
   }
 });
-
-/** Same fallback as resolveBlogRedirectSlug, for `pages` — see its comment. */
-export async function resolvePageRedirectSlug(locale: Locale, slug: string): Promise<string | null> {
-  try {
-    const res = await client.queries.pagesConnection({ filter: { draft: { eq: false } } });
-    const doc = inLocale(res.data.pagesConnection.edges, locale).find((d) =>
-      (d.previousSlugs ?? []).includes(slug)
-    );
-    return doc?.slug ?? null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Cross-locale sibling lookup for `pages` documents, keyed by filename —

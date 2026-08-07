@@ -25,24 +25,6 @@ export function slugField(options?: { reserved?: Set<string> }): TinaField {
   } as TinaField;
 }
 
-/**
- * Pairs with `slugField()` — a history of every previous value of `slug`,
- * maintained automatically by `slugLifecycleGuard` (never hand-edited by an
- * editor). Lets a changed slug 404 gracefully into a redirect instead of a
- * dead link: lib/tina-content.ts's fallback lookups check this when the
- * current slug doesn't match anything.
- */
-export function previousSlugsField(): TinaField {
-  return {
-    type: "string",
-    name: "previousSlugs",
-    label: "Previous Slugs (auto-managed)",
-    list: true,
-    description:
-      "Automatically maintained — every prior value of Slug is appended here when it changes, so old URLs redirect to the current one instead of 404ing. Don't edit by hand.",
-  } as TinaField;
-}
-
 type BeforeSubmitArgs = {
   values: Record<string, unknown>;
   cms: {
@@ -69,20 +51,22 @@ type BeforeSubmitArgs = {
  *    registered collection's listing page), changing `slug` is rejected
  *    outright. Those slugs aren't a real editorial choice: `home` is
  *    resolved by a hardcoded key, and a listing page's real public URL
- *    segment is owned by `lib/collection-slugs.ts`, not this field.
- * 3. **History** — otherwise, when `slug` changes, the previous value is
- *    appended to `previousSlugsField()` automatically, so old URLs can
- *    redirect instead of 404ing (see lib/tina-content.ts).
+ *    segment is owned by `lib/collection-slugs.ts`, not this field. The
+ *    on-disk slug is only fetched for this check, and only for a locked
+ *    filename — everything else skips straight to the uniqueness check.
+ *
+ * Deliberately does *not* track slug history or redirect old URLs — a
+ * renamed slug is rare enough that a developer adding a manual redirect
+ * when it happens is simpler than an editor-invisible auto-managed field
+ * (an earlier version of this guard did exactly that; removed because it
+ * showed up as a confusing "Previous Slugs (auto-managed)" list field in
+ * the admin with no way to hide it cleanly, for a case that doesn't come
+ * up often enough to justify the complexity).
  *
  * Runs client-side inside Tina's admin form submit flow (verified against
  * tinacms/dist/index.js: `beforeSubmit` is awaited inside `handleSubmit`'s
  * try/catch, and throwing here prevents the write from ever reaching disk
- * — Tina shows the thrown message as a form error). Important: Tina only
- * uses this hook's *return value* (`valOverride`) to decide what gets
- * saved — `handleSubmit` does `submittedValues = valOverride || values`,
- * so mutating `values` in place and returning nothing is silently a no-op.
- * Confirmed directly in that file, not assumed. Every branch below either
- * throws or returns a full values object for that reason.
+ * — Tina shows the thrown message as a form error).
  *
  * Important: this only protects saves made through the Tina admin UI. A
  * document created directly via a GraphQL mutation (e.g. a seed script)
@@ -94,36 +78,25 @@ export function slugLifecycleGuard(collectionName: string) {
     const slug = values.slug;
     if (!slug || typeof slug !== "string") return;
 
-    // The slug currently on disk for this exact document, if any — a brand
-    // new document has nothing saved yet, so this naturally no-ops below.
-    let previousSlug: string | undefined;
-    try {
-      const res = await cms.api.tina.request(
-        `query($path: String!) { ${collectionName}(relativePath: $path) { slug } }`,
-        { variables: { path: form.path } }
-      );
-      previousSlug = res?.data?.[collectionName]?.slug;
-    } catch {
-      previousSlug = undefined;
-    }
-
-    let nextValues = values;
-
-    if (previousSlug && previousSlug !== slug) {
-      if (collectionName === "pages") {
-        const filename = form.path.split("/").pop()?.replace(/\.md$/, "");
-        if (filename && lockedSlugFilenames.has(filename)) {
-          throw new Error(
-            `The slug for "${filename}" is locked and can't be changed here — its public URL is controlled in code (lib/collection-slugs.ts, or the "home" special case), not this field.`
+    if (collectionName === "pages") {
+      const filename = form.path.split("/").pop()?.replace(/\.md$/, "");
+      if (filename && lockedSlugFilenames.has(filename)) {
+        try {
+          const res = await cms.api.tina.request(
+            `query($path: String!) { pages(relativePath: $path) { slug } }`,
+            { variables: { path: form.path } }
           );
+          const onDiskSlug: string | undefined = res?.data?.pages?.slug;
+          if (onDiskSlug && onDiskSlug !== slug) {
+            throw new Error(
+              `The slug for "${filename}" is locked and can't be changed here — its public URL is controlled in code (lib/collection-slugs.ts, or the "home" special case), not this field.`
+            );
+          }
+        } catch (err) {
+          // Re-throw the lock error above; swallow anything else (e.g. a
+          // brand-new document with nothing on disk yet to compare against).
+          if (err instanceof Error && err.message.startsWith('The slug for "')) throw err;
         }
-      }
-
-      const existing = Array.isArray(values.previousSlugs)
-        ? (values.previousSlugs as string[])
-        : [];
-      if (!existing.includes(previousSlug)) {
-        nextValues = { ...values, previousSlugs: [...existing, previousSlug] };
       }
     }
 
@@ -145,8 +118,6 @@ export function slugLifecycleGuard(collectionName: string) {
     if (collision) {
       throw new Error(`A document with slug "${slug}" already exists for this locale.`);
     }
-
-    return nextValues === values ? undefined : nextValues;
   };
 }
 

@@ -1,5 +1,5 @@
 import type { Collection } from "tinacms";
-import { slugField, previousSlugsField, slugLifecycleGuard } from "./shared-fields/slug.schema";
+import { slugField, slugLifecycleGuard } from "./shared-fields/slug.schema";
 import { draftField } from "./shared-fields/draft.schema";
 import { seoField } from "./shared-fields/seo.schema";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
@@ -37,7 +37,6 @@ export const blogCollection: Collection = {
   fields: [
     { type: "string", name: "title", label: "Title", required: true },
     slugField(),
-    previousSlugsField(),
     draftField(),
     { type: "image", name: "coverImage", label: "Cover Image" },
     {

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getProductQuery, getSiteSettings, resolveProductRedirectSlug } from "@/lib/tina-content";
+import { getProductQuery, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
 import { collectionPath } from "@/lib/collection-slugs";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
@@ -50,15 +50,7 @@ export default async function ProductDetailPage({
   // getProductQuery resolves the slug via a draft-filtered query, so a
   // draft product already can't be reached here — same tradeoff as blog,
   // see the "Drafts" note in CLAUDE.md.
-  if (!result) {
-    // Not found by current slug — check slug history (auto-captured by
-    // slugLifecycleGuard on rename) before giving up.
-    const currentSlug = await resolveProductRedirectSlug(locale, slug);
-    if (currentSlug) {
-      permanentRedirect(collectionPath(locale, "products", `/${currentSlug}`));
-    }
-    notFound();
-  }
+  if (!result) notFound();
 
   return (
     <ProductView

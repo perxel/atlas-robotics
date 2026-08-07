@@ -1,5 +1,5 @@
 import type { Collection, Template } from "tinacms";
-import { slugField, previousSlugsField, slugLifecycleGuard } from "./shared-fields/slug.schema";
+import { slugField, slugLifecycleGuard } from "./shared-fields/slug.schema";
 import { draftField } from "./shared-fields/draft.schema";
 import { seoField } from "./shared-fields/seo.schema";
 import { heroTemplate } from "@/components/blocks/Hero.template";
@@ -62,7 +62,6 @@ export const pagesCollection: Collection = {
   fields: [
     { type: "string", name: "title", label: "Title", required: true },
     slugField({ reserved: reservedSlugs }),
-    previousSlugsField(),
     draftField(),
     {
       type: "boolean",

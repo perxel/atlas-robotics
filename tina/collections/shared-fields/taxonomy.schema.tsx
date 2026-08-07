@@ -1,5 +1,5 @@
 import type { Collection, TinaField } from "tinacms";
-import { slugField, previousSlugsField, slugLifecycleGuard } from "./slug.schema";
+import { slugField, slugLifecycleGuard } from "./slug.schema";
 
 /**
  * Registers a taxonomy: a standalone term-store collection (title + slug),
@@ -22,7 +22,6 @@ export function defineTaxonomy(options: { name: string; label: string; path?: st
     fields: [
       { type: "string", name: "title", label: "Title", required: true },
       slugField(),
-      previousSlugsField(),
     ],
   };
 }
