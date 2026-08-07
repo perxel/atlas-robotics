@@ -23,6 +23,11 @@ export const heroTemplate: Template = {
             "Used as the background. If a background video is also set, this shows as its poster frame while the video loads and is what search engines/social previews see.",
         },
         {
+          type: "string",
+          name: "imageAlt",
+          label: "Background Image Alt Text",
+        },
+        {
           type: "image",
           name: "video",
           label: "Background Video",

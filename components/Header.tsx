@@ -25,7 +25,7 @@ export default async function Header({ locale }: { locale: Locale }) {
         >
           {settings?.logo && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={settings.logo} alt="" className="h-8 w-8 rounded" />
+            <img src={settings.logo} alt={settings.logoAlt || ""} className="h-8 w-8 rounded" />
           )}
           {settings?.title || dict.siteName}
         </Link>

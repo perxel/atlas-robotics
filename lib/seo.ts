@@ -44,6 +44,7 @@ export type SeoFields = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   ogImage?: string | null;
+  ogImageAlt?: string | null;
 } | null | undefined;
 
 export function buildMetadata(options: {
@@ -71,6 +72,7 @@ export function buildMetadata(options: {
   const title = seo?.metaTitle || fallbackTitle;
   const description = seo?.metaDescription || fallbackDescription || undefined;
   const ogImage = seo?.ogImage || fallbackOgImage || undefined;
+  const ogImageAlt = seo?.ogImage ? seo?.ogImageAlt || undefined : undefined;
 
   return {
     title,
@@ -79,7 +81,7 @@ export function buildMetadata(options: {
     openGraph: {
       title,
       description,
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      images: ogImage ? [{ url: ogImage, alt: ogImageAlt }] : undefined,
       locale,
     },
   };

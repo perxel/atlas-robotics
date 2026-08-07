@@ -50,7 +50,7 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={slide.image}
-                alt=""
+                alt={slide.imageAlt || ""}
                 data-tina-field={tinaField(slide, "image")}
                 className="absolute inset-0 h-full w-full object-cover"
               />

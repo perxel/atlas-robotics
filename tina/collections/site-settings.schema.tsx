@@ -26,6 +26,11 @@ export const siteSettingsCollection: Collection = {
       label: "Logo",
     },
     {
+      type: "string",
+      name: "logoAlt",
+      label: "Logo Alt Text",
+    },
+    {
       type: "image",
       name: "favicon",
       label: "Favicon",

@@ -28,6 +28,11 @@ export function seoField(name = "seo", label = "SEO"): TinaField {
         name: "ogImage",
         label: "OG Image",
       },
+      {
+        type: "string",
+        name: "ogImageAlt",
+        label: "OG Image Alt Text",
+      },
     ],
   } as TinaField;
 }
