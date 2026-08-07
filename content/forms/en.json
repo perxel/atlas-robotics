@@ -3,5 +3,9 @@
     "name": { "label": "Name", "placeholder": "Your name" },
     "email": { "label": "Email", "placeholder": "you@example.com" },
     "message": { "label": "Message", "placeholder": "How can we help?" }
+  },
+  "newsletterForm": {
+    "email": { "label": "Email address", "placeholder": "you@example.com" },
+    "submitLabel": "Subscribe"
   }
 }

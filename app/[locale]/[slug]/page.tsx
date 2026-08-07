@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getPageQuery, getSiteSettings } from "@/lib/tina-content";
+import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
 import PageView from "@/components/pages/PageView";
 
@@ -48,7 +48,19 @@ export default async function GenericPage({
 
   if (!result) notFound();
 
+  const { latestPosts, newsletterFormCopy } = await getPageBlockData(
+    locale,
+    result.data.pages.blocks
+  );
+
   return (
-    <PageView query={result.query} variables={result.variables} data={result.data} />
+    <PageView
+      query={result.query}
+      variables={result.variables}
+      data={result.data}
+      locale={locale}
+      latestPosts={latestPosts}
+      newsletterFormCopy={newsletterFormCopy}
+    />
   );
 }

@@ -4,16 +4,25 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types";
 import { isBlocksEnabled } from "@/lib/pages-config";
+import type { Locale } from "@/lib/i18n";
+import type { getBlogPosts } from "@/lib/tina-content";
+import type { NewsletterFormCopy } from "@/components/blocks/NewsletterForm";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
 
 export default function PageView({
   query,
   variables,
   data,
+  locale,
+  latestPosts,
+  newsletterFormCopy,
 }: {
   query: string;
   variables: PagesQueryVariables;
   data: PagesQuery;
+  locale: Locale;
+  latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
+  newsletterFormCopy: NewsletterFormCopy | null | undefined;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,
   // so this renders identically for normal visitors and the production build.
@@ -38,7 +47,12 @@ export default function PageView({
       </div>
 
       {blocksEnabled && page.blocks && page.blocks.length > 0 && (
-        <BlocksRenderer blocks={page.blocks} />
+        <BlocksRenderer
+          blocks={page.blocks}
+          locale={locale}
+          latestPosts={latestPosts}
+          newsletterFormCopy={newsletterFormCopy}
+        />
       )}
     </article>
   );

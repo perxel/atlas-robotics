@@ -4,10 +4,10 @@ import { siteSettingsCollection } from "./collections/site-settings.schema";
 import { formsCollection } from "./collections/forms.schema";
 import { navCollection } from "./collections/nav.schema";
 import { footerCollection } from "./collections/footer.schema";
-import { catalogCollection } from "./collections/catalog.schema";
-import { storyCardsCollection } from "./collections/story-cards.schema";
 import { categoriesCollection } from "./collections/categories.schema";
+import { productCategoriesCollection } from "./collections/product-categories.schema";
 import { blogCollection } from "./collections/blog.schema";
+import { productsCollection } from "./collections/products.schema";
 import { pagesCollection } from "./collections/pages.schema";
 
 // Local dev runs fully self-hosted (no Tina Cloud project needed).
@@ -25,10 +25,10 @@ const collections: Collection[] = [
   formsCollection,
   navCollection,
   footerCollection,
-  catalogCollection,
-  storyCardsCollection,
   categoriesCollection,
+  productCategoriesCollection,
   blogCollection,
+  productsCollection,
   pagesCollection,
 ];
 

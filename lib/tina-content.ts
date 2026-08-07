@@ -50,18 +50,6 @@ export async function getForms(locale: Locale) {
   }
 }
 
-export async function getCatalogTabs(locale: Locale) {
-  const res = await client.queries.catalogConnection({ filter: { draft: { eq: false } } });
-  const tabs = inLocale(res.data.catalogConnection.edges, locale);
-  return tabs.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-}
-
-export async function getStoryCards(locale: Locale) {
-  const res = await client.queries.storyCardsConnection({ filter: { draft: { eq: false } } });
-  const cards = inLocale(res.data.storyCardsConnection.edges, locale);
-  return cards.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-}
-
 export async function getBlogPosts(locale: Locale) {
   const res = await client.queries.blogConnection({ filter: { draft: { eq: false } } });
   const posts = inLocale(res.data.blogConnection.edges, locale);
@@ -75,6 +63,17 @@ export async function getBlogPosts(locale: Locale) {
 export async function getCategories(locale: Locale) {
   const res = await client.queries.categoriesConnection();
   const categories = inLocale(res.data.categoriesConnection.edges, locale);
+  return categories.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+export async function getProducts(locale: Locale) {
+  const res = await client.queries.productsConnection({ filter: { draft: { eq: false } } });
+  return inLocale(res.data.productsConnection.edges, locale);
+}
+
+export async function getProductCategories(locale: Locale) {
+  const res = await client.queries.productCategoriesConnection();
+  const categories = inLocale(res.data.productCategoriesConnection.edges, locale);
   return categories.sort((a, b) => a.title.localeCompare(b.title));
 }
 
@@ -128,6 +127,41 @@ export const getBlogPostQuery = cache(async (locale: Locale, slug: string) => {
     return null;
   }
 });
+
+/** Same two-step slug resolution as getBlogPostQuery — see its comment. */
+export const getProductQuery = cache(async (locale: Locale, slug: string) => {
+  try {
+    const lookup = await client.queries.productsConnection({
+      filter: { slug: { eq: slug }, draft: { eq: false } },
+    });
+    const match = inLocale(lookup.data.productsConnection.edges, locale)[0];
+    if (!match) return null;
+    return await client.queries.products({ relativePath: match._sys.relativePath });
+  } catch {
+    return null;
+  }
+});
+
+/**
+ * Extra data some page blocks need but don't carry themselves —
+ * `FeaturedBlogPosts` needs blog posts, `Newsletter` needs the global
+ * forms doc's copy (lib/tina-content.ts's `getForms`). Fetched only when a
+ * page actually uses the block, and shared between the home route
+ * (app/[locale]/page.tsx) and the generic pages route
+ * (app/[locale]/[slug]/page.tsx) so the conditional-fetch logic lives in
+ * one place instead of being duplicated across both.
+ */
+export async function getPageBlockData(
+  locale: Locale,
+  blocks: Array<{ __typename?: string | null } | null> | null | undefined
+) {
+  const typenames = new Set((blocks ?? []).map((b) => b?.__typename));
+  const [latestPosts, forms] = await Promise.all([
+    typenames.has("PagesBlocksFeaturedBlogPosts") ? getBlogPosts(locale) : Promise.resolve([]),
+    typenames.has("PagesBlocksNewsletter") ? getForms(locale) : Promise.resolve(null),
+  ]);
+  return { latestPosts, newsletterFormCopy: forms?.newsletterForm };
+}
 
 /** Same two-step slug resolution as getBlogPostQuery — see its comment. */
 export const getPageQuery = cache(async (locale: Locale, slug: string) => {

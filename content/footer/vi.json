@@ -3,9 +3,9 @@
     {
       "title": "Khám Phá",
       "links": [
-        { "label": "Danh Mục", "url": "/catalog" },
-        { "label": "Thẻ Câu Chuyện", "url": "/story-cards" },
-        { "label": "Blog", "url": "/blog" }
+        { "label": "Sản Phẩm", "url": "/products" },
+        { "label": "Blog", "url": "/blog" },
+        { "label": "Giới Thiệu", "url": "/about" }
       ]
     },
     {
@@ -18,6 +18,6 @@
   "contactInfo": {
     "address": "123 Đường Ví Dụ, Thành Phố Demo",
     "phone": "+84 555 0100",
-    "email": "hello@example.com"
+    "email": "hello@loremipsum.example"
   }
 }

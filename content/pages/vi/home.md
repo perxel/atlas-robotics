@@ -1,33 +1,59 @@
 ---
-title: TinaCMS x Nextjs
+title: 'Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn'
 slug: home
 draft: false
-intro: |
-  Một bản demo nội bộ dùng lại được, xác thực Next.js App Router, TinaCMS với media lưu trong repo, định tuyến hai ngôn ngữ và bộ thành phần nội dung có cấu trúc.
+intro: ''
 blocks:
-  - heading: Giới Thiệu
-    buttonLabel: Tìm hiểu thêm
-    buttonUrl: /about
-    _template: cta
-  - heading: Trình xem danh mục
-    buttonLabel: Xem danh mục
-    buttonUrl: /catalog
-    _template: cta
-  - heading: Thẻ câu chuyện
-    buttonLabel: Xem thẻ câu chuyện
-    buttonUrl: /story-cards
-    _template: cta
-  - heading: Blog
-    buttonLabel: Xem blog
-    buttonUrl: /blog
-    _template: cta
-  - heading: Liên hệ
-    buttonLabel: Xem liên hệ
+  - heading: Làm nhiều hơn với ít việc vặt hơn
+    subheading: >-
+      Lorem ipsum giúp các nhóm đang phát triển tự động hóa những phần nhàm
+      chán, thấy rõ điều gì đang thực sự diễn ra, và luôn đồng bộ — mà không
+      cần tuyển thêm người để quản lý sự hỗn loạn.
+    image: /uploads/hero-banner.jpg
+    buttonLabel: Bắt đầu miễn phí
+    buttonUrl: /contact
+    _template: hero
+  - heading: Vì sao các nhóm chọn Lorem ipsum
+    items:
+      - icon: "⚡"
+        title: Thiết lập trong một buổi chiều
+        description: 'Không cần yêu cầu kỹ thuật — kết nối công cụ của bạn và vận hành ngay trong ngày.'
+      - icon: "🔒"
+        title: Xây dựng cho cách các nhóm thực sự làm việc
+        description: 'Phân quyền theo vai trò, nhật ký đầy đủ và SSO trên mọi gói.'
+      - icon: "❤️"
+        title: Được hơn 2.000 nhóm tin dùng
+        description: 'Từ startup năm người đến các nhóm vận hành hàng trăm người.'
+    _template: featureGrid
+  - heading: Mọi thứ bạn cần để vận hành trơn tru hơn
+    subheading: Ba sản phẩm, một tài khoản duy nhất.
+    items:
+      - icon: "🔁"
+        title: Tự Động Hóa
+        description: Biến phê duyệt và bàn giao thành một quy tắc với Ipsum Flow.
+      - icon: "📊"
+        title: Phân Tích
+        description: Bảng điều khiển trực tiếp và báo cáo theo lịch với Ipsum Insights.
+      - icon: "🤝"
+        title: Cộng Tác
+        description: Một không gian làm việc chung cho cả nhóm với Ipsum Sync.
+    _template: featureGrid
+  - heading: Từ blog của chúng tôi
+    subheading: Bí quyết vận hành và tin tức sản phẩm từ đội ngũ Lorem ipsum.
+    postsToShow: 3
+    _template: featuredBlogPosts
+  - heading: Đừng bỏ lỡ tin tức mới
+    subheading: Cập nhật sản phẩm và bí quyết vận hành, mỗi tháng một lần. Không spam.
+    _template: newsletter
+  - heading: Sẵn sàng bắt đầu?
+    buttonLabel: Liên hệ với chúng tôi
     buttonUrl: /contact
     _template: cta
 seo:
-  metaTitle: Trang Demo — Bằng Chứng Khái Niệm Công Nghệ
-  metaDescription: 'Một bản demo nội bộ dùng lại được, xác thực Next.js App Router, TinaCMS với media lưu trong repo, định tuyến hai ngôn ngữ và bộ thành phần nội dung có cấu trúc.'
-  ogImage: ''
+  metaTitle: 'Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn'
+  metaDescription: >-
+    Lorem ipsum giúp các nhóm đang phát triển tự động hóa việc vặt, thấy rõ
+    mọi thứ theo thời gian thực và luôn đồng bộ — Ipsum Flow, Ipsum Insights
+    và Ipsum Sync trong một tài khoản.
+  ogImage: /uploads/hero-banner.jpg
 ---
-

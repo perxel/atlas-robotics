@@ -1,0 +1,73 @@
+import Link from "next/link";
+import { tinaField } from "tinacms/dist/react";
+import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
+import { localePath, type Locale } from "@/lib/i18n";
+import { getDictionary } from "@/lib/dictionary";
+import type { getBlogPosts } from "@/lib/tina-content";
+
+export default function FeaturedBlogPosts({
+  data,
+  posts,
+  locale,
+}: {
+  data: PagesBlocksFeaturedBlogPosts;
+  posts: Awaited<ReturnType<typeof getBlogPosts>>;
+  locale: Locale;
+}) {
+  const dict = getDictionary(locale);
+  const shown = posts.slice(0, data.postsToShow || 3);
+
+  return (
+    <section className="mx-auto max-w-5xl px-4 py-16">
+      <div className="mx-auto max-w-2xl text-center">
+        <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
+          {data.heading}
+        </h2>
+        {data.subheading && (
+          <p
+            data-tina-field={tinaField(data, "subheading")}
+            className="mt-3 text-muted-foreground"
+          >
+            {data.subheading}
+          </p>
+        )}
+      </div>
+
+      {shown.length > 0 && (
+        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {shown.map((post) => (
+            <Link
+              key={post.id}
+              href={localePath(locale, `/blog/${post.slug}`)}
+              className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
+            >
+              {post.coverImage && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={post.coverImage}
+                  alt={post.coverImageAlt || ""}
+                  className="aspect-video w-full object-cover"
+                />
+              )}
+              <div className="p-4">
+                <h3 className="font-semibold">{post.title}</h3>
+                {post.excerpt && (
+                  <p className="mt-2 text-sm text-muted-foreground">{post.excerpt}</p>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-8 text-center">
+        <Link
+          href={localePath(locale, "/blog")}
+          className="text-sm font-medium text-accent hover:opacity-80"
+        >
+          {dict.blog.viewAll}
+        </Link>
+      </div>
+    </section>
+  );
+}

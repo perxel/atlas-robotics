@@ -23,8 +23,7 @@ export function isBlocksEnabled(slug: string): boolean {
  */
 export const reservedSlugs = new Set<string>([
   "blog",
-  "catalog",
-  "story-cards",
+  "products",
   "contact",
   "admin",
   "api",

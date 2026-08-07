@@ -6,40 +6,25 @@ import type { Locale } from "@/lib/i18n";
 export type Dictionary = {
   siteName: string;
   nav: { primary: string };
-  catalog: {
-    pageTitle: string;
-    pageDescription: string;
-    noTabs: string;
-    noImages: string;
-    viewTextVersion: string;
-    inactiveSuffix: string;
-    tabsAriaLabel: string;
-    prevPage: string;
-    nextPage: string;
-    goToPage: (i: number, total: number) => string;
-    imageFallback: (i: number) => string;
-  };
-  catalogText: {
-    pageTitle: string;
-    pageDescription: string;
-    viewInteractive: string;
-    inactiveSuffix: string;
-  };
-  storyCards: {
-    pageTitle: string;
-    pageDescription: string;
-    noCards: string;
-    tabsAriaLabel: string;
-    downloadPdf: string;
-    prev: string;
-    next: string;
-    prevAria: string;
-    nextAria: string;
-    goToCard: (i: number) => string;
-  };
   blog: {
     pageTitle: string;
     noPosts: string;
+    viewAll: string;
+  };
+  products: {
+    pageTitle: string;
+    pageDescription: string;
+    noProducts: string;
+    viewDetails: string;
+    getStarted: string;
+  };
+  newsletter: {
+    emailLabel: string;
+    emailPlaceholder: string;
+    submitLabel: string;
+    sending: string;
+    success: string;
+    error: string;
   };
   contact: {
     pageTitle: string;
@@ -64,43 +49,27 @@ export type Dictionary = {
 
 const dictionaries: Record<Locale, Dictionary> = {
   en: {
-    siteName: "Demo Site",
+    siteName: "Lorem ipsum",
     nav: { primary: "Primary" },
-    catalog: {
-      pageTitle: "Catalog",
-      pageDescription: "Structured, CMS-driven tabbed viewer with swipe and arrow navigation.",
-      noTabs: "No catalog tabs available.",
-      noImages: "This tab has no images yet.",
-      viewTextVersion: "View text-only version",
-      inactiveSuffix: " (inactive)",
-      tabsAriaLabel: "Catalog tabs",
-      prevPage: "Previous page",
-      nextPage: "Next page",
-      goToPage: (i, total) => `Go to page ${i} of ${total}`,
-      imageFallback: (i) => `Image ${i}`,
-    },
-    catalogText: {
-      pageTitle: "Catalog (text version)",
-      pageDescription:
-        "A plain text, fully indexable alternative sourced from the same structured content as the interactive viewer.",
-      viewInteractive: "View interactive version",
-      inactiveSuffix: "(inactive)",
-    },
-    storyCards: {
-      pageTitle: "Story Cards",
-      pageDescription: "Click or swipe between records in this card based interactive component.",
-      noCards: "No story cards available.",
-      tabsAriaLabel: "Story cards",
-      downloadPdf: "Download PDF attachment",
-      prev: "‹ Prev",
-      next: "Next ›",
-      prevAria: "Previous card",
-      nextAria: "Next card",
-      goToCard: (i) => `Go to card ${i}`,
-    },
     blog: {
       pageTitle: "Blog",
       noPosts: "No posts published yet.",
+      viewAll: "View all posts",
+    },
+    products: {
+      pageTitle: "Products",
+      pageDescription: "Everything Lorem ipsum ships, in one place.",
+      noProducts: "No products published yet.",
+      viewDetails: "View details",
+      getStarted: "Get started",
+    },
+    newsletter: {
+      emailLabel: "Email address",
+      emailPlaceholder: "you@example.com",
+      submitLabel: "Subscribe",
+      sending: "Subscribing…",
+      success: "You're in — check your inbox to confirm.",
+      error: "Something went wrong. Please try again.",
     },
     contact: {
       pageTitle: "Contact",
@@ -119,44 +88,27 @@ const dictionaries: Record<Locale, Dictionary> = {
     social: { fallbackLabel: "Social link" },
   },
   vi: {
-    siteName: "Trang Demo",
+    siteName: "Lorem ipsum",
     nav: { primary: "Chính" },
-    catalog: {
-      pageTitle: "Danh Mục",
-      pageDescription:
-        "Trình xem dạng tab được điều khiển bởi CMS có cấu trúc, hỗ trợ vuốt và điều hướng mũi tên.",
-      noTabs: "Chưa có tab danh mục nào.",
-      noImages: "Tab này chưa có hình ảnh.",
-      viewTextVersion: "Xem phiên bản văn bản",
-      inactiveSuffix: " (ngừng hoạt động)",
-      tabsAriaLabel: "Các tab danh mục",
-      prevPage: "Trang trước",
-      nextPage: "Trang sau",
-      goToPage: (i, total) => `Đi đến trang ${i} trong ${total}`,
-      imageFallback: (i) => `Hình ảnh ${i}`,
-    },
-    catalogText: {
-      pageTitle: "Danh Mục (phiên bản văn bản)",
-      pageDescription:
-        "Một phiên bản văn bản thuần, có thể lập chỉ mục đầy đủ, lấy từ cùng nội dung có cấu trúc với trình xem tương tác.",
-      viewInteractive: "Xem phiên bản tương tác",
-      inactiveSuffix: "(ngừng hoạt động)",
-    },
-    storyCards: {
-      pageTitle: "Thẻ Câu Chuyện",
-      pageDescription: "Nhấp hoặc vuốt giữa các bản ghi trong thành phần thẻ tương tác này.",
-      noCards: "Chưa có thẻ câu chuyện nào.",
-      tabsAriaLabel: "Thẻ câu chuyện",
-      downloadPdf: "Tải tệp đính kèm PDF",
-      prev: "‹ Trước",
-      next: "Sau ›",
-      prevAria: "Thẻ trước",
-      nextAria: "Thẻ sau",
-      goToCard: (i) => `Đi đến thẻ ${i}`,
-    },
     blog: {
       pageTitle: "Blog",
       noPosts: "Chưa có bài viết nào được đăng.",
+      viewAll: "Xem tất cả bài viết",
+    },
+    products: {
+      pageTitle: "Sản Phẩm",
+      pageDescription: "Toàn bộ sản phẩm của Lorem ipsum, tại một nơi.",
+      noProducts: "Chưa có sản phẩm nào được đăng.",
+      viewDetails: "Xem chi tiết",
+      getStarted: "Bắt đầu ngay",
+    },
+    newsletter: {
+      emailLabel: "Địa chỉ email",
+      emailPlaceholder: "ban@example.com",
+      submitLabel: "Đăng ký",
+      sending: "Đang đăng ký…",
+      success: "Đã đăng ký — kiểm tra hộp thư để xác nhận nhé.",
+      error: "Đã xảy ra lỗi. Vui lòng thử lại.",
     },
     contact: {
       pageTitle: "Liên Hệ",

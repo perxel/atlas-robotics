@@ -1,11 +1,11 @@
 {
-  "title": "Trang Demo",
+  "title": "Lorem ipsum",
   "logo": "/uploads/placeholder-logo.svg",
   "favicon": "/favicon.ico",
   "defaultSeo": {
-    "metaTitle": "Trang Demo — Bằng Chứng Khái Niệm Công Nghệ",
-    "metaDescription": "Bản demo nội bộ dùng lại được, xác thực Next.js, TinaCMS và biên tập nội dung hai ngôn ngữ.",
-    "ogImage": ""
+    "metaTitle": "Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn",
+    "metaDescription": "Lorem ipsum xây dựng những công cụ tập trung cho các nhóm đang phát triển: tự động hóa quy trình, phân tích thời gian thực và cộng tác nhóm.",
+    "ogImage": "/uploads/hero-banner.jpg"
   },
   "socialLinks": [
     { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },

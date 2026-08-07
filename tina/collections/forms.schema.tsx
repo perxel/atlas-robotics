@@ -49,5 +49,24 @@ export const formsCollection: Collection = {
         },
       ],
     },
+    {
+      type: "object",
+      name: "newsletterForm",
+      label: "Newsletter Form",
+      description:
+        "Labels/placeholder for the newsletter signup block on the homepage. The field (email) is fixed and cannot be added, removed, or reordered here.",
+      fields: [
+        {
+          type: "object",
+          name: "email",
+          label: "Email Field",
+          fields: [
+            { type: "string", name: "label", label: "Label" },
+            { type: "string", name: "placeholder", label: "Placeholder" },
+          ],
+        },
+        { type: "string", name: "submitLabel", label: "Submit Button Label" },
+      ],
+    },
   ],
 };

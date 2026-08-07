@@ -16,8 +16,8 @@ export const locales = ["vi", "en"] as const;
 export const defaultLocale: Locale = "vi";
 ```
 
-The default locale is served **unprefixed** at `/` (e.g. `/catalog`); every
-other locale is served under its own prefix (e.g. `/en/catalog`). This is
+The default locale is served **unprefixed** at `/` (e.g. `/products`); every
+other locale is served under its own prefix (e.g. `/en/products`). This is
 handled by `middleware.ts`.
 
 **Note on the file name:** Next.js 16 renamed `middleware.ts` → `proxy.ts`
@@ -114,8 +114,9 @@ issues below before deploying anywhere for the first time.
 
 ## Visual editing
 
-Wired up for `blog` and `pages` — collections editors touch constantly; add
-to others deliberately, not by default (see the pattern below). The plain
+Wired up for `blog`, `products`, and `pages` — collections editors touch
+constantly; add to others deliberately, not by default (see the pattern
+below). The plain
 admin at `/admin/index.html` (form-based CRUD) works for every collection
 with zero extra code; visual editing (click-to-edit directly on the live
 page, in a split preview pane) needs three pieces per collection:
@@ -168,9 +169,9 @@ finer click targets. Same pattern for any other list field.
 To extend this to another collection, copy the query pattern +
 a `*View.tsx` client component + a `ui.router`, swapping in that
 collection's query/fields. Skip it for collections edited rarely or by
-developers only (this repo intentionally leaves `contact-form-config`,
-`catalog`, `storyCards`, and the singleton `site-settings`/`nav`/`footer`
-docs on the plain admin).
+developers only (this repo intentionally leaves `forms`, `categories`,
+`productCategories`, and the singleton `site-settings`/`nav`/`footer` docs
+on the plain admin).
 
 Tradeoff, if asked to add more: per collection it costs a client/server
 component split (page fetch → client component, not a single server
@@ -230,10 +231,9 @@ proof the guard works, only that nothing violated it.
 `draftField()` (`tina/collections/shared-fields/draft.schema.tsx`) is a plain, unenforced boolean —
 Tina docs are explicit that draft fields aren't special, application code
 is responsible for filtering: https://tina.io/docs/drafts/drafts-fields.
-Applied to `catalog`, `storyCards`, `blog`, and `pages` (collections whose
-documents are individually publishable); not on `contact-form-config`
-(field definitions, not content) or the `site-settings`/`nav`/`footer`
-singletons.
+Applied to `products`, `blog`, and `pages` (collections whose documents are
+individually publishable); not on `forms` (field definitions, not content)
+or the `site-settings`/`nav`/`footer` singletons.
 
 - **Listing queries** filter it at the GraphQL level: `filter: { draft: { eq: false } } }`
   on every `*Connection` call in `lib/tina-content.ts`.
@@ -262,10 +262,13 @@ Tina pattern, not a one-off field on `blog`. Two factories in
 - **`defineTaxonomy({ name, label })`** — registers a taxonomy as its own
   term-store collection (`title` + `slug`, uniqueness-guarded the same way
   as any other routable-slug collection — see "Routable slugs" above).
-  `categories` (`tina/collections/categories.schema.tsx`) is the only one
-  registered so far; a second taxonomy (e.g. `countries`) is another call
-  to this factory plus an entry in the `collections` array in
-  `tina/config.ts`.
+  Two are registered: `categories` (`tina/collections/categories.schema.tsx`,
+  attached to `blog`) and `productCategories`
+  (`tina/collections/product-categories.schema.tsx`, attached to
+  `products`) — kept as separate taxonomies rather than shared, one row per
+  collection × taxonomy (see the registry below). A third taxonomy (e.g.
+  `countries`) is another call to this factory plus an entry in the
+  `collections` array in `tina/config.ts`.
 - **`taxonomyField({ taxonomy, label, multiple? })`** — attaches a
   registered taxonomy to a content collection as a reference field.
   `multiple` defaults to `true` (a document can carry several terms at
@@ -303,24 +306,27 @@ bespoke code:
   application code rather than a GraphQL `filter` clause, same as every
   other listing query in this file, since nested list-object filter
   semantics on a taxonomy field aren't worth relying on unverified.
-- `app/[locale]/blog/[slug]/[term]/page.tsx` — the generic archive route
-  for any taxonomy attached to `blog`. The folder is named `[slug]`, not
-  `[taxonomy]`, only because Next.js requires every dynamic segment at the
-  same route level to share one parameter name, and this level already has
-  `[slug]` from the sibling post-detail route
-  (`app/[locale]/blog/[slug]/page.tsx`) — confirmed live: naming it
+- `app/[locale]/blog/[slug]/[term]/page.tsx` and
+  `app/[locale]/products/[slug]/[term]/page.tsx` — the generic archive
+  route for a taxonomy attached to `blog` and to `products`, respectively.
+  Each folder is named `[slug]`, not `[taxonomy]`, only because Next.js
+  requires every dynamic segment at the same route level to share one
+  parameter name, and each level already has `[slug]` from its sibling
+  detail route (`.../[slug]/page.tsx`) — confirmed live: naming it
   `[taxonomy]` instead broke the whole app with "You cannot use different
-  slug names for the same dynamic path ('slug' !== 'taxonomy')". Its
-  `resolveTerm()` is the one piece that isn't fully generic yet: it has a
-  hardcoded case for `"categories"` because Tina's generated client is
-  per-collection typed (`client.queries.categoriesConnection`), so a second
-  taxonomy needs a matching branch there, not just a registry row.
+  slug names for the same dynamic path ('slug' !== 'taxonomy')". Each
+  route's `resolveTerm()` is the one piece that isn't fully generic: it has
+  a hardcoded case for its one taxonomy (`"categories"` /
+  `"productCategories"`) because Tina's generated client is per-collection
+  typed (`client.queries.categoriesConnection` /
+  `client.queries.productCategoriesConnection`), so a new taxonomy needs a
+  matching branch there, not just a registry row.
 
-**Only `blog` has a taxonomy attached right now.** Extending to another
-content collection (`catalog`, `storyCards`) needs that collection's own
-archive route file too, since Next.js routes are physical per top-level
-path — the registry and `filterByTaxonomyTerm` are already
-collection-agnostic; only the route file isn't.
+**`blog` and `products` each have one taxonomy attached.** Attaching a
+taxonomy to a third content collection needs that collection's own archive
+route file too, since Next.js routes are physical per top-level path — the
+registry and `filterByTaxonomyTerm` are already collection-agnostic; only
+the route file isn't.
 
 ## Pages collection & block-based editing
 
@@ -338,8 +344,8 @@ the switch — nothing else changes.
 `app/[locale]/[slug]/page.tsx` — *not* a nested `/pages/<slug>`. This is
 deliberate: it's what lets a client who's allowed to create pages publish
 one live with no code deploy. It does not conflict with the dedicated
-routes (`/blog`, `/catalog`, `/contact`, `/story-cards`, and `/blog/[slug]`
-for post details) — verified empirically, not just reasoned about: Next.js
+routes (`/blog`, `/products`, `/contact`, and `/blog/[slug]`/`/products/[slug]`
+for detail pages) — verified empirically, not just reasoned about: Next.js
 always resolves a literal folder over a same-level dynamic sibling, so
 `/blog` hits `app/[locale]/blog/page.tsx` and never falls through to the
 catch-all as long as that literal route exists. `lib/pages-config.ts`'s
@@ -404,9 +410,9 @@ that slug to be resolvable by `getPageQuery(locale, "home")`; uniqueness
   actively misleading depending on which `lib/tina-content.ts` function is
   involved: functions wrapped in try/catch (`getSiteSettings`,
   `getPageQuery`) degrade to a clean Next.js not-found page; functions
-  without one (`getCatalogTabs`, and likely other `*Connection` helpers in
-  that file) throw uncaught and render `app/global-error.tsx` ("Something
-  went wrong"). It can even look like it works in local testing right after
+  without one (`getBlogPosts`, `getProducts`, and other `*Connection`
+  helpers in that file) throw uncaught and render `app/global-error.tsx`
+  ("Something went wrong"). It can even look like it works in local testing right after
   a build, because of a leftover on-disk query-result cache
   (`tina/__generated__/.cache/<timestamp>/`, gitignored, tied to that one
   build's absolute machine path) — that's a false positive from reusing the

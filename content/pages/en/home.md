@@ -1,32 +1,59 @@
 ---
-title: TinaCMS Stack Proof of Concept
+title: 'Lorem ipsum — Automate, Understand, and Sync Your Team''s Work'
 slug: home
 draft: false
-intro: |
-  A reusable internal demo validating Next.js App Router, TinaCMS with repo based media, two-locale routing, and a set of structured content components.
+intro: ''
 blocks:
-  - heading: About
-    buttonLabel: Learn more
-    buttonUrl: /en/about
-    _template: cta
-  - heading: Catalog viewer
-    buttonLabel: View catalog
-    buttonUrl: /en/catalog
-    _template: cta
-  - heading: Story cards
-    buttonLabel: View story cards
-    buttonUrl: /en/story-cards
-    _template: cta
-  - heading: Blog
-    buttonLabel: View blog
-    buttonUrl: /en/blog
-    _template: cta
-  - heading: Contact
-    buttonLabel: View contact
+  - heading: Do more with less busywork
+    subheading: >-
+      Lorem ipsum helps growing teams automate the boring parts, see what's
+      actually happening, and stay in sync — without hiring more people to
+      manage the chaos.
+    image: /uploads/hero-banner.jpg
+    buttonLabel: Get started free
+    buttonUrl: /en/contact
+    _template: hero
+  - heading: Why teams choose Lorem ipsum
+    items:
+      - icon: "⚡"
+        title: Set up in an afternoon
+        description: 'No engineering ticket required — connect your tools and go live the same day.'
+      - icon: "🔒"
+        title: Built for how teams actually work
+        description: 'Role-based access, full audit trails, and SSO on every plan.'
+      - icon: "❤️"
+        title: Loved by 2,000+ teams
+        description: 'From five-person startups to hundred-person operations teams.'
+    _template: featureGrid
+  - heading: Everything you need to run smoother operations
+    subheading: Three products, one account.
+    items:
+      - icon: "🔁"
+        title: Automation
+        description: Turn approvals and handoffs into a rule with Ipsum Flow.
+      - icon: "📊"
+        title: Analytics
+        description: Live dashboards and scheduled reports with Ipsum Insights.
+      - icon: "🤝"
+        title: Collaboration
+        description: One shared workspace for your whole team with Ipsum Sync.
+    _template: featureGrid
+  - heading: From the blog
+    subheading: Playbooks and product news from the Lorem ipsum team.
+    postsToShow: 3
+    _template: featuredBlogPosts
+  - heading: Stay in the loop
+    subheading: Product updates and playbooks, once a month. No spam.
+    _template: newsletter
+  - heading: Ready to get started?
+    buttonLabel: Talk to us
     buttonUrl: /en/contact
     _template: cta
 seo:
-  metaTitle: Demo Site — Tech Stack Proof of Concept
-  metaDescription: A reusable internal demo validating Next.js App Router, TinaCMS with repo based media, two-locale routing, and a set of structured content components.
-  ogImage: ''
+  metaTitle: 'Lorem ipsum — Automate, Understand, and Sync Your Team''s Work'
+  metaDescription: >-
+    Lorem ipsum helps growing teams automate busywork, see what's happening
+    in real time, and stay in sync — Ipsum Flow, Ipsum Insights, and Ipsum
+    Sync in one account.
+  ogImage: /uploads/hero-banner.jpg
 ---

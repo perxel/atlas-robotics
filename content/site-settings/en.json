@@ -1,11 +1,11 @@
 {
-  "title": "Demo Site",
+  "title": "Lorem ipsum",
   "logo": "/uploads/placeholder-logo.svg",
   "favicon": "/favicon.ico",
   "defaultSeo": {
-    "metaTitle": "Demo Site — Tech Stack Proof of Concept",
-    "metaDescription": "A reusable internal demo validating Next.js, TinaCMS, and two-locale content editing.",
-    "ogImage": ""
+    "metaTitle": "Lorem ipsum — Automate, Understand, and Sync Your Team's Work",
+    "metaDescription": "Lorem ipsum builds focused tools for growing teams: workflow automation, real-time analytics, and team collaboration.",
+    "ogImage": "/uploads/hero-banner.jpg"
   },
   "socialLinks": [
     { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },

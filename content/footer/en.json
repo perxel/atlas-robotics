@@ -3,9 +3,9 @@
     {
       "title": "Explore",
       "links": [
-        { "label": "Catalog", "url": "/en/catalog" },
-        { "label": "Story Cards", "url": "/en/story-cards" },
-        { "label": "Blog", "url": "/en/blog" }
+        { "label": "Products", "url": "/en/products" },
+        { "label": "Blog", "url": "/en/blog" },
+        { "label": "About", "url": "/en/about" }
       ]
     },
     {
@@ -18,6 +18,6 @@
   "contactInfo": {
     "address": "123 Example Street, Demo City",
     "phone": "+1 555 0100",
-    "email": "hello@example.com"
+    "email": "hello@loremipsum.example"
   }
 }

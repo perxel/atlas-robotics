@@ -5,15 +5,25 @@ import { seoField } from "./shared-fields/seo.schema";
 import { heroTemplate } from "@/components/blocks/Hero.template";
 import { richTextTemplate } from "@/components/blocks/RichTextBlock.template";
 import { ctaTemplate } from "@/components/blocks/Cta.template";
+import { featureGridTemplate } from "@/components/blocks/FeatureGrid.template";
+import { newsletterTemplate } from "@/components/blocks/Newsletter.template";
+import { featuredBlogPostsTemplate } from "@/components/blocks/FeaturedBlogPosts.template";
 import { localePath, type Locale } from "@/lib/i18n";
 import { reservedSlugs } from "@/lib/pages-config";
 
-// Example block set for the `pages` collection's block-based editing.
+// Block set for the `pages` collection's block-based editing.
 // https://tina.io/docs/editing/blocks
 // Add a new block: create <Name>.template.tsx next to its render component
 // in components/blocks/, add it here, and a matching case in
 // components/blocks/BlocksRenderer.tsx.
-export const pageBlocks: Template[] = [heroTemplate, richTextTemplate, ctaTemplate];
+export const pageBlocks: Template[] = [
+  heroTemplate,
+  richTextTemplate,
+  ctaTemplate,
+  featureGridTemplate,
+  newsletterTemplate,
+  featuredBlogPostsTemplate,
+];
 
 export const pagesCollection: Collection = {
   name: "pages",

@@ -23,6 +23,12 @@ export type TaxonomyRegistryEntry = {
 
 export const taxonomyRegistry: TaxonomyRegistryEntry[] = [
   { collection: "blog", taxonomy: "categories", urlSegment: "category", fieldName: "categories" },
+  {
+    collection: "products",
+    taxonomy: "productCategories",
+    urlSegment: "category",
+    fieldName: "productCategories",
+  },
 ];
 
 export function getTaxonomyRegistryEntry(collection: string, urlSegment: string) {
