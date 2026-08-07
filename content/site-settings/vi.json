@@ -23,5 +23,9 @@
       "url": "https://youtube.com/example",
       "icon": "youtube"
     }
+  ],
+  "languageSwitcher": [
+    { "locale": "vi", "label": "VI", "flag": "/uploads/flag-vi.svg" },
+    { "locale": "en", "label": "EN", "flag": "/uploads/flag-en.svg" }
   ]
 }

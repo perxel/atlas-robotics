@@ -47,7 +47,11 @@ export default async function Header({ locale }: { locale: Locale }) {
           )}
         </nav>
 
-        <LanguageSwitcher currentLocale={locale} urls={alternates} />
+        <LanguageSwitcher
+          currentLocale={locale}
+          urls={alternates}
+          config={settings?.languageSwitcher}
+        />
       </div>
     </header>
   );

@@ -1,9 +1,16 @@
 import Link from "next/link";
-import { locales, localePath, type Locale } from "@/lib/i18n";
+import { locales, localeLabels, isLocale, localePath, type Locale } from "@/lib/i18n";
+
+export type LanguageSwitcherConfigItem = {
+  locale?: string | null;
+  label?: string | null;
+  flag?: string | null;
+} | null;
 
 export default function LanguageSwitcher({
   currentLocale,
   urls,
+  config,
 }: {
   currentLocale: Locale;
   /** From Header.tsx's resolveLocaleAlternates (lib/locale-alternates.ts) —
@@ -11,22 +18,49 @@ export default function LanguageSwitcher({
    * (translation not found) falls back to that locale's homepage rather
    * than linking to a URL that might not exist. */
   urls: Partial<Record<Locale, string>>;
+  /** Site settings' `languageSwitcher` field — editor-controlled display
+   * order, label text, and an optional flag image. Only affects how the
+   * switcher looks; it never changes which locales exist or which URL
+   * each one links to (that's still lib/i18n.ts + `urls` above). A locale
+   * missing from this list — including an empty/unconfigured list — falls
+   * back to lib/i18n.ts's `localeLabels`, appended in `locales` order, so
+   * the switcher always shows every locale even before an editor touches
+   * this field. */
+  config?: LanguageSwitcherConfigItem[] | null;
 }) {
+  const seen = new Set<Locale>();
+  const entries: { locale: Locale; label: string; flag?: string | null }[] = [];
+
+  for (const item of config ?? []) {
+    if (!item?.locale || !isLocale(item.locale) || seen.has(item.locale)) continue;
+    seen.add(item.locale);
+    entries.push({ locale: item.locale, label: item.label || localeLabels[item.locale], flag: item.flag });
+  }
+  for (const locale of locales) {
+    if (seen.has(locale)) continue;
+    entries.push({ locale, label: localeLabels[locale] });
+  }
+
   return (
-    <div className="flex items-center gap-2 text-sm">
-      {locales.map((locale) => (
+    <div className="flex items-center gap-3 text-sm">
+      {entries.map(({ locale, label, flag }) => (
         <Link
           key={locale}
           href={urls[locale] ?? localePath(locale, "/")}
           hrefLang={locale}
           aria-current={locale === currentLocale ? "true" : undefined}
           className={
-            locale === currentLocale
+            "flex items-center gap-1.5 " +
+            (locale === currentLocale
               ? "font-semibold text-accent"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground")
           }
         >
-          {locale.toUpperCase()}
+          {flag && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={flag} alt="" className="h-3.5 w-5 rounded-sm object-cover" />
+          )}
+          {label}
         </Link>
       ))}
     </div>

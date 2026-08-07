@@ -6,6 +6,7 @@ import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
 import { collectionPath } from "@/lib/collection-slugs";
+import { taxonomyArchivePath } from "@/lib/taxonomies";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
 import type { getBlogPosts } from "@/lib/tina-content";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -73,7 +74,7 @@ export default function BlogPostView({
             {categories.map((c) => (
               <Link
                 key={c.term.slug}
-                href={collectionPath(locale, "blog", `/category/${c.term.slug}`)}
+                href={taxonomyArchivePath("blog", "categories", locale, c.term.slug) ?? "#"}
                 data-tina-field={tinaField(c)}
                 className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
               >

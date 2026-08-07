@@ -6,6 +6,7 @@ import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
 import { collectionPath } from "@/lib/collection-slugs";
+import { taxonomyArchivePath } from "@/lib/taxonomies";
 import { contactSlug } from "@/lib/pages-config";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
 import type { getProducts } from "@/lib/tina-content";
@@ -54,7 +55,7 @@ export default function ProductView({
             {categories.map((c) => (
               <Link
                 key={c.term.slug}
-                href={collectionPath(locale, "products", `/category/${c.term.slug}`)}
+                href={taxonomyArchivePath("products", "productCategories", locale, c.term.slug) ?? "#"}
                 data-tina-field={tinaField(c)}
                 className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
               >

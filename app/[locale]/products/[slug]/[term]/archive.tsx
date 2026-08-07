@@ -34,7 +34,7 @@ async function resolveTerm(taxonomy: string, locale: Locale, termSlug: string) {
 }
 
 async function loadArchive(locale: Locale, taxonomySegment: string, termSlug: string) {
-  const entry = getTaxonomyRegistryEntry("products", taxonomySegment);
+  const entry = getTaxonomyRegistryEntry("products", locale, taxonomySegment);
   if (!entry) return null;
 
   const term = await resolveTerm(entry.taxonomy, locale, termSlug);

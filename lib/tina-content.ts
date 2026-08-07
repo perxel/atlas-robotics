@@ -69,6 +69,68 @@ export async function getProductCategories(locale: Locale) {
   return categories.sort((a, b) => a.title.localeCompare(b.title));
 }
 
+type TaxonomyTermDoc = { slug: string; _sys: { breadcrumbs: string[]; relativePath: string } };
+
+/** Hardcoded per taxonomy name, same as archive.tsx's resolveTerm() and
+ * getPageAlternates below — Tina's generated client is per-collection typed
+ * (client.queries.categoriesConnection vs. .productCategoriesConnection),
+ * so a new taxonomy needs a matching branch here too. The cast to
+ * `TaxonomyTermDoc` is safe: every taxonomy defined via `defineTaxonomy`
+ * (tina/collections/shared-fields/taxonomy.schema.tsx) shares this same
+ * `title` + `slug` shape, only `__typename` differs between them. */
+async function getTaxonomyDocs(
+  taxonomy: string
+): Promise<Array<{ node?: TaxonomyTermDoc | null } | null> | null> {
+  if (taxonomy === "categories") {
+    return (await client.queries.categoriesConnection()).data.categoriesConnection.edges as Array<{
+      node?: TaxonomyTermDoc | null;
+    } | null> | null;
+  }
+  if (taxonomy === "productCategories") {
+    return (await client.queries.productCategoriesConnection()).data.productCategoriesConnection
+      .edges as Array<{ node?: TaxonomyTermDoc | null } | null> | null;
+  }
+  return null;
+}
+
+/**
+ * Cross-locale lookup for a taxonomy term, given the term's slug AS IT
+ * APPEARS in `locale`'s URL. Mirrors getPageAlternates below: term docs
+ * across locales are paired by filename (content/categories/en/news.md +
+ * content/categories/vi/news.md), and each locale's own `slug` field can
+ * genuinely diverge from the others (same as a `pages` document's slug
+ * can) — so a taxonomy archive page's hreflang needs a real per-locale
+ * lookup instead of assuming the term slug is the same word in every
+ * locale, which is what lib/collection-slugs.ts's translateCollectionPath
+ * does for the rest of a collection route (safe there only because a
+ * post's/product's own slug IS assumed identical by convention — a
+ * taxonomy term is a separate document with its own independently
+ * editable `slug`, so that assumption doesn't hold for it).
+ */
+export const getTaxonomyTermAlternates = cache(
+  async (
+    taxonomy: string,
+    locale: Locale,
+    termSlug: string
+  ): Promise<Partial<Record<Locale, string>>> => {
+    const edges = await getTaxonomyDocs(taxonomy);
+    if (!edges) return {};
+
+    const current = inLocale(edges, locale).find((d) => d.slug === termSlug);
+    const filename = current?._sys.relativePath.split("/").pop()?.replace(/\.md$/, "");
+    if (!filename) return {};
+
+    const result: Partial<Record<Locale, string>> = {};
+    for (const l of locales) {
+      const doc = inLocale(edges, l).find(
+        (d) => d._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") === filename
+      );
+      if (doc) result[l] = doc.slug;
+    }
+    return result;
+  }
+);
+
 /**
  * Generic filter for any taxonomy attached via `taxonomyField` (see
  * tina/collections/shared-fields/taxonomy.schema.tsx and

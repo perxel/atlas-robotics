@@ -2,6 +2,7 @@ import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
 import { collectionPath, type CollectionKey } from "@/lib/collection-slugs";
+import { taxonomyArchivePath } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
 import type { Locale } from "@/lib/i18n";
 import type { getProducts } from "@/lib/tina-content";
@@ -102,7 +103,9 @@ export default function ProductListingBlock({
                     c?.term ? (
                       <Link
                         key={c.term.slug}
-                        href={collectionPath(locale, COLLECTION, `/category/${c.term.slug}`)}
+                        href={
+                          taxonomyArchivePath(COLLECTION, "productCategories", locale, c.term.slug) ?? "#"
+                        }
                         className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
                       >
                         {c.term.title}

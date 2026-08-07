@@ -1,7 +1,27 @@
 import type { Metadata } from "next";
-import { locales, localePath, stripLocalePrefix, type Locale } from "@/lib/i18n";
+import { locales, defaultLocale, localePath, stripLocalePrefix, type Locale } from "@/lib/i18n";
 
-export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// Every canonical URL, hreflang alternate, and sitemap entry in this app is
+// built from this one value — silently falling back to localhost in
+// production would poison all of them with no warning. Same "fail loud
+// instead of silently wrong" reasoning as tina/config.ts's
+// assertSlugFieldsHaveGuard, and the same category of footgun CLAUDE.md's
+// "Production builds require Tina Cloud" note already documents for
+// NEXT_PUBLIC_TINA_CLIENT_ID/TINA_TOKEN — set this wherever the app
+// builds/runs, in both places on platforms that separate build-time and
+// runtime env vars.
+export const siteUrl = (() => {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "NEXT_PUBLIC_SITE_URL is not set. Canonical/hreflang/sitemap URLs would all " +
+        "silently resolve to http://localhost:3000 in production otherwise — see " +
+        "lib/seo.ts and CLAUDE.md's \"Production builds require Tina Cloud\" note."
+    );
+  }
+  return "http://localhost:3000";
+})();
 
 /** Strips a leading /<locale> prefix, e.g. /en/blog/post -> /blog/post. No-op if unprefixed. */
 export function stripLocale(pathname: string): string {
@@ -26,12 +46,18 @@ export function buildAlternates(
   for (const l of locales) {
     if (alternates[l]) languages[l] = `${siteUrl}${alternates[l]}`;
   }
-  const defaultUrl = alternates[locale] ? alternates[locale] : localePath(locale, pathWithoutLocale);
   if (Object.keys(languages).length > 0) {
-    // x-default points at whichever locale's URL is available, preferring
-    // the current one — there's no meaningful "default" once alternates
-    // genuinely diverge, so this just needs to be *a* valid URL.
-    languages["x-default"] = `${siteUrl}${defaultUrl}`;
+    // x-default must be the SAME target on every locale variant in this
+    // page's cluster — search engines treat hreflang as a reciprocal set,
+    // so the en page and the vi page both need to point x-default at one
+    // agreed URL, not each other's own. Prefer defaultLocale's URL; only
+    // fall through `locales` order if that locale's own alternate wasn't
+    // resolved (e.g. a translation gap), so this is always deterministic
+    // and never depends on which locale is currently rendering.
+    const xDefaultLocale = [defaultLocale, ...locales].find((l) => alternates[l]);
+    if (xDefaultLocale) {
+      languages["x-default"] = `${siteUrl}${alternates[xDefaultLocale]}`;
+    }
   }
 
   return {
