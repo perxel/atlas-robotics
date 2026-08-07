@@ -1,15 +1,27 @@
 {
   "title": "Lorem ipsum",
   "logo": "/uploads/placeholder-logo.svg",
-  "favicon": "/favicon.ico",
+  "favicon": "/uploads/favicon.ico",
   "defaultSeo": {
     "metaTitle": "Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn",
     "metaDescription": "Lorem ipsum xây dựng những công cụ tập trung cho các nhóm đang phát triển: tự động hóa quy trình, phân tích thời gian thực và cộng tác nhóm.",
     "ogImage": "/uploads/hero-banner.jpg"
   },
   "socialLinks": [
-    { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },
-    { "platform": "Instagram", "url": "https://instagram.com/example", "icon": "instagram" },
-    { "platform": "YouTube", "url": "https://youtube.com/example", "icon": "youtube" }
+    {
+      "platform": "Facebook",
+      "url": "https://facebook.com/example",
+      "icon": "facebook"
+    },
+    {
+      "platform": "Instagram",
+      "url": "https://instagram.com/example",
+      "icon": "instagram"
+    },
+    {
+      "platform": "YouTube",
+      "url": "https://youtube.com/example",
+      "icon": "youtube"
+    }
   ]
 }
