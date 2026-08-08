@@ -1,6 +1,7 @@
 import type { Collection, Template } from "tinacms";
-import { slugField, slugLifecycleGuard } from "./shared-fields/slug.schema";
-import { draftField } from "./shared-fields/draft.schema";
+import { slugField, slugLifecycleGuard } from "@/cms/slug";
+import { draftField } from "@/cms/collection";
+import { composeBeforeSubmit } from "@/cms/tina-hooks";
 import { seoField } from "./shared-fields/seo.schema";
 import { heroTemplate } from "@/components/blocks/Hero.template";
 import { richTextTemplate } from "@/components/blocks/RichTextBlock.template";
@@ -12,7 +13,7 @@ import { contactFormTemplate } from "@/components/blocks/ContactFormBlock.templa
 import { blogListingTemplate } from "@/components/blocks/BlogListingBlock.template";
 import { productListingTemplate } from "@/components/blocks/ProductListingBlock.template";
 import type { Locale } from "@/lib/i18n";
-import { reservedSlugs } from "@/lib/pages-config";
+import { reservedSlugs, lockedSlugFilenames } from "@/lib/pages-config";
 import { resolvePagesDocumentUrl } from "@/lib/cms";
 
 // Block set for the `pages` collection's block-based editing.
@@ -43,7 +44,9 @@ export const pagesCollection: Collection = {
       // not create new ones.
       create: true,
     },
-    beforeSubmit: slugLifecycleGuard("pages"),
+    beforeSubmit: composeBeforeSubmit([
+      slugLifecycleGuard("pages", { lockedFilenames: lockedSlugFilenames }),
+    ]),
     // Same reasoning as blog's router (see its comment): derived from the
     // filename (_sys.breadcrumbs), not the `slug` field — `document` in
     // this callback only reliably carries `_sys` (confirmed live: reading

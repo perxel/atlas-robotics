@@ -13,4 +13,7 @@ export type BeforeSubmitArgs = {
   form: { path: string };
 };
 
-export type BeforeSubmitHook = (args: BeforeSubmitArgs) => Promise<void> | void;
+// Always a Promise (not `Promise<void> | void`) — Tina's own beforeSubmit
+// type requires the function to always return a Promise; every hook here is
+// written `async` anyway, so this costs nothing in practice.
+export type BeforeSubmitHook = (args: BeforeSubmitArgs) => Promise<void>;

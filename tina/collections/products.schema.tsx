@@ -1,6 +1,7 @@
 import type { Collection } from "tinacms";
-import { slugField, slugLifecycleGuard } from "./shared-fields/slug.schema";
-import { draftField } from "./shared-fields/draft.schema";
+import { slugField, slugLifecycleGuard } from "@/cms/slug";
+import { draftField } from "@/cms/collection";
+import { composeBeforeSubmit } from "@/cms/tina-hooks";
 import { seoField } from "./shared-fields/seo.schema";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
 import { collectionPath } from "@/lib/cms";
@@ -21,7 +22,7 @@ export const productsCollection: Collection = {
       const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
       return collectionPath(locale, "products", `/${filename}`);
     },
-    beforeSubmit: slugLifecycleGuard("products"),
+    beforeSubmit: composeBeforeSubmit([slugLifecycleGuard("products")]),
   },
   fields: [
     { type: "string", name: "title", label: "Title", required: true },

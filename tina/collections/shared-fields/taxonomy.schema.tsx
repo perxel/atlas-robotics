@@ -1,5 +1,6 @@
 import type { Collection, TinaField } from "tinacms";
-import { slugField, slugLifecycleGuard } from "./slug.schema";
+import { slugField, slugLifecycleGuard } from "@/cms/slug";
+import { composeBeforeSubmit } from "@/cms/tina-hooks";
 
 /**
  * Registers a taxonomy: a standalone term-store collection (title + slug),
@@ -17,7 +18,7 @@ export function defineTaxonomy(options: { name: string; label: string; path?: st
     path: path ?? `content/${name}`,
     format: "md",
     ui: {
-      beforeSubmit: slugLifecycleGuard(name),
+      beforeSubmit: composeBeforeSubmit([slugLifecycleGuard(name)]),
     },
     fields: [
       { type: "string", name: "title", label: "Title", required: true },

@@ -35,7 +35,7 @@ export const reservedSlugs = new Set<string>(["admin", "api"]);
 
 /**
  * `pages` documents whose `slug` field is locked — checked by
- * `slugLifecycleGuard` (tina/collections/shared-fields/slug.schema.tsx),
+ * `slugLifecycleGuard` (cms/slug/slug-lifecycle-guard.ts),
  * matched by filename (`form.path`'s basename), not by current slug value.
  *
  * `home` and every registered collection's `listingPageFilename` (see

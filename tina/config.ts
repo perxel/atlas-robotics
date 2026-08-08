@@ -1,5 +1,5 @@
 import { defineConfig, type Collection } from "tinacms";
-import { assertSlugFieldsHaveGuard } from "./collections/shared-fields/slug.schema";
+import { assertSlugFieldsHaveGuard } from "@/cms/slug";
 import { siteSettingsCollection } from "./collections/site-settings.schema";
 import { navCollection } from "./collections/nav.schema";
 import { footerCollection } from "./collections/footer.schema";
