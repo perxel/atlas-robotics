@@ -156,8 +156,10 @@ export const taxonomyArchivePath = (
 
 // --- Multilingual registration (.claude/plans/03-multilingual.md). Locale
 // routing/enable-disable itself (CMSMultilingual) is instantiated in
-// lib/i18n.ts, not here — see that file's comment for why (middleware.ts's
-// edge runtime can't afford this file's tina/__generated__/client import). ---
+// lib/i18n.ts, not here — see that file's comment for why (middleware.ts,
+// which needs it, runs on Cloudflare's edge Worker runtime and can't
+// afford this file's GraphQL client + admin dashboard bundle weight on a
+// per-request hot path). ---
 
 export const CMSDictionary = new DictionaryService(
   {

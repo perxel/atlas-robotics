@@ -15,13 +15,22 @@ export const localeLabels: Record<Locale, string> = {
   vi: "Tiếng Việt",
 };
 
-// Instantiated here (not lib/cms.ts) deliberately: lib/cms.ts pulls in
-// tina/__generated__/client for CMSCollection/CMSTaxonomy, and middleware.ts
-// (edge runtime) needs the routing/enable-disable logic without dragging
-// that whole GraphQL-client import graph along. MultilingualService itself
-// has no such dependency — locale routing is pure array/string logic — so
-// it's safe and lightweight to construct right where `locales`/`defaultLocale`
-// are already defined.
+// Instantiated here (not lib/cms.ts) deliberately, kept genuinely separate
+// from the rest of the CMS registration — not because it would crash:
+// verified live that middleware.ts CAN import lib/cms.ts without error, so
+// an earlier version of this comment overstated the risk. The real reason:
+// middleware.ts runs on Cloudflare's edge Worker runtime (see this repo's
+// documented reason for using middleware.ts over proxy.ts) on every single
+// request, and lib/cms.ts pulls in the full Tina GraphQL client plus the
+// React/JSX admin dashboard screens (cms/multilingual, cms/seo) — none of
+// which middleware ever uses, but which a bundler can't safely tree-shake
+// away (each is constructed via a side-effecting `new X(...)` call at
+// module scope). Importing lib/cms.ts here would bloat the Worker bundle
+// with dead weight on a per-request hot path, and risk Cloudflare Workers'
+// bundle-size limit, for zero functional benefit. MultilingualService
+// itself has no such dependency — locale routing is pure array/string
+// logic — so it's safe and lightweight to construct right where
+// `locales`/`defaultLocale` are already defined.
 export const CMSMultilingual = new MultilingualService<Locale>({
   locales,
   defaultLocale,
