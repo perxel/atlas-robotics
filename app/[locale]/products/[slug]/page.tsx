@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type ProductItem, CMSMultilingual } from "@/lib/cms";
-import { getSiteSettings } from "@/lib/tina-content";
+import { getSiteSettings, getPageAlternates } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import ProductView from "@/components/products/ProductView";
@@ -45,7 +45,7 @@ export default async function ProductDetailPage({
 }) {
   const { locale: rawLocale, slug } = await params;
   const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
-  const [result, relatedProducts, uiDictionary] = await Promise.all([
+  const [result, relatedProducts, uiDictionary, contactAlternates] = await Promise.all([
     getProductQuery(locale, slug),
     CMSTaxonomy.getRelatedEntries<ProductItem>({
       collectionName: "products",
@@ -55,6 +55,7 @@ export default async function ProductDetailPage({
       limit: 3,
     }),
     CMSDictionary.loadMap(locale),
+    getPageAlternates("contact"),
   ]);
 
   // getProductQuery resolves the slug via a draft-filtered query, so a
@@ -70,6 +71,7 @@ export default async function ProductDetailPage({
       locale={locale}
       relatedProducts={relatedProducts}
       uiDictionary={uiDictionary}
+      contactHref={contactAlternates[locale]}
     />
   );
 }

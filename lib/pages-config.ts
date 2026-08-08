@@ -1,4 +1,4 @@
-import { type Locale, CMSCollection } from "@/lib/cms";
+import { CMSCollection } from "@/lib/cms";
 
 /**
  * Pages listed here render as a fixed layout (title + intro only), ignoring
@@ -55,18 +55,3 @@ export const lockedSlugFilenames = new Set<string>([
   "home",
   ...CMSCollection.getRegisteredCollectionNames().map((name) => CMSCollection.getListingPageFilename(name)),
 ]);
-
-/**
- * The contact page's slug, per locale — content/pages/<locale>/contact.md
- * is a normal `pages` document (see "Migrating an existing fixed route to
- * a pages document" in CLAUDE.md), so its URL is already translated for
- * free via that document's own `slug` field. Code that links to it without
- * running a query (e.g. ProductView's "Get started" button) still needs
- * to know the slug, though — kept here in sync by hand with the real
- * documents. If an editor renames the contact page's slug, update this
- * too (same caveat class as the `home` slug special-cased elsewhere).
- */
-export const contactSlug: Record<Locale, string> = {
-  en: "contact",
-  vi: "lien-he",
-};

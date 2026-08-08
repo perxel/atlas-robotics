@@ -6,7 +6,6 @@ import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type getProducts, CMSMultilingual } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
-import { contactSlug } from "@/lib/pages-config";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
 import Breadcrumb from "@/components/Breadcrumb";
 
@@ -17,6 +16,7 @@ export default function ProductView({
   locale,
   relatedProducts,
   uiDictionary,
+  contactHref,
 }: {
   query: string;
   variables: ProductsQueryVariables;
@@ -24,6 +24,10 @@ export default function ProductView({
   locale: Locale;
   relatedProducts: Awaited<ReturnType<typeof getProducts>>;
   uiDictionary: Record<string, string>;
+  /** Real URL of the contact page in this locale, resolved from its actual
+   * content (see getPageAlternates) — omitted (not a hardcoded fallback)
+   * when that page doesn't exist in this locale, so the CTA just doesn't render. */
+  contactHref?: string;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,
   // so this renders identically for normal visitors and the production build.
@@ -119,14 +123,16 @@ export default function ProductView({
           <TinaMarkdown content={product.body} />
         </div>
 
-        <div className="mt-10">
-          <Link
-            href={CMSMultilingual.localePath(locale, `/${contactSlug[locale]}`)}
-            className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
-          >
-            {t("Get started")}
-          </Link>
-        </div>
+        {contactHref && (
+          <div className="mt-10">
+            <Link
+              href={contactHref}
+              className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
+            >
+              {t("Get started")}
+            </Link>
+          </div>
+        )}
       </article>
 
       {relatedProducts.length > 0 && (
