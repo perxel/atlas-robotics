@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
-import { type Locale, CMSCollection, type BlogPostItem } from "@/lib/cms";
+import type { Locale, BlogPostItem } from "@/lib/cms";
+import { CMSCollection } from "@/lib/collection-paths";
 import { translateText } from "@/cms/multilingual";
 
 export default function FeaturedBlogPosts({

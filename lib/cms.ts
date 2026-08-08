@@ -1,15 +1,17 @@
-import { client } from "@/tina/__generated__/client";
-import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
-import { CollectionService, type ConnectionItem } from "@/cms/collection";
-import { TaxonomyService } from "@/cms/taxonomy";
-import { DictionaryService } from "@/cms/multilingual";
-import { SeoService, siteUrl } from "@/cms/seo";
-import { SingletonService } from "@/cms/singleton";
-import { PagesService } from "@/cms/pages";
-import { LocaleAlternatesService } from "@/cms/locale-alternates";
-import { locales, type Locale, defaultLocale, localeLabels, CMSMultilingual } from "./locale";
+import {client} from "@/tina/__generated__/client";
+import type {BlogConnectionQuery, ProductsConnectionQuery} from "@/tina/__generated__/types";
+import {CollectionService, type ConnectionItem} from "@/cms/collection";
+import {TaxonomyService} from "@/cms/taxonomy";
+import {DictionaryService} from "@/cms/multilingual";
+import {SeoService, siteUrl} from "@/cms/seo";
+import {SingletonService} from "@/cms/singleton";
+import {PagesService} from "@/cms/pages";
+import {LocaleAlternatesService} from "@/cms/locale-alternates";
+import {CMSMultilingual, defaultLocale, type Locale, localeLabels, locales} from "./locale";
+import {collectionPathConfig, taxonomyPathConfig} from "./collection-paths";
 
 export { locales, type Locale, defaultLocale, localeLabels, CMSMultilingual };
+export { blocksDisabledSlugs } from "./collection-paths";
 
 // Project registration for the cms/ framework — see .claude/docs/ for the
 // design behind each domain below. cms/ itself never hardcodes a
@@ -24,20 +26,18 @@ export type BlogPostItem = ConnectionItem<BlogConnectionQuery["blogConnection"][
 export type ProductItem = ConnectionItem<ProductsConnectionQuery["productsConnection"]["edges"]>;
 
 const collectionRegistry = {
-  blog: {
-    locales: { en: "blog", vi: "tin-tuc", zh: "blog" } as Record<Locale, string>,
-    listingPageFilename: "blog",
-    draftFieldName: "draft",
-    fetchEdges: () => client.queries.blogConnection().then((r) => r.data.blogConnection.edges),
-    fetchBySlug: (relativePath: string) => client.queries.blog({ relativePath }),
-  },
-  products: {
-    locales: { en: "products", vi: "san-pham", zh: "products" } as Record<Locale, string>,
-    listingPageFilename: "products",
-    draftFieldName: "draft",
-    fetchEdges: () => client.queries.productsConnection().then((r) => r.data.productsConnection.edges),
-    fetchBySlug: (relativePath: string) => client.queries.products({ relativePath }),
-  },
+    blog: {
+        ...collectionPathConfig.blog,
+        draftFieldName: "draft",
+        fetchEdges: () => client.queries.blogConnection().then((r) => r.data.blogConnection.edges),
+        fetchBySlug: (relativePath: string) => client.queries.blog({relativePath}),
+    },
+    products: {
+        ...collectionPathConfig.products,
+        draftFieldName: "draft",
+        fetchEdges: () => client.queries.productsConnection().then((r) => r.data.productsConnection.edges),
+        fetchBySlug: (relativePath: string) => client.queries.products({relativePath}),
+    },
 };
 
 export type CollectionKey = keyof typeof collectionRegistry;
@@ -48,27 +48,27 @@ type BlogDocQuery = Awaited<ReturnType<typeof client.queries.blog>>;
 type ProductDocQuery = Awaited<ReturnType<typeof client.queries.products>>;
 
 export const getBlogPostQuery = (locale: Locale, slug: string) =>
-  CMSCollection.getCollectionItem<BlogDocQuery>({ collectionName: "blog", lang: locale, slug });
+    CMSCollection.getCollectionItem<BlogDocQuery>({collectionName: "blog", lang: locale, slug});
 
 export const getProductQuery = (locale: Locale, slug: string) =>
-  CMSCollection.getCollectionItem<ProductDocQuery>({ collectionName: "products", lang: locale, slug });
+    CMSCollection.getCollectionItem<ProductDocQuery>({collectionName: "products", lang: locale, slug});
 
 // --- Singletons (cms/singleton) — site-wide docs, one file per locale ---
 
 const singletonRegistry = {
-  siteSettings: {
-    fetchDoc: (l: Locale) => client.queries.siteSettings({ relativePath: `${l}.json` }).then((r) => r.data.siteSettings),
-  },
-  nav: {
-    fetchDoc: (l: Locale) => client.queries.nav({ relativePath: `${l}.json` }).then((r) => r.data.nav),
-  },
-  footer: {
-    fetchDoc: (l: Locale) => client.queries.footer({ relativePath: `${l}.json` }).then((r) => r.data.footer),
-  },
+    siteSettings: {
+        fetchDoc: (l: Locale) => client.queries.siteSettings({relativePath: `${l}.json`}).then((r) => r.data.siteSettings),
+    },
+    nav: {
+        fetchDoc: (l: Locale) => client.queries.nav({relativePath: `${l}.json`}).then((r) => r.data.nav),
+    },
+    footer: {
+        fetchDoc: (l: Locale) => client.queries.footer({relativePath: `${l}.json`}).then((r) => r.data.footer),
+    },
 };
 
 export const CMSSingleton = new SingletonService<keyof typeof singletonRegistry, Locale>(singletonRegistry, {
-  defaultLocale,
+    defaultLocale,
 });
 
 type SiteSettingsDoc = Awaited<ReturnType<typeof client.queries.siteSettings>>["data"]["siteSettings"];
@@ -84,101 +84,86 @@ export const getFooter = (locale: Locale) => CMSSingleton.get<FooterDoc>({ name:
 // --- Pages (cms/pages) — generic slug-routed collection ---
 
 export const CMSPages = new PagesService(
-  {
-    fetchConnection: (args) =>
-      client.queries
-        .pagesConnection({
-          filter: { draft: { eq: false }, ...(args?.slug ? { slug: { eq: args.slug } } : {}) },
-        })
-        .then((r) => r.data.pagesConnection.edges),
-    fetchByPath: (relativePath: string) => client.queries.pages({ relativePath }),
-  },
-  {
-    localePath: CMSMultilingual.localePath.bind(CMSMultilingual),
-    getCollectionPath: (args) =>
-      CMSCollection.getCollectionPath({ collectionName: args.collectionName as CollectionKey, lang: args.lang }),
-  },
-  { locales, defaultLocale }
+    {
+        fetchConnection: (args) =>
+            client.queries
+                .pagesConnection({
+                    filter: {draft: {eq: false}, ...(args?.slug ? {slug: {eq: args.slug}} : {})},
+                })
+                .then((r) => r.data.pagesConnection.edges),
+        fetchByPath: (relativePath: string) => client.queries.pages({relativePath}),
+    },
+    {
+        localePath: CMSMultilingual.localePath.bind(CMSMultilingual),
+        getCollectionPath: (args) =>
+            CMSCollection.getCollectionPath({collectionName: args.collectionName as CollectionKey, lang: args.lang}),
+    },
+    {locales, defaultLocale}
 );
 
 type PagesDocQuery = Awaited<ReturnType<typeof client.queries.pages>>;
 
 export const getPageQuery = (locale: Locale, slug: string) => CMSPages.getBySlug<PagesDocQuery>({ lang: locale, slug });
 
-/** Fixed layout (title + intro only) for these page slugs, ignoring their `blocks` field — dev-only override, not editor-facing. */
-export const blocksDisabledSlugs = new Set<string>([
-  // "home",
-]);
-
 /** Slugs `pages` documents can't use — Next.js resolves these dedicated routes over the `[slug]` catch-all. Enforced via `slugField({ reserved })`. */
 export const reservedSlugs = new Set<string>(["admin", "api"]);
 
 /** `pages` documents whose `slug` can't be changed through the admin — see `slugLifecycleGuard`. `home` plus every collection's locked listing page. */
 export const lockedSlugFilenames = new Set<string>([
-  "home",
-  ...CMSCollection.getRegisteredCollectionNames().map((name) => CMSCollection.getListingPageFilename(name)),
+    "home",
+    ...CMSCollection.getRegisteredCollectionNames().map((name) => CMSCollection.getListingPageFilename(name)),
 ]);
 
 // --- Taxonomies (cms/taxonomy) — depends on CMSCollection ---
 
 const taxonomyRegistry = {
-  categories: {
-    fetchTerms: () => client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges),
-    attachments: {
-      blog: {
-        fieldName: "categories",
-        urlSegment: { en: "category", vi: "danh-muc", zh: "category" } as Record<Locale, string>,
-      },
+    categories: {
+        ...taxonomyPathConfig.categories,
+        fetchTerms: () => client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges),
     },
-  },
-  productCategories: {
-    fetchTerms: () =>
-      client.queries.productCategoriesConnection().then((r) => r.data.productCategoriesConnection.edges),
-    attachments: {
-      products: {
-        fieldName: "productCategories",
-        urlSegment: { en: "category", vi: "danh-muc", zh: "category" } as Record<Locale, string>,
-      },
+    productCategories: {
+        ...taxonomyPathConfig.productCategories,
+        fetchTerms: () =>
+            client.queries.productCategoriesConnection().then((r) => r.data.productCategoriesConnection.edges),
     },
-  },
 };
 
 export type TaxonomyKey = keyof typeof taxonomyRegistry;
 
 export const CMSTaxonomy = new TaxonomyService(
-  taxonomyRegistry,
-  {
-    getCollectionPath: CMSCollection.getCollectionPath.bind(CMSCollection),
-    getCollectionItems: CMSCollection.getCollectionItems.bind(CMSCollection),
-    getRelatedEntries: CMSCollection.getRelatedEntries.bind(CMSCollection),
-  },
-  { defaultLocale, locales }
+    taxonomyRegistry,
+    {
+        getCollectionPath: CMSCollection.getCollectionPath.bind(CMSCollection),
+        getCollectionItems: CMSCollection.getCollectionItems.bind(CMSCollection),
+        getRelatedEntries: CMSCollection.getRelatedEntries.bind(CMSCollection),
+    },
+    {defaultLocale, locales}
 );
 
 // --- Locale alternates (cms/locale-alternates) — depends on CMSMultilingual/CMSCollection/CMSTaxonomy/CMSPages ---
 
 export const CMSLocaleAlternates = new LocaleAlternatesService<CollectionKey, TaxonomyKey, Locale>(
-  {
-    stripLocalePrefix: CMSMultilingual.stripLocalePrefix.bind(CMSMultilingual),
-    localePath: CMSMultilingual.localePath.bind(CMSMultilingual),
-    getCollectionForSegment: CMSCollection.getCollectionForSegment.bind(CMSCollection),
-    getCollectionPath: CMSCollection.getCollectionPath.bind(CMSCollection),
-    translateCollectionPath: CMSCollection.translateCollectionPath.bind(CMSCollection),
-    getCollectionAlternates: CMSCollection.getCollectionAlternates.bind(CMSCollection),
-    getListingPageFilename: CMSCollection.getListingPageFilename.bind(CMSCollection),
-    resolveTaxonomyUrlSegment: CMSTaxonomy.resolveUrlSegment.bind(CMSTaxonomy),
-    getTermAlternates: CMSTaxonomy.getTermAlternates.bind(CMSTaxonomy),
-    getTaxonomyUrlSegment: CMSTaxonomy.getUrlSegment.bind(CMSTaxonomy),
-    getPageFilenameBySlug: async (args) => {
-      const result = await getPageQuery(args.lang ?? defaultLocale, args.slug);
-      const relativePath = result?.data.pages?._sys.relativePath;
-      return relativePath ? (relativePath.split("/").pop()?.replace(/\.md$/, "") ?? null) : null;
+    {
+        stripLocalePrefix: CMSMultilingual.stripLocalePrefix.bind(CMSMultilingual),
+        localePath: CMSMultilingual.localePath.bind(CMSMultilingual),
+        getCollectionForSegment: CMSCollection.getCollectionForSegment.bind(CMSCollection),
+        getCollectionPath: CMSCollection.getCollectionPath.bind(CMSCollection),
+        translateCollectionPath: CMSCollection.translateCollectionPath.bind(CMSCollection),
+        getCollectionAlternates: CMSCollection.getCollectionAlternates.bind(CMSCollection),
+        getListingPageFilename: CMSCollection.getListingPageFilename.bind(CMSCollection),
+        resolveTaxonomyUrlSegment: CMSTaxonomy.resolveUrlSegment.bind(CMSTaxonomy),
+        getTermAlternates: CMSTaxonomy.getTermAlternates.bind(CMSTaxonomy),
+        getTaxonomyUrlSegment: CMSTaxonomy.getUrlSegment.bind(CMSTaxonomy),
+        getPageFilenameBySlug: async (args) => {
+            const result = await getPageQuery(args.lang ?? defaultLocale, args.slug);
+            const relativePath = result?.data.pages?._sys.relativePath;
+            return relativePath ? (relativePath.split("/").pop()?.replace(/\.md$/, "") ?? null) : null;
+        },
+        getPageAlternates: CMSPages.getAlternates.bind(CMSPages),
+        getListingAlternates: (args) =>
+            CMSPages.getListingAlternates({collectionName: args.collectionName, filename: args.filename}),
     },
-    getPageAlternates: CMSPages.getAlternates.bind(CMSPages),
-    getListingAlternates: (args) =>
-      CMSPages.getListingAlternates({ collectionName: args.collectionName, filename: args.filename }),
-  },
-  { locales }
+    {locales}
 );
 
 /** Resolves the current page's URL in every other locale — see LocaleAlternatesService for how each route shape is handled. */
@@ -187,48 +172,48 @@ export const resolveLocaleAlternates = (locale: Locale, pathname: string) => CMS
 // --- Dictionary (cms/multilingual) ---
 
 export const CMSDictionary = new DictionaryService<Locale>(
-  {
-    fetchEntries: () =>
-      client.queries.multilingual({ relativePath: "index.json" }).then(
-        (r) =>
-          (r.data.multilingual.entries ?? []).filter(
-            (entry): entry is NonNullable<typeof entry> => !!entry
-          ) as { key: string; values: Record<string, string | null | undefined> }[]
-      ),
-  },
-  { defaultLocale }
+    {
+        fetchEntries: () =>
+            client.queries.multilingual({relativePath: "index.json"}).then(
+                (r) =>
+                    (r.data.multilingual.entries ?? []).filter(
+                        (entry): entry is NonNullable<typeof entry> => !!entry
+                    ) as { key: string; values: Record<string, string | null | undefined> }[]
+            ),
+    },
+    {defaultLocale}
 );
 
 export const getMultilingualSettings = () =>
-  client.queries.multilingual({ relativePath: "index.json" }).then((r) => r.data.multilingual);
+    client.queries.multilingual({relativePath: "index.json"}).then((r) => r.data.multilingual);
 
 /** Extra data some `pages` blocks need, fetched once per page render and shared by every route rendering `pages` blocks. Project-specific glue (hardcodes this project's block typenames), not cms/ framework logic. */
 export async function getPageBlockData(
-  locale: Locale,
-  blocks: Array<{ __typename?: string | null } | null> | null | undefined
+    locale: Locale,
+    blocks: Array<{ __typename?: string | null } | null> | null | undefined
 ) {
-  const typenames = new Set((blocks ?? []).map((b) => b?.__typename));
-  const needsPosts =
-    typenames.has("PagesBlocksFeaturedBlogPosts") || typenames.has("PagesBlocksBlogListing");
-  const needsProducts = typenames.has("PagesBlocksProductListing");
+    const typenames = new Set((blocks ?? []).map((b) => b?.__typename));
+    const needsPosts =
+        typenames.has("PagesBlocksFeaturedBlogPosts") || typenames.has("PagesBlocksBlogListing");
+    const needsProducts = typenames.has("PagesBlocksProductListing");
 
-  const [latestPosts, products, uiDictionary] = await Promise.all([
-    needsPosts
-      ? CMSCollection.getCollectionItems<BlogPostItem>({
-          collectionName: "blog",
-          lang: locale,
-          sort: { field: "publishDate", direction: "desc", type: "date" },
-        }).then((r) => r.items)
-      : Promise.resolve([]),
-    needsProducts
-      ? CMSCollection.getCollectionItems<ProductItem>({ collectionName: "products", lang: locale }).then(
-          (r) => r.items
-        )
-      : Promise.resolve([]),
-    CMSDictionary.loadMap(locale),
-  ]);
+    const [latestPosts, products, uiDictionary] = await Promise.all([
+        needsPosts
+            ? CMSCollection.getCollectionItems<BlogPostItem>({
+                collectionName: "blog",
+                lang: locale,
+                sort: {field: "publishDate", direction: "desc", type: "date"},
+            }).then((r) => r.items)
+            : Promise.resolve([]),
+        needsProducts
+            ? CMSCollection.getCollectionItems<ProductItem>({collectionName: "products", lang: locale}).then(
+                (r) => r.items
+            )
+            : Promise.resolve([]),
+        CMSDictionary.loadMap(locale),
+    ]);
 
-  return { latestPosts, products, uiDictionary };
+    return {latestPosts, products, uiDictionary};
 }
 
 // --- SEO (cms/seo) ---
