@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import type { Locale } from "@/lib/i18n";
-import { buildMetadata, stripLocale } from "@/lib/seo";
-import { collectionPath } from "@/lib/cms";
+import { stripLocalePrefix, type Locale } from "@/lib/i18n";
+import { collectionPath, CMSDictionary, CMSSeo } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
-import { CMSDictionary } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";
@@ -30,9 +28,9 @@ export async function generateBlogMetadata(locale: Locale): Promise<Metadata> {
   const page = result?.data.pages;
   const t = (text: string) => translateText(uiDictionary, text);
 
-  return buildMetadata({
-    locale,
-    pathWithoutLocale: stripLocale(pathname),
+  return CMSSeo.buildMetadata({
+    lang: locale,
+    pathWithoutLocale: stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
     fallbackTitle: page?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,

@@ -13,7 +13,7 @@ import { getPageQuery, getPageAlternates, getCollectionListingAlternates } from 
  * Given the current locale and pathname (locale-prefixed), resolves the
  * correct URL for every locale that has one. Single source of truth for
  * "what's the equivalent of this page in another locale" — used by both
- * hreflang/canonical (lib/seo.ts's buildAlternates) and the language
+ * hreflang/canonical (lib/cms.ts's CMSSeo.buildAlternates) and the language
  * switcher (Header.tsx). Three cases:
  *
  * - **A taxonomy archive route** (blog/products + a registered taxonomy

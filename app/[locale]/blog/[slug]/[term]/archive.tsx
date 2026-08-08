@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale } from "@/lib/i18n";
-import { buildMetadata, stripLocale } from "@/lib/seo";
+import { defaultLocale, isLocale, stripLocalePrefix } from "@/lib/i18n";
 import { getSiteSettings } from "@/lib/tina-content";
-import { collectionPath, CMSTaxonomy, CMSDictionary, type BlogPostItem } from "@/lib/cms";
+import { collectionPath, CMSTaxonomy, CMSDictionary, CMSSeo, type BlogPostItem } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
@@ -68,9 +67,9 @@ export async function generateBlogArchiveMetadata(
   ]);
   const t = (text: string) => translateText(uiDictionary, text);
 
-  return buildMetadata({
-    locale,
-    pathWithoutLocale: stripLocale(pathname),
+  return CMSSeo.buildMetadata({
+    lang: locale,
+    pathWithoutLocale: stripLocalePrefix(pathname),
     alternates,
     fallbackTitle: archive
       ? `${archive.term.title} — ${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`

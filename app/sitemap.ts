@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { CMSMultilingual } from "@/lib/i18n";
-import { collectionPath, resolvePagesDocumentUrl } from "@/lib/cms";
-import { siteUrl } from "@/lib/seo";
+import { collectionPath, resolvePagesDocumentUrl, siteUrl } from "@/lib/cms";
 import { inLocale } from "@/lib/tina-content";
 import { client } from "@/tina/__generated__/client";
 

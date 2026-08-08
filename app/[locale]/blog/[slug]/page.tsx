@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale } from "@/lib/i18n";
-import { buildMetadata, stripLocale } from "@/lib/seo";
+import { defaultLocale, isLocale, stripLocalePrefix } from "@/lib/i18n";
 import { getSiteSettings } from "@/lib/tina-content";
-import { getBlogPostQuery, CMSTaxonomy, CMSDictionary, collectionPath, type BlogPostItem } from "@/lib/cms";
+import { getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, collectionPath, type BlogPostItem } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import BlogPostView from "@/components/blog/BlogPostView";
@@ -27,9 +26,9 @@ export async function generateMetadata({
   const post = result?.data.blog;
   const t = (text: string) => translateText(uiDictionary, text);
 
-  return buildMetadata({
-    locale,
-    pathWithoutLocale: stripLocale(pathname),
+  return CMSSeo.buildMetadata({
+    lang: locale,
+    pathWithoutLocale: stripLocalePrefix(pathname),
     alternates,
     seo: post?.seo,
     fallbackTitle: post?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,

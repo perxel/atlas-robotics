@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
-import { buildMetadata, stripLocale } from "@/lib/seo";
+import { defaultLocale, isLocale, localePath, stripLocalePrefix } from "@/lib/i18n";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
-import { CMSDictionary } from "@/lib/cms";
+import { CMSDictionary, CMSSeo } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import PageView from "@/components/pages/PageView";
 
@@ -26,9 +25,9 @@ export async function generateMetadata({
   ]);
   const page = result?.data.pages;
 
-  return buildMetadata({
-    locale,
-    pathWithoutLocale: stripLocale(pathname),
+  return CMSSeo.buildMetadata({
+    lang: locale,
+    pathWithoutLocale: stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
     fallbackTitle: page?.title || settings?.title || translateText(uiDictionary, "Lorem ipsum"),

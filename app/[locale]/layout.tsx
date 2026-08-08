@@ -3,10 +3,9 @@ import { ViewTransition } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import "../globals.css";
-import { locales, defaultLocale, isLocale, localePath } from "@/lib/i18n";
-import { buildMetadata, stripLocale, siteUrl } from "@/lib/seo";
+import { locales, defaultLocale, isLocale, localePath, stripLocalePrefix } from "@/lib/i18n";
 import { getSiteSettings } from "@/lib/tina-content";
-import { CMSDictionary } from "@/lib/cms";
+import { CMSDictionary, CMSSeo, siteUrl } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -34,14 +33,14 @@ export async function generateMetadata({
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || localePath(locale, "/");
-  const pathWithoutLocale = stripLocale(pathname);
+  const pathWithoutLocale = stripLocalePrefix(pathname);
   const [settings, uiDictionary] = await Promise.all([getSiteSettings(locale), CMSDictionary.loadMap(locale)]);
 
   return {
     metadataBase: new URL(siteUrl),
     icons: settings?.favicon ? { icon: settings.favicon } : undefined,
-    ...buildMetadata({
-      locale,
+    ...CMSSeo.buildMetadata({
+      lang: locale,
       pathWithoutLocale,
       seo: settings?.defaultSeo,
       fallbackTitle: settings?.title || translateText(uiDictionary, "Lorem ipsum"),

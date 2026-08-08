@@ -203,9 +203,7 @@ export const translationDashboardScreen = CMSMultilingual.isEnabled()
 // "Production builds require Tina Cloud" note already documents for
 // NEXT_PUBLIC_TINA_CLIENT_ID/TINA_TOKEN — set this wherever the app
 // builds/runs, in both places on platforms that separate build-time and
-// runtime env vars. Lives here (not lib/seo.ts) so lib/seo.ts can import
-// CMSSeo from this file without a circular import — CMSSeo's own
-// construction needs this value.
+// runtime env vars.
 export const siteUrl = (() => {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
   if (configured) return configured;

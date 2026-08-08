@@ -132,7 +132,7 @@ export const getPageQuery = cache(async (locale: Locale, slug: string) => {
  * "Migrating an existing fixed route to a pages document" and the
  * companion note on locked slugs in CLAUDE.md) — nothing else does, since
  * each locale's document is otherwise a fully independent file. Used by
- * lib/locale-alternates.ts for both hreflang (lib/seo.ts) and the language
+ * lib/locale-alternates.ts for both hreflang (CMSSeo, lib/cms.ts) and the language
  * switcher (Header.tsx) — wrapped in `cache()` so both call sites in the
  * same request share one fetch.
  */
