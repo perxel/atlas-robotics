@@ -1,4 +1,3 @@
-import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
 import { CollectionService } from "@/cms/collection";
@@ -25,19 +24,22 @@ const collectionRegistry = {
     locales: { en: "blog", vi: "tin-tuc" } as Record<Locale, string>,
     listingPageFilename: "blog",
     draftFieldName: "draft",
-    // Wrapped in cache() so a request that fetches "all blog posts" more
-    // than once (e.g. a detail page's related-entries lookup alongside its
-    // own listing fetch) shares one GraphQL request instead of two.
-    fetchEdges: cache(() => client.queries.blogConnection().then((r) => r.data.blogConnection.edges)),
+    // Not wrapped in React's cache(): this registry is also reachable from
+    // tina/config.ts (via translationDashboardScreen/seoDashboardScreen
+    // below), which Tina's CLI bundles into a plain client-side admin
+    // bundle, not a Next.js RSC context — cache() isn't available there
+    // ("cache is not a function" at admin load, confirmed live). Losing the
+    // per-request GraphQL dedup this bought (e.g. a detail page's
+    // related-entries lookup alongside its own listing fetch) is a minor
+    // efficiency cost, not a correctness one.
+    fetchEdges: () => client.queries.blogConnection().then((r) => r.data.blogConnection.edges),
     fetchBySlug: (relativePath: string) => client.queries.blog({ relativePath }),
   },
   products: {
     locales: { en: "products", vi: "san-pham" } as Record<Locale, string>,
     listingPageFilename: "products",
     draftFieldName: "draft",
-    fetchEdges: cache(() =>
-      client.queries.productsConnection().then((r) => r.data.productsConnection.edges)
-    ),
+    fetchEdges: () => client.queries.productsConnection().then((r) => r.data.productsConnection.edges),
     fetchBySlug: (relativePath: string) => client.queries.products({ relativePath }),
   },
 };
@@ -85,21 +87,24 @@ export const getProducts = (locale: Locale): Promise<ProductItem[]> =>
 type BlogDocQuery = Awaited<ReturnType<typeof client.queries.blog>>;
 type ProductDocQuery = Awaited<ReturnType<typeof client.queries.products>>;
 
-/** Wrapped in React's cache() so generateMetadata and the page component
- * (and visual editing's useTina()) share one fetch per request — same
- * reasoning the original lib/tina-content.ts query helpers documented. */
-export const getBlogPostQuery = cache((locale: Locale, slug: string) =>
-  CMSCollection.getCollectionItem<BlogDocQuery>({ collectionName: "blog", lang: locale, slug })
-);
+// Not wrapped in React's cache() — see the collectionRegistry comment
+// above for why: this file is reachable from tina/config.ts's plain
+// client-bundled admin build, where cache() isn't available. Originally
+// cache()-wrapped so generateMetadata and the page component (and visual
+// editing's useTina()) could share one fetch per request; now each caller
+// fetches independently.
+export const getBlogPostQuery = (locale: Locale, slug: string) =>
+  CMSCollection.getCollectionItem<BlogDocQuery>({ collectionName: "blog", lang: locale, slug });
 
-export const getProductQuery = cache((locale: Locale, slug: string) =>
-  CMSCollection.getCollectionItem<ProductDocQuery>({ collectionName: "products", lang: locale, slug })
-);
+export const getProductQuery = (locale: Locale, slug: string) =>
+  CMSCollection.getCollectionItem<ProductDocQuery>({ collectionName: "products", lang: locale, slug });
 
-export const getCollectionDocAlternates = cache(
-  (collection: CollectionKey, locale: Locale, slug: string): Promise<Partial<Record<Locale, string>>> =>
-    CMSCollection.getCollectionAlternates({ collectionName: collection, lang: locale, slug })
-);
+export const getCollectionDocAlternates = (
+  collection: CollectionKey,
+  locale: Locale,
+  slug: string
+): Promise<Partial<Record<Locale, string>>> =>
+  CMSCollection.getCollectionAlternates({ collectionName: collection, lang: locale, slug });
 
 // --- Taxonomy registration (.claude/plans/02-taxonomy.md) — depends on
 // CMSCollection via "Option A" injection: TaxonomyService is handed the
@@ -107,17 +112,15 @@ export const getCollectionDocAlternates = cache(
 
 const taxonomyRegistry = {
   categories: {
-    fetchTerms: cache(() =>
-      client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges)
-    ),
+    // Not wrapped in cache() — same reasoning as collectionRegistry above.
+    fetchTerms: () => client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges),
     attachments: {
       blog: { fieldName: "categories", urlSegment: { en: "category", vi: "danh-muc" } as Record<Locale, string> },
     },
   },
   productCategories: {
-    fetchTerms: cache(() =>
-      client.queries.productCategoriesConnection().then((r) => r.data.productCategoriesConnection.edges)
-    ),
+    fetchTerms: () =>
+      client.queries.productCategoriesConnection().then((r) => r.data.productCategoriesConnection.edges),
     attachments: {
       products: {
         fieldName: "productCategories",
