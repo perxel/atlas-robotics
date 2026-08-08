@@ -1,7 +1,18 @@
 import { locales, localePath, stripLocalePrefix, type Locale } from "@/lib/i18n";
-import { collectionForSegment, translateCollectionPath, collectionPath } from "@/lib/collection-slugs";
+import {
+  collectionForSegment,
+  translateCollectionPath,
+  collectionPath,
+  collectionSlugs,
+} from "@/lib/collection-slugs";
 import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
-import { getPageQuery, getPageAlternates, getTaxonomyTermAlternates } from "@/lib/tina-content";
+import {
+  getPageQuery,
+  getPageAlternates,
+  getTaxonomyTermAlternates,
+  getCollectionDocAlternates,
+  getCollectionListingAlternates,
+} from "@/lib/tina-content";
 
 /**
  * Given the current locale and pathname (locale-prefixed), resolves the
@@ -17,11 +28,23 @@ import { getPageQuery, getPageAlternates, getTaxonomyTermAlternates } from "@/li
  *   (`getTaxonomyTermAlternates`) — see `resolveTaxonomyArchiveAlternates`
  *   below. Checked before the plain collection-route case since its path
  *   shape is a superset of it.
- * - **Any other collection route** (blog/products listing/detail — see
- *   lib/collection-slugs.ts): resolved by a pure string transform
- *   (`translateCollectionPath`), since an individual post's or product's
- *   own slug is assumed identical across locales by convention — only the
- *   collection's leading segment ("blog" -> "tin-tuc") differs.
+ * - **A collection's listing page** (e.g. "/blog" itself): a real
+ *   existence check (`getCollectionListingAlternates`) against the locked
+ *   `pages` document named in lib/collection-slugs.ts's
+ *   `listingPageFilename` — but the resulting URL is built from
+ *   `collectionPath`, not that document's own `slug` field, since the
+ *   locked document's `slug` never drives its real public URL (see
+ *   CLAUDE.md). A locale that hasn't had its listing page created yet is
+ *   correctly reported as missing, not guessed.
+ * - **A collection detail page** (an individual blog post / product, e.g.
+ *   "/blog/my-post"): resolved with `getCollectionDocAlternates`, a real
+ *   cross-locale document lookup — NOT the pure string transform below.
+ *   An untranslated post has no sibling document in that locale, so it's
+ *   correctly omitted rather than assumed to exist under the same slug.
+ * - **A taxonomy archive page's own listing shell** or anything else under
+ *   a collection route that isn't a detail page: falls back to the pure
+ *   string transform (`translateCollectionPath`), since only the
+ *   collection's leading segment ("blog" -> "tin-tuc") differs there.
  * - **Everything else**: treated as a `pages` document's own slug, which
  *   CAN genuinely diverge per locale (e.g. "about" / "ve-chung-toi") with
  *   nothing pairing them but a matching filename — resolved with a real
@@ -50,6 +73,16 @@ export async function resolveLocaleAlternates(
   if (collectionKey) {
     const taxonomyAlternates = await resolveTaxonomyArchiveAlternates(collectionKey, locale, path);
     if (taxonomyAlternates) return taxonomyAlternates;
+
+    const rest = path.slice(`/${firstSegment}`.length); // "" (or "/") for the listing page itself
+    if (!rest || rest === "/") {
+      return getCollectionListingAlternates(collectionKey, collectionSlugs[collectionKey].listingPageFilename);
+    }
+
+    const detailSlug = rest.split("/")[1];
+    if (detailSlug) {
+      return getCollectionDocAlternates(collectionKey, locale, detailSlug);
+    }
 
     const result: Partial<Record<Locale, string>> = {};
     for (const l of locales) {

@@ -14,9 +14,10 @@ export default function LanguageSwitcher({
 }: {
   currentLocale: Locale;
   /** From Header.tsx's resolveLocaleAlternates (lib/locale-alternates.ts) —
-   * a real per-locale URL, not a guess. A locale missing from this map
-   * (translation not found) falls back to that locale's homepage rather
-   * than linking to a URL that might not exist. */
+   * a real per-locale URL, not a guess. A locale missing from this map has
+   * no translation for the current content (verified via a real cross-locale
+   * document lookup, not assumed) and is hidden from the switcher entirely
+   * rather than linking to a URL that might not exist. */
   urls: Partial<Record<Locale, string>>;
   /** Site settings' `languageSwitcher` field — editor-controlled display
    * order, label text, and an optional flag image. Only affects how the
@@ -41,9 +42,16 @@ export default function LanguageSwitcher({
     entries.push({ locale, label: localeLabels[locale] });
   }
 
+  // Only show a locale this content actually has a translation for. The
+  // current locale always shows (it's the page you're on, even if for some
+  // reason it's missing from `urls`); every other locale needs a real entry
+  // in `urls` — a locale resolveLocaleAlternates found no sibling document
+  // for has nothing to link to.
+  const available = entries.filter(({ locale }) => locale === currentLocale || urls[locale]);
+
   return (
     <div className="flex items-center gap-3 text-sm">
-      {entries.map(({ locale, label, flag }) => (
+      {available.map(({ locale, label, flag }) => (
         <Link
           key={locale}
           href={urls[locale] ?? localePath(locale, "/")}

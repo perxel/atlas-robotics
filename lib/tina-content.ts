@@ -2,6 +2,7 @@ import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import { locales, localePath, type Locale } from "@/lib/i18n";
 import { getTaxonomiesForCollection } from "@/lib/taxonomies";
+import { collectionPath, type CollectionKey } from "@/lib/collection-slugs";
 
 /** Directory-based localization: content/<collection>/<locale>/<file>. Exported for app/sitemap.ts. */
 export function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
@@ -203,6 +204,100 @@ export function getRelatedEntries<T extends Record<string, unknown> & { slug: st
   const padding = others.filter((entry) => !seen.has(entry.slug));
   return [...related, ...padding].slice(0, limit);
 }
+
+type CollectionDetailDoc = { slug: string; _sys: { breadcrumbs: string[]; relativePath: string } };
+
+/** Hardcoded per collection, same reason as getTaxonomyDocs above: Tina's
+ * generated client is per-collection typed (client.queries.blogConnection
+ * vs. .productsConnection). */
+async function getCollectionDetailDocs(
+  collection: CollectionKey
+): Promise<Array<{ node?: CollectionDetailDoc | null } | null> | null> {
+  if (collection === "blog") {
+    return (await client.queries.blogConnection({ filter: { draft: { eq: false } } })).data
+      .blogConnection.edges as Array<{ node?: CollectionDetailDoc | null } | null> | null;
+  }
+  if (collection === "products") {
+    return (await client.queries.productsConnection({ filter: { draft: { eq: false } } })).data
+      .productsConnection.edges as Array<{ node?: CollectionDetailDoc | null } | null> | null;
+  }
+  return null;
+}
+
+/**
+ * Cross-locale sibling lookup for a blog post / product detail document,
+ * given its slug AS IT APPEARS in `locale`'s URL. Mirrors
+ * getTaxonomyTermAlternates/getPageAlternates: documents are paired by
+ * filename (content/blog/en/my-post.md + content/blog/vi/my-post.md, same
+ * convention `pages` uses — verified this repo's blog/product filenames
+ * already match 1:1 across locales), and a locale with no sibling document
+ * is simply omitted from the result instead of assuming one exists.
+ *
+ * This is the real per-locale check lib/collection-slugs.ts's
+ * translateCollectionPath doesn't do — that function is a pure string
+ * transform ("blog" -> "tin-tuc") with no knowledge of which documents
+ * actually exist, so its "same slug in every locale" convention only holds
+ * once a document has actually been translated. Without this, an editor
+ * who hasn't translated a post into a new locale yet would get a
+ * language-switcher link that 404s instead of the button simply not
+ * showing. Used by lib/locale-alternates.ts for both hreflang and the
+ * language switcher.
+ */
+/**
+ * Cross-locale existence check for a collection's listing page (e.g. the
+ * `pages` document named by lib/collection-slugs.ts's `listingPageFilename`
+ * for "blog"), returning the collection's REAL translated URL
+ * (`collectionPath`) per locale — NOT `getPageAlternates`, which would
+ * build the URL from that document's own `slug` field. That field is
+ * locked and doesn't drive the public URL for a listing page (see
+ * CLAUDE.md's "Collection-backed listing pages" section: the real URL is
+ * owned by `collectionSlugs`, this document's `slug` is never read for
+ * routing) — reusing getPageAlternates here would silently produce the
+ * wrong hreflang/switcher URL (e.g. "/vi/blog" instead of "/vi/tin-tuc").
+ * Still a real existence check, though: a locale whose listing page
+ * document hasn't been created yet is correctly omitted.
+ */
+export const getCollectionListingAlternates = cache(
+  async (collection: CollectionKey, filename: string): Promise<Partial<Record<Locale, string>>> => {
+    try {
+      const res = await client.queries.pagesConnection({ filter: { draft: { eq: false } } });
+      const result: Partial<Record<Locale, string>> = {};
+      for (const l of locales) {
+        const doc = inLocale(res.data.pagesConnection.edges, l).find(
+          (d) => d._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") === filename
+        );
+        if (doc) result[l] = collectionPath(l, collection);
+      }
+      return result;
+    } catch {
+      return {};
+    }
+  }
+);
+
+export const getCollectionDocAlternates = cache(
+  async (
+    collection: CollectionKey,
+    locale: Locale,
+    slug: string
+  ): Promise<Partial<Record<Locale, string>>> => {
+    const edges = await getCollectionDetailDocs(collection);
+    if (!edges) return {};
+
+    const current = inLocale(edges, locale).find((d) => d.slug === slug);
+    const filename = current?._sys.relativePath.split("/").pop()?.replace(/\.md$/, "");
+    if (!filename) return {};
+
+    const result: Partial<Record<Locale, string>> = {};
+    for (const l of locales) {
+      const doc = inLocale(edges, l).find(
+        (d) => d._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") === filename
+      );
+      if (doc) result[l] = collectionPath(l, collection, `/${doc.slug}`);
+    }
+    return result;
+  }
+);
 
 /**
  * Single-document query by relativePath, resolved in two steps from the
