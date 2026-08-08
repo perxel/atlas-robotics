@@ -1,51 +1,52 @@
 {
   "switcher": [
     { "locale": "en", "label": "EN", "flag": "/uploads/flag-en.svg" },
-    { "locale": "vi", "label": "VI", "flag": "/uploads/flag-vi.svg" }
+    { "locale": "vi", "label": "VI", "flag": "/uploads/flag-vi.svg" },
+    { "locale": "zh", "label": "ZH", "flag": "/uploads/flag-zh.svg" }
   ],
   "entries": [
-    { "key": "Primary", "values": { "vi": "Chính" } },
-    { "key": "Home", "values": { "vi": "Trang chủ" } },
-    { "key": "No posts published yet.", "values": { "vi": "Chưa có bài viết nào được đăng." } },
-    { "key": "View all posts", "values": { "vi": "Xem tất cả bài viết" } },
-    { "key": "Related posts", "values": { "vi": "Bài viết liên quan" } },
-    { "key": "Products", "values": { "vi": "Sản Phẩm" } },
+    { "key": "Primary", "values": { "vi": "Chính", "zh": "主要" } },
+    { "key": "Home", "values": { "vi": "Trang chủ", "zh": "首页" } },
+    { "key": "No posts published yet.", "values": { "vi": "Chưa có bài viết nào được đăng.", "zh": "暂无已发布的文章。" } },
+    { "key": "View all posts", "values": { "vi": "Xem tất cả bài viết", "zh": "查看所有文章" } },
+    { "key": "Related posts", "values": { "vi": "Bài viết liên quan", "zh": "相关文章" } },
+    { "key": "Products", "values": { "vi": "Sản Phẩm", "zh": "产品" } },
     {
       "key": "Everything Lorem ipsum ships, in one place.",
-      "values": { "vi": "Toàn bộ sản phẩm của Lorem ipsum, tại một nơi." }
+      "values": { "vi": "Toàn bộ sản phẩm của Lorem ipsum, tại một nơi.", "zh": "Lorem ipsum 的全部产品，尽在一处。" }
     },
-    { "key": "No products published yet.", "values": { "vi": "Chưa có sản phẩm nào được đăng." } },
-    { "key": "View details", "values": { "vi": "Xem chi tiết" } },
-    { "key": "Get started", "values": { "vi": "Bắt đầu ngay" } },
-    { "key": "View all products", "values": { "vi": "Xem tất cả sản phẩm" } },
-    { "key": "Related products", "values": { "vi": "Sản phẩm liên quan" } },
-    { "key": "Pagination", "values": { "vi": "Phân trang" } },
-    { "key": "Previous", "values": { "vi": "Trước" } },
-    { "key": "Next", "values": { "vi": "Sau" } },
-    { "key": "Page", "values": { "vi": "Trang" } },
-    { "key": "Email address", "values": { "vi": "Địa chỉ email" } },
-    { "key": "you@example.com", "values": { "vi": "ban@example.com" } },
-    { "key": "Subscribe", "values": { "vi": "Đăng ký" } },
-    { "key": "Subscribing…", "values": { "vi": "Đang đăng ký…" } },
+    { "key": "No products published yet.", "values": { "vi": "Chưa có sản phẩm nào được đăng.", "zh": "暂无已发布的产品。" } },
+    { "key": "View details", "values": { "vi": "Xem chi tiết", "zh": "查看详情" } },
+    { "key": "Get started", "values": { "vi": "Bắt đầu ngay", "zh": "立即开始" } },
+    { "key": "View all products", "values": { "vi": "Xem tất cả sản phẩm", "zh": "查看所有产品" } },
+    { "key": "Related products", "values": { "vi": "Sản phẩm liên quan", "zh": "相关产品" } },
+    { "key": "Pagination", "values": { "vi": "Phân trang", "zh": "分页" } },
+    { "key": "Previous", "values": { "vi": "Trước", "zh": "上一页" } },
+    { "key": "Next", "values": { "vi": "Sau", "zh": "下一页" } },
+    { "key": "Page", "values": { "vi": "Trang", "zh": "页" } },
+    { "key": "Email address", "values": { "vi": "Địa chỉ email", "zh": "电子邮箱地址" } },
+    { "key": "you@example.com", "values": { "vi": "ban@example.com", "zh": "you@example.com" } },
+    { "key": "Subscribe", "values": { "vi": "Đăng ký", "zh": "订阅" } },
+    { "key": "Subscribing…", "values": { "vi": "Đang đăng ký…", "zh": "订阅中…" } },
     {
       "key": "You're in — check your inbox to confirm.",
-      "values": { "vi": "Đã đăng ký — kiểm tra hộp thư để xác nhận nhé." }
+      "values": { "vi": "Đã đăng ký — kiểm tra hộp thư để xác nhận nhé.", "zh": "订阅成功——请查收邮箱以确认。" }
     },
     {
       "key": "Something went wrong. Please try again.",
-      "values": { "vi": "Đã xảy ra lỗi. Vui lòng thử lại." }
+      "values": { "vi": "Đã xảy ra lỗi. Vui lòng thử lại.", "zh": "出了点问题，请重试。" }
     },
-    { "key": "Send", "values": { "vi": "Gửi" } },
-    { "key": "Sending…", "values": { "vi": "Đang gửi…" } },
+    { "key": "Send", "values": { "vi": "Gửi", "zh": "发送" } },
+    { "key": "Sending…", "values": { "vi": "Đang gửi…", "zh": "发送中…" } },
     {
       "key": "Thanks — your message was logged server side.",
-      "values": { "vi": "Cảm ơn — tin nhắn của bạn đã được ghi lại ở phía máy chủ." }
+      "values": { "vi": "Cảm ơn — tin nhắn của bạn đã được ghi lại ở phía máy chủ.", "zh": "感谢您——您的留言已记录在服务器端。" }
     },
-    { "key": "Name", "values": { "vi": "Họ và Tên" } },
-    { "key": "Your name", "values": { "vi": "Tên của bạn" } },
-    { "key": "Message", "values": { "vi": "Lời Nhắn" } },
-    { "key": "How can we help?", "values": { "vi": "Chúng tôi có thể giúp gì cho bạn?" } },
-    { "key": "Contact", "values": { "vi": "Liên Hệ" } },
-    { "key": "Social link", "values": { "vi": "Liên kết mạng xã hội" } }
+    { "key": "Name", "values": { "vi": "Họ và Tên", "zh": "姓名" } },
+    { "key": "Your name", "values": { "vi": "Tên của bạn", "zh": "您的姓名" } },
+    { "key": "Message", "values": { "vi": "Lời Nhắn", "zh": "留言" } },
+    { "key": "How can we help?", "values": { "vi": "Chúng tôi có thể giúp gì cho bạn?", "zh": "我们能为您提供什么帮助？" } },
+    { "key": "Contact", "values": { "vi": "Liên Hệ", "zh": "联系我们" } },
+    { "key": "Social link", "values": { "vi": "Liên kết mạng xã hội", "zh": "社交媒体链接" } }
   ]
 }

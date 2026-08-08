@@ -18,7 +18,10 @@ export default function ContactFormBlock({
   // specific page's form should say something different from the default.
   const fields: ContactFormCopy = {
     name: { label: data.name?.label || t("Name"), placeholder: data.name?.placeholder || t("Your name") },
-    email: { label: data.email?.label || t("Email"), placeholder: data.email?.placeholder || t("you@example.com") },
+    email: {
+      label: data.email?.label || t("Email address"),
+      placeholder: data.email?.placeholder || t("you@example.com"),
+    },
     message: {
       label: data.message?.label || t("Message"),
       placeholder: data.message?.placeholder || t("How can we help?"),

@@ -25,14 +25,14 @@ export type ProductItem = ConnectionItem<ProductsConnectionQuery["productsConnec
 
 const collectionRegistry = {
   blog: {
-    locales: { en: "blog", vi: "tin-tuc" } as Record<Locale, string>,
+    locales: { en: "blog", vi: "tin-tuc", zh: "blog" } as Record<Locale, string>,
     listingPageFilename: "blog",
     draftFieldName: "draft",
     fetchEdges: () => client.queries.blogConnection().then((r) => r.data.blogConnection.edges),
     fetchBySlug: (relativePath: string) => client.queries.blog({ relativePath }),
   },
   products: {
-    locales: { en: "products", vi: "san-pham" } as Record<Locale, string>,
+    locales: { en: "products", vi: "san-pham", zh: "products" } as Record<Locale, string>,
     listingPageFilename: "products",
     draftFieldName: "draft",
     fetchEdges: () => client.queries.productsConnection().then((r) => r.data.productsConnection.edges),
@@ -125,7 +125,10 @@ const taxonomyRegistry = {
   categories: {
     fetchTerms: () => client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges),
     attachments: {
-      blog: { fieldName: "categories", urlSegment: { en: "category", vi: "danh-muc" } as Record<Locale, string> },
+      blog: {
+        fieldName: "categories",
+        urlSegment: { en: "category", vi: "danh-muc", zh: "category" } as Record<Locale, string>,
+      },
     },
   },
   productCategories: {
@@ -134,7 +137,7 @@ const taxonomyRegistry = {
     attachments: {
       products: {
         fieldName: "productCategories",
-        urlSegment: { en: "category", vi: "danh-muc" } as Record<Locale, string>,
+        urlSegment: { en: "category", vi: "danh-muc", zh: "category" } as Record<Locale, string>,
       },
     },
   },

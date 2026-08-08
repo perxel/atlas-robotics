@@ -1,0 +1,23 @@
+{
+  "columns": [
+    {
+      "title": "探索",
+      "links": [
+        { "label": "产品", "url": "/zh/products" },
+        { "label": "博客", "url": "/zh/blog" },
+        { "label": "关于我们", "url": "/zh/about" }
+      ]
+    },
+    {
+      "title": "公司",
+      "links": [
+        { "label": "联系我们", "url": "/zh/contact" }
+      ]
+    }
+  ],
+  "contactInfo": {
+    "address": "123 Example Street, Demo City",
+    "phone": "+1 555 0100",
+    "email": "hello@loremipsum.example"
+  }
+}

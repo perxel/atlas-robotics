@@ -1,0 +1,15 @@
+{
+  "title": "Lorem ipsum",
+  "logo": "/uploads/placeholder-logo.svg",
+  "favicon": "/favicon.ico",
+  "defaultSeo": {
+    "metaTitle": "Lorem ipsum — 自动化、洞察并同步您团队的工作",
+    "metaDescription": "Lorem ipsum 为成长型团队打造专注的工具：工作流自动化、实时数据分析与团队协作。",
+    "ogImage": "/uploads/hero-banner.jpg"
+  },
+  "socialLinks": [
+    { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },
+    { "platform": "Instagram", "url": "https://instagram.com/example", "icon": "instagram" },
+    { "platform": "YouTube", "url": "https://youtube.com/example", "icon": "youtube" }
+  ]
+}
