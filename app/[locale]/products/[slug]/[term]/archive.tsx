@@ -73,8 +73,9 @@ export async function generateProductsArchiveMetadata(
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     fallbackTitle: archive
-      ? `${archive.term.title} — ${t("Products")} — ${settings?.title || t("Lorem ipsum")}`
-      : t("Products"),
+      ? `${archive.term.title} — ${t(CMSCollection.getLabel("products"))} — ${settings?.title || t("Lorem ipsum")}`
+      : t(CMSCollection.getLabel("products")),
+    fallbackDescription: archive ? `${t(CMSCollection.getLabel("products"))}: ${archive.term.title}` : undefined,
   });
 }
 
@@ -116,7 +117,7 @@ export async function ProductsArchive({
           href={CMSCollection.getCollectionPath({ collectionName: "products", lang: locale })}
           className="hover:text-accent"
         >
-          {t("Products")}
+          {t(CMSCollection.getLabel("products"))}
         </Link>
       </p>
       <h1 className="mt-2 text-2xl font-semibold">{archive.term.title}</h1>

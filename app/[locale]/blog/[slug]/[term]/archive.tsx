@@ -78,8 +78,9 @@ export async function generateBlogArchiveMetadata(
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     fallbackTitle: archive
-      ? `${archive.term.title} — ${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`
-      : t("Blog"),
+      ? `${archive.term.title} — ${t(CMSCollection.getLabel("blog"))} — ${settings?.title || t("Lorem ipsum")}`
+      : t(CMSCollection.getLabel("blog")),
+    fallbackDescription: archive ? `${t(CMSCollection.getLabel("blog"))}: ${archive.term.title}` : undefined,
   });
 }
 
@@ -121,7 +122,7 @@ export async function BlogArchive({
           href={CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale })}
           className="hover:text-accent"
         >
-          {t("Blog")}
+          {t(CMSCollection.getLabel("blog"))}
         </Link>
       </p>
       <h1 className="mt-2 text-2xl font-semibold">{archive.term.title}</h1>

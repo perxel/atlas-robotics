@@ -155,6 +155,12 @@ export class CollectionService<TCollectionName extends string, TLocale extends s
     return this.#registry[collectionName].listingPageFilename;
   }
 
+  /** English source label, e.g. "Blog" — pass through the project's own
+   * `t()` for a translated version. */
+  getLabel(collectionName: TCollectionName): string {
+    return this.#registry[collectionName].label;
+  }
+
   /** Items per page on this collection's listing/archive routes — falls
    * back to `cms/pagination`'s `DEFAULT_PAGE_SIZE` when the registry entry
    * doesn't set its own. */

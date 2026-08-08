@@ -31,7 +31,7 @@ export async function generateMetadata({
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: post?.seo,
-    fallbackTitle: post?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackTitle: post?.title || `${t(CMSCollection.getLabel("blog"))} — ${settings?.title || t("Lorem ipsum")}`,
     fallbackDescription: post?.excerpt,
   });
 }

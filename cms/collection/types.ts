@@ -34,6 +34,11 @@ export type SeoIndexEntry = {
 };
 
 export type CollectionRegistryEntry<TLocale extends string> = {
+  /** English source label, e.g. "Blog" — passed through the project's own
+   * translation lookup (`t()`) at the call site, same as any other UI
+   * copy; this is just the one place it's spelled out instead of every
+   * fallback title/description/breadcrumb hardcoding it separately. */
+  label: string;
   /** Per-locale URL segment for this collection's own routes, e.g. `{ en: "blog", vi: "tin-tuc" }`. */
   locales: Record<TLocale, string>;
   /** The `pages` document (matched by filename) backing this collection's listing page. */

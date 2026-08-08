@@ -41,7 +41,7 @@ export async function generateProductsMetadata(locale: Locale): Promise<Metadata
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
-    fallbackTitle: page?.title || `${t("Products")} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackTitle: page?.title || `${t(CMSCollection.getLabel("products"))} — ${settings?.title || t("Lorem ipsum")}`,
     fallbackDescription: t("Everything Lorem ipsum ships, in one place."),
   });
 }

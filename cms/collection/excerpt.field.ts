@@ -15,6 +15,7 @@ export function excerptField(): TinaField {
     type: "string",
     name: "excerpt",
     label: "Excerpt",
+    description: "Used as the fallback meta description, and shown in listing/card designs that display one.",
     ui: { component: "textarea" },
   } as TinaField;
 }

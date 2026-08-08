@@ -47,7 +47,7 @@ export default function ProductView({
 
   const trail: BreadcrumbItem[] = [
     { label: t("Home"), href: CMSMultilingual.localePath(locale, "/") },
-    { label: t("Products"), href: productsPath() },
+    { label: t(CMSCollection.getLabel("products")), href: productsPath() },
     { label: product.title },
   ];
 

@@ -14,11 +14,13 @@ export function seoField(name = "seo", label = "SEO"): TinaField {
         type: "string",
         name: "metaTitle",
         label: "Meta Title",
+        description: "Leave empty to use this page's own title.",
       },
       {
         type: "string",
         name: "metaDescription",
         label: "Meta Description",
+        description: "Leave empty to use the Excerpt, where this collection has one.",
         ui: {
           component: "textarea",
         },
@@ -32,6 +34,7 @@ export function seoField(name = "seo", label = "SEO"): TinaField {
         type: "string",
         name: "ogImageAlt",
         label: "OG Image Alt Text",
+        description: "Leave empty to use this page's own title.",
       },
     ],
   } as TinaField;

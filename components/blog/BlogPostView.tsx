@@ -40,7 +40,7 @@ export default function BlogPostView({
 
   const trail: BreadcrumbItem[] = [
     { label: t("Home"), href: CMSMultilingual.localePath(locale, "/") },
-    { label: t("Blog"), href: blogPath() },
+    { label: t(CMSCollection.getLabel("blog")), href: blogPath() },
     { label: post.title },
   ];
 

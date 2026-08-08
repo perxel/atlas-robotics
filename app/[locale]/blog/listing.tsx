@@ -41,7 +41,8 @@ export async function generateBlogMetadata(locale: Locale): Promise<Metadata> {
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
-    fallbackTitle: page?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackTitle: page?.title || `${t(CMSCollection.getLabel("blog"))} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackDescription: t("Playbooks, product news, and stories from the Lorem ipsum team."),
   });
 }
 

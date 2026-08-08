@@ -47,14 +47,16 @@ export const CMSMultilingual = new MultilingualService<Locale>({
 // Add a collection by adding a row here, then a matching row to
 // lib/cms-server.ts's collectionRegistry (draftFieldName/fetchEdges/fetchBySlug).
 
-type CollectionPathEntry = Pick<CollectionRegistryEntry<Locale>, "locales" | "listingPageFilename" | "pageSize">;
+type CollectionPathEntry = Pick<CollectionRegistryEntry<Locale>, "label" | "locales" | "listingPageFilename" | "pageSize">;
 
 export const collectionPathConfig = {
   blog: {
+    label: "Blog",
     locales: { en: "blog", vi: "tin-tuc", zh: "blog" },
     listingPageFilename: "blog",
   },
   products: {
+    label: "Products",
     locales: { en: "products", vi: "san-pham", zh: "products" },
     listingPageFilename: "products",
   },

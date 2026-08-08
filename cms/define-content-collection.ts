@@ -22,7 +22,8 @@ export type ContentCollectionConfig<TLocale extends string> = {
     hasExcerpt?: boolean;
     body: ContentCollectionBody;
     /** Pre-built `taxonomyField({ taxonomy, label })` calls — this factory
-     * doesn't know about a project's registered taxonomies. */
+     * doesn't know about a project's registered taxonomies. Placed right
+     * after draft/publishDate/modifiedDate, before even `topFields`. */
     taxonomyFields?: TinaField[];
     /**
      * Explicit position slots instead of one catch-all field bucket — so a
@@ -37,10 +38,13 @@ export type ContentCollectionConfig<TLocale extends string> = {
      * key — nesting *those* would mean teaching that framework code to
      * follow paths instead of flat keys, for a form-layout nicety).
      *
-     * - `topFields`: right after slug — for a collection's one or two most
-     *   important custom fields, e.g. a product's `price`.
-     * - `extraFields`: in the standard sequence, after excerpt and before
-     *   taxonomy — secondary custom fields, e.g. a product's `highlights`.
+     * - `topFields`: right after taxonomy — for a collection's one or two
+     *   most important custom fields, e.g. a product's `price`. Draft,
+     *   Publish Date, and taxonomy always come first, before even this
+     *   slot — an editor should never have to scroll past
+     *   collection-specific fields to find them.
+     * - `extraFields`: in the standard sequence, after excerpt — secondary
+     *   custom fields, e.g. a product's `highlights`.
      * - `bottomFields`: after the body/blocks field, for anything that
      *   only makes sense once the main content is already in view.
      */
@@ -169,26 +173,27 @@ export function defineContentCollection<TLocale extends string>(config: ContentC
             ]),
         },
         // Deliberately ordered, not just concatenated: identity fields
-        // first, this collection's own headline field(s) next, then the
-        // standard settings every content collection shares, then this
-        // collection's secondary fields and taxonomy, then SEO, and the
-        // main content editing surface (body/blocks) last — so an editor
-        // confirms all the metadata before landing in the longest part of
-        // the form, not the reverse. See `topFields`/`extraFields`/
-        // `bottomFields`'s own comment for the reasoning behind naming
-        // slots instead of one array.
+        // first, then draft/publishDate/modifiedDate/taxonomy — always
+        // visible without scrolling past whatever a specific collection
+        // adds — then this collection's own headline field(s), then its
+        // secondary fields, then SEO, and the main content editing
+        // surface (body/blocks) last — so an editor confirms all the
+        // metadata before landing in the longest part of the form, not
+        // the reverse. See `topFields`/`extraFields`/`bottomFields`'s own
+        // comment for the reasoning behind naming slots instead of one
+        // array.
         fields: [
             {type: "string", name: "title", label: "Title", required: true},
             slugField({reserved: config.reserved}),
-            ...(config.topFields ?? []),
+            ...(config.hasExcerpt ? [excerptField()] : []),
             draftField(),
             publishDateField(),
             modifiedDateField(),
-            ...(config.hasAuthor ? [authorField()] : []),
-            ...(config.hasExcerpt ? [excerptField()] : []),
-            ...(config.extraFields ?? []),
             ...(config.taxonomyFields ?? []),
+            ...(config.hasAuthor ? [authorField()] : []),
             seoField(),
+            ...(config.topFields ?? []),
+            ...(config.extraFields ?? []),
             bodyField,
             ...(config.bottomFields ?? []),
         ],

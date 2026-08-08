@@ -56,6 +56,17 @@ export class SeoService<TLocale extends string> {
     };
   }
 
+  /** Resolves a document's meta description: its own `seo.metaDescription`
+   * if set, else `fallback`, else `undefined`. Its own method (not just
+   * inline in `buildMetadata`) so a route building a fallback from
+   * something other than a plain excerpt pass-through — a taxonomy archive
+   * page deriving one from the term's title, say — has one obvious,
+   * named place to reach for instead of reinventing the
+   * `seo?.x || fallback || undefined` pattern at each call site. */
+  getMetaDescription(seo: SeoFields | undefined, fallback?: string | null): string | undefined {
+    return seo?.metaDescription || fallback || undefined;
+  }
+
   buildMetadata(args: {
     lang: TLocale;
     pathWithoutLocale: string;
@@ -73,7 +84,7 @@ export class SeoService<TLocale extends string> {
       args;
 
     const title = seo?.metaTitle || fallbackTitle;
-    const description = seo?.metaDescription || fallbackDescription || undefined;
+    const description = this.getMetaDescription(seo, fallbackDescription);
     const ogImage = seo?.ogImage || fallbackOgImage || undefined;
     const ogImageAlt = seo?.ogImage ? seo?.ogImageAlt || undefined : undefined;
 
