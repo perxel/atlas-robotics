@@ -1,5 +1,5 @@
 import type { Collection } from "tinacms";
-import { seoField } from "./shared-fields/seo.schema";
+import { seoField } from "@/cms/seo";
 
 export const siteSettingsCollection: Collection = {
   name: "siteSettings",

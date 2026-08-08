@@ -4,6 +4,7 @@ import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__gene
 import { CollectionService } from "@/cms/collection";
 import { TaxonomyService } from "@/cms/taxonomy";
 import { DictionaryService, createTranslationDashboardScreen, TranslationDashboardService } from "@/cms/multilingual";
+import { SeoService, SeoDashboardService, createSeoDashboardScreen } from "@/cms/seo";
 import { defaultLocale, locales, CMSMultilingual, type Locale } from "@/lib/i18n";
 
 /**
@@ -188,3 +189,67 @@ export const translationDashboardScreen = CMSMultilingual.isEnabled()
       )
     )
   : null;
+
+// --- SEO registration (.claude/plans/04-seo.md). ---
+
+// Every canonical URL, hreflang alternate, and sitemap entry in this app is
+// built from this one value — silently falling back to localhost in
+// production would poison all of them with no warning. Same "fail loud
+// instead of silently wrong" reasoning as tina/config.ts's
+// assertSlugFieldsHaveGuard, and the same category of footgun CLAUDE.md's
+// "Production builds require Tina Cloud" note already documents for
+// NEXT_PUBLIC_TINA_CLIENT_ID/TINA_TOKEN — set this wherever the app
+// builds/runs, in both places on platforms that separate build-time and
+// runtime env vars. Lives here (not lib/seo.ts) so lib/seo.ts can import
+// CMSSeo from this file without a circular import — CMSSeo's own
+// construction needs this value.
+export const siteUrl = (() => {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "NEXT_PUBLIC_SITE_URL is not set. Canonical/hreflang/sitemap URLs would all " +
+        "silently resolve to http://localhost:3000 in production otherwise — see " +
+        "lib/cms.ts and CLAUDE.md's \"Production builds require Tina Cloud\" note."
+    );
+  }
+  return "http://localhost:3000";
+})();
+
+// hreflang only ever advertises enabled locales — a disabled locale's pages
+// still exist and render, they're just not offered as a language-switch
+// target (see CMSMultilingual's own doc comment).
+export const CMSSeo = new SeoService({ siteUrl, defaultLocale, locales: CMSMultilingual.getEnabledLocales() });
+
+// `pages` isn't part of CollectionService's registry (its per-collection
+// `locales`/`listingPageFilename` shape doesn't fit a slug-driven generic
+// collection — see 01-collection.md's Addendum #4), so the SEO dashboard's
+// index is assembled by hand for it here instead of forcing a registry
+// entry that wouldn't mean anything for a route this collection doesn't own.
+type SeoCollectionKey = CollectionKey | "pages";
+
+async function getSeoIndexFor(collectionName: SeoCollectionKey) {
+  if (collectionName === "pages") {
+    const res = await client.queries.pagesConnection();
+    return (res.data.pagesConnection.edges ?? [])
+      .map((edge) => edge?.node)
+      .filter((node): node is NonNullable<typeof node> => !!node)
+      .map((node) => ({
+        filename: node._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") ?? node._sys.relativePath,
+        locale: node._sys.breadcrumbs[0] as Locale,
+        slug: node.slug,
+        seo: node.seo,
+      }));
+  }
+  return CMSCollection.getSeoIndex(collectionName);
+}
+
+export const seoDashboardScreen = createSeoDashboardScreen(
+  new SeoDashboardService(
+    {
+      getRegisteredCollectionNames: (): SeoCollectionKey[] => [...Object.keys(collectionRegistry), "pages"] as SeoCollectionKey[],
+      getSeoIndex: getSeoIndexFor,
+    },
+    { locales, defaultLocale }
+  )
+);

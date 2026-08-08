@@ -1,6 +1,6 @@
 import { defineConfig, type Collection } from "tinacms";
 import { assertSlugFieldsHaveGuard } from "@/cms/slug";
-import { translationDashboardScreen } from "@/lib/cms";
+import { translationDashboardScreen, seoDashboardScreen } from "@/lib/cms";
 import { siteSettingsCollection } from "./collections/site-settings.schema";
 import { navCollection } from "./collections/nav.schema";
 import { footerCollection } from "./collections/footer.schema";
@@ -56,6 +56,7 @@ export default defineConfig({
   },
   cmsCallback: (cms) => {
     if (translationDashboardScreen) cms.plugins.add(translationDashboardScreen);
+    cms.plugins.add(seoDashboardScreen);
     return cms;
   },
 });

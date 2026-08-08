@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
-import { collectionPath, taxonomyArchivePath } from "@/lib/cms";
+import { collectionPath, taxonomyArchivePath, siteUrl } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
+import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import { contactSlug } from "@/lib/pages-config";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
 import type { getProducts } from "@/lib/cms";
@@ -37,6 +38,12 @@ export default function ProductView({
     (c): c is CategoryItem & { term: NonNullable<CategoryItem["term"]> } => !!c?.term
   );
   const highlights = (product.highlights ?? []).filter((h): h is string => !!h);
+
+  const trail: BreadcrumbItem[] = [
+    { label: t("Home"), href: localePath(locale, "/") },
+    { label: t("Products"), href: collectionPath(locale, "products") },
+    { label: product.title },
+  ];
 
   return (
     <>
@@ -70,12 +77,10 @@ export default function ProductView({
           {product.title}
         </h1>
         <div className="mt-2">
-          <Breadcrumb
-            items={[
-              { label: t("Home"), href: localePath(locale, "/") },
-              { label: t("Products"), href: collectionPath(locale, "products") },
-              { label: product.title },
-            ]}
+          <Breadcrumb items={trail} />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBreadcrumbJsonLd(trail, siteUrl)) }}
           />
         </div>
         {product.excerpt && (

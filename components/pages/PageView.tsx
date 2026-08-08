@@ -6,7 +6,8 @@ import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types
 import { isBlocksEnabled } from "@/lib/pages-config";
 import { localePath, type Locale } from "@/lib/i18n";
 import { translateText } from "@/cms/multilingual";
-import type { getBlogPosts, getProducts } from "@/lib/cms";
+import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
+import { siteUrl, type getBlogPosts, type getProducts } from "@/lib/cms";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
 
@@ -47,6 +48,10 @@ export default function PageView({
   // blank, padded div in the DOM even with nothing to show.
   const hasIntro = (page.intro?.children?.length ?? 0) > 0;
   const t = (text: string) => translateText(uiDictionary, text);
+  const trail: BreadcrumbItem[] = [
+    { label: t("Home"), href: localePath(locale, "/") },
+    { label: page.title },
+  ];
 
   return (
     <article>
@@ -56,11 +61,10 @@ export default function PageView({
             {page.title}
           </h1>
           <div className="mt-2">
-            <Breadcrumb
-              items={[
-                { label: t("Home"), href: localePath(locale, "/") },
-                { label: page.title },
-              ]}
+            <Breadcrumb items={trail} />
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBreadcrumbJsonLd(trail, siteUrl)) }}
             />
           </div>
           {hasIntro && (

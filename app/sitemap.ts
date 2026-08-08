@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { locales } from "@/lib/i18n";
+import { CMSMultilingual } from "@/lib/i18n";
 import { collectionPath, resolvePagesDocumentUrl } from "@/lib/cms";
 import { siteUrl } from "@/lib/seo";
 import { inLocale } from "@/lib/tina-content";
@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.queries.productsConnection({ filter: { draft: { eq: false } } }),
   ]);
 
-  for (const locale of locales) {
+  for (const locale of CMSMultilingual.getEnabledLocales()) {
     for (const doc of inLocale(pagesRes.data.pagesConnection.edges, locale)) {
       const filename = doc._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") ?? "";
       entries.push({

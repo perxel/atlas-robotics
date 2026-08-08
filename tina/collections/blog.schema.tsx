@@ -2,7 +2,7 @@ import type { Collection } from "tinacms";
 import { slugField, slugLifecycleGuard } from "@/cms/slug";
 import { draftField } from "@/cms/collection";
 import { composeBeforeSubmit } from "@/cms/tina-hooks";
-import { seoField } from "./shared-fields/seo.schema";
+import { seoField } from "@/cms/seo";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
 import { collectionPath } from "@/lib/cms";
 import type { Locale } from "@/lib/i18n";

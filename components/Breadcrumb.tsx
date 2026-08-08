@@ -1,10 +1,7 @@
 import Link from "next/link";
+import type { BreadcrumbItem } from "@/cms/seo";
 
-export type BreadcrumbItem = {
-  label: string;
-  /** Omit on the last item — it renders as the current page, not a link. */
-  href?: string;
-};
+export type { BreadcrumbItem };
 
 export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   if (items.length === 0) return null;

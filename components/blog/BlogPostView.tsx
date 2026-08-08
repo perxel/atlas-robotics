@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
-import { collectionPath, taxonomyArchivePath } from "@/lib/cms";
+import { collectionPath, taxonomyArchivePath, siteUrl } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
+import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
 import type { getBlogPosts } from "@/lib/cms";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -36,6 +37,12 @@ export default function BlogPostView({
     (c): c is CategoryItem & { term: NonNullable<CategoryItem["term"]> } => !!c?.term
   );
 
+  const trail: BreadcrumbItem[] = [
+    { label: t("Home"), href: localePath(locale, "/") },
+    { label: t("Blog"), href: collectionPath(locale, "blog") },
+    { label: post.title },
+  ];
+
   return (
     <>
       <article className="mx-auto max-w-3xl px-4 py-12">
@@ -53,12 +60,10 @@ export default function BlogPostView({
           {post.title}
         </h1>
         <div className="mt-2">
-          <Breadcrumb
-            items={[
-              { label: t("Home"), href: localePath(locale, "/") },
-              { label: t("Blog"), href: collectionPath(locale, "blog") },
-              { label: post.title },
-            ]}
+          <Breadcrumb items={trail} />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBreadcrumbJsonLd(trail, siteUrl)) }}
           />
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
