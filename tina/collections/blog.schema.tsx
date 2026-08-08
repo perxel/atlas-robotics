@@ -3,7 +3,7 @@ import { slugField, slugLifecycleGuard } from "./shared-fields/slug.schema";
 import { draftField } from "./shared-fields/draft.schema";
 import { seoField } from "./shared-fields/seo.schema";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
-import { collectionPath } from "@/lib/collection-slugs";
+import { collectionPath } from "@/lib/cms";
 import type { Locale } from "@/lib/i18n";
 
 export const blogCollection: Collection = {
@@ -24,7 +24,7 @@ export const blogCollection: Collection = {
     // filename, this link can point at the wrong preview URL — the
     // actual page route is unaffected, since rendering resolves the
     // `slug` field via a GraphQL query (lib/tina-content.ts), not this.
-    // Uses collectionPath (lib/collection-slugs.ts), not a literal "/blog"
+    // Uses collectionPath (lib/cms.ts), not a literal "/blog"
     // — this used to hardcode the English segment, which broke the vi
     // preview link once "blog" got a translated URL ("tin-tuc").
     router: ({ document }) => {

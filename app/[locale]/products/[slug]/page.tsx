@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getProductQuery, getProducts, getRelatedEntries, getSiteSettings } from "@/lib/tina-content";
+import { getRelatedEntries, getSiteSettings } from "@/lib/tina-content";
+import { getProductQuery, getProducts } from "@/lib/cms";
 import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/collection-slugs";
+import { collectionPath } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import ProductView from "@/components/products/ProductView";
 

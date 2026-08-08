@@ -7,7 +7,7 @@ import type { Template } from "tinacms";
 // - "manual": editor hand-picks specific products via `manualProducts`
 //   (e.g. spotlighting a launch regardless of publish order).
 // - "all": the full catalog, paginated — this is what backs the locked
-//   /products listing page (see lib/collection-slugs.ts).
+//   /products listing page (see lib/cms.ts).
 // `heading` is required (not just for "all" mode's own page-title-already-
 // covers-it reasoning this template used to have) because every sibling
 // block template with a `heading` field declares it required too — Tina's

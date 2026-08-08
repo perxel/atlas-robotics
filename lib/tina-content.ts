@@ -2,7 +2,7 @@ import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import { locales, localePath, type Locale } from "@/lib/i18n";
 import { getTaxonomiesForCollection } from "@/lib/taxonomies";
-import { collectionPath, type CollectionKey } from "@/lib/collection-slugs";
+import { collectionPath, getBlogPosts, getProducts, type CollectionKey } from "@/lib/cms";
 
 /** Directory-based localization: content/<collection>/<locale>/<file>. Exported for app/sitemap.ts. */
 export function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
@@ -43,25 +43,10 @@ export async function getFooter(locale: Locale) {
   }
 }
 
-export async function getBlogPosts(locale: Locale) {
-  const res = await client.queries.blogConnection({ filter: { draft: { eq: false } } });
-  const posts = inLocale(res.data.blogConnection.edges, locale);
-  return posts.sort((a, b) => {
-    const dateA = a.publishDate ? new Date(a.publishDate).getTime() : 0;
-    const dateB = b.publishDate ? new Date(b.publishDate).getTime() : 0;
-    return dateB - dateA;
-  });
-}
-
 export async function getCategories(locale: Locale) {
   const res = await client.queries.categoriesConnection();
   const categories = inLocale(res.data.categoriesConnection.edges, locale);
   return categories.sort((a, b) => a.title.localeCompare(b.title));
-}
-
-export async function getProducts(locale: Locale) {
-  const res = await client.queries.productsConnection({ filter: { draft: { eq: false } } });
-  return inLocale(res.data.productsConnection.edges, locale);
 }
 
 export async function getProductCategories(locale: Locale) {
@@ -102,7 +87,7 @@ async function getTaxonomyDocs(
  * genuinely diverge from the others (same as a `pages` document's slug
  * can) — so a taxonomy archive page's hreflang needs a real per-locale
  * lookup instead of assuming the term slug is the same word in every
- * locale, which is what lib/collection-slugs.ts's translateCollectionPath
+ * locale, which is what lib/cms.ts's translateCollectionPath
  * does for the rest of a collection route (safe there only because a
  * post's/product's own slug IS assumed identical by convention — a
  * taxonomy term is a separate document with its own independently
@@ -205,57 +190,24 @@ export function getRelatedEntries<T extends Record<string, unknown> & { slug: st
   return [...related, ...padding].slice(0, limit);
 }
 
-type CollectionDetailDoc = { slug: string; _sys: { breadcrumbs: string[]; relativePath: string } };
-
-/** Hardcoded per collection, same reason as getTaxonomyDocs above: Tina's
- * generated client is per-collection typed (client.queries.blogConnection
- * vs. .productsConnection). */
-async function getCollectionDetailDocs(
-  collection: CollectionKey
-): Promise<Array<{ node?: CollectionDetailDoc | null } | null> | null> {
-  if (collection === "blog") {
-    return (await client.queries.blogConnection({ filter: { draft: { eq: false } } })).data
-      .blogConnection.edges as Array<{ node?: CollectionDetailDoc | null } | null> | null;
-  }
-  if (collection === "products") {
-    return (await client.queries.productsConnection({ filter: { draft: { eq: false } } })).data
-      .productsConnection.edges as Array<{ node?: CollectionDetailDoc | null } | null> | null;
-  }
-  return null;
-}
-
-/**
- * Cross-locale sibling lookup for a blog post / product detail document,
- * given its slug AS IT APPEARS in `locale`'s URL. Mirrors
- * getTaxonomyTermAlternates/getPageAlternates: documents are paired by
- * filename (content/blog/en/my-post.md + content/blog/vi/my-post.md, same
- * convention `pages` uses — verified this repo's blog/product filenames
- * already match 1:1 across locales), and a locale with no sibling document
- * is simply omitted from the result instead of assuming one exists.
- *
- * This is the real per-locale check lib/collection-slugs.ts's
- * translateCollectionPath doesn't do — that function is a pure string
- * transform ("blog" -> "tin-tuc") with no knowledge of which documents
- * actually exist, so its "same slug in every locale" convention only holds
- * once a document has actually been translated. Without this, an editor
- * who hasn't translated a post into a new locale yet would get a
- * language-switcher link that 404s instead of the button simply not
- * showing. Used by lib/locale-alternates.ts for both hreflang and the
- * language switcher.
- */
 /**
  * Cross-locale existence check for a collection's listing page (e.g. the
- * `pages` document named by lib/collection-slugs.ts's `listingPageFilename`
- * for "blog"), returning the collection's REAL translated URL
- * (`collectionPath`) per locale — NOT `getPageAlternates`, which would
- * build the URL from that document's own `slug` field. That field is
- * locked and doesn't drive the public URL for a listing page (see
- * CLAUDE.md's "Collection-backed listing pages" section: the real URL is
- * owned by `collectionSlugs`, this document's `slug` is never read for
- * routing) — reusing getPageAlternates here would silently produce the
- * wrong hreflang/switcher URL (e.g. "/vi/blog" instead of "/vi/tin-tuc").
- * Still a real existence check, though: a locale whose listing page
- * document hasn't been created yet is correctly omitted.
+ * `pages` document named by lib/cms.ts's `listingPageFilenames` for
+ * "blog"), returning the collection's REAL translated URL (`collectionPath`)
+ * per locale — NOT `getPageAlternates`, which would build the URL from that
+ * document's own `slug` field. That field is locked and doesn't drive the
+ * public URL for a listing page (see CLAUDE.md's "Collection-backed listing
+ * pages" section: the real URL is owned by the collection registry in
+ * lib/cms.ts, this document's `slug` is never read for routing) — reusing
+ * getPageAlternates here would silently produce the wrong hreflang/switcher
+ * URL (e.g. "/vi/blog" instead of "/vi/tin-tuc"). Still a real existence
+ * check, though: a locale whose listing page document hasn't been created
+ * yet is correctly omitted.
+ *
+ * This is a `pages`-collection concern (parallel to getPageAlternates
+ * below), not a `blog`/`products` document lookup — CollectionService's own
+ * cross-locale alternates (lib/cms.ts's getCollectionDocAlternates) covers
+ * an individual post's/product's own detail page instead; see that file.
  */
 export const getCollectionListingAlternates = cache(
   async (collection: CollectionKey, filename: string): Promise<Partial<Record<Locale, string>>> => {
@@ -274,68 +226,6 @@ export const getCollectionListingAlternates = cache(
     }
   }
 );
-
-export const getCollectionDocAlternates = cache(
-  async (
-    collection: CollectionKey,
-    locale: Locale,
-    slug: string
-  ): Promise<Partial<Record<Locale, string>>> => {
-    const edges = await getCollectionDetailDocs(collection);
-    if (!edges) return {};
-
-    const current = inLocale(edges, locale).find((d) => d.slug === slug);
-    const filename = current?._sys.relativePath.split("/").pop()?.replace(/\.md$/, "");
-    if (!filename) return {};
-
-    const result: Partial<Record<Locale, string>> = {};
-    for (const l of locales) {
-      const doc = inLocale(edges, l).find(
-        (d) => d._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") === filename
-      );
-      if (doc) result[l] = collectionPath(l, collection, `/${doc.slug}`);
-    }
-    return result;
-  }
-);
-
-/**
- * Single-document query by relativePath, resolved in two steps from the
- * `slug` field — not by assuming filename === slug, since Tina lets editors
- * set the filename and the slug field independently. Safe to trust `slug`
- * as unique per locale because `slugLifecycleGuard`
- * (tina/collections/shared-fields/slug.schema.tsx)
- * blocks saving a duplicate through the admin. Returns the raw
- * {data, query, variables} response shape `useTina()` needs to enable
- * visual editing on this page. Wrapped in React's `cache()` so
- * generateMetadata and the page component share one request.
- */
-export const getBlogPostQuery = cache(async (locale: Locale, slug: string) => {
-  try {
-    const lookup = await client.queries.blogConnection({
-      filter: { slug: { eq: slug }, draft: { eq: false } },
-    });
-    const match = inLocale(lookup.data.blogConnection.edges, locale)[0];
-    if (!match) return null;
-    return await client.queries.blog({ relativePath: match._sys.relativePath });
-  } catch {
-    return null;
-  }
-});
-
-/** Same two-step slug resolution as getBlogPostQuery — see its comment. */
-export const getProductQuery = cache(async (locale: Locale, slug: string) => {
-  try {
-    const lookup = await client.queries.productsConnection({
-      filter: { slug: { eq: slug }, draft: { eq: false } },
-    });
-    const match = inLocale(lookup.data.productsConnection.edges, locale)[0];
-    if (!match) return null;
-    return await client.queries.products({ relativePath: match._sys.relativePath });
-  } catch {
-    return null;
-  }
-});
 
 /**
  * Extra data some blocks need but don't carry themselves — fetched only

@@ -3,7 +3,7 @@ import { slugField, slugLifecycleGuard } from "./shared-fields/slug.schema";
 import { draftField } from "./shared-fields/draft.schema";
 import { seoField } from "./shared-fields/seo.schema";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
-import { collectionPath } from "@/lib/collection-slugs";
+import { collectionPath } from "@/lib/cms";
 import type { Locale } from "@/lib/i18n";
 
 export const productsCollection: Collection = {

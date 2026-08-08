@@ -3,16 +3,11 @@ import {
   collectionForSegment,
   translateCollectionPath,
   collectionPath,
-  collectionSlugs,
-} from "@/lib/collection-slugs";
-import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
-import {
-  getPageQuery,
-  getPageAlternates,
-  getTaxonomyTermAlternates,
+  listingPageFilenameFor,
   getCollectionDocAlternates,
-  getCollectionListingAlternates,
-} from "@/lib/tina-content";
+} from "@/lib/cms";
+import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
+import { getPageQuery, getPageAlternates, getTaxonomyTermAlternates, getCollectionListingAlternates } from "@/lib/tina-content";
 
 /**
  * Given the current locale and pathname (locale-prefixed), resolves the
@@ -30,7 +25,7 @@ import {
  *   shape is a superset of it.
  * - **A collection's listing page** (e.g. "/blog" itself): a real
  *   existence check (`getCollectionListingAlternates`) against the locked
- *   `pages` document named in lib/collection-slugs.ts's
+ *   `pages` document named in lib/cms.ts's
  *   `listingPageFilename` — but the resulting URL is built from
  *   `collectionPath`, not that document's own `slug` field, since the
  *   locked document's `slug` never drives its real public URL (see
@@ -76,7 +71,7 @@ export async function resolveLocaleAlternates(
 
     const rest = path.slice(`/${firstSegment}`.length); // "" (or "/") for the listing page itself
     if (!rest || rest === "/") {
-      return getCollectionListingAlternates(collectionKey, collectionSlugs[collectionKey].listingPageFilename);
+      return getCollectionListingAlternates(collectionKey, listingPageFilenameFor(collectionKey));
     }
 
     const detailSlug = rest.split("/")[1];

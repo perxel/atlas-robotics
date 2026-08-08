@@ -4,15 +4,10 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import {
-  getProducts,
-  getProductCategories,
-  getSiteSettings,
-  filterByTaxonomyTerm,
-} from "@/lib/tina-content";
+import { getProductCategories, getSiteSettings, filterByTaxonomyTerm } from "@/lib/tina-content";
 import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/collection-slugs";
+import { collectionPath, getProducts } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";

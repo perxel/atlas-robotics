@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/i18n";
-import { collectionPath, type CollectionKey } from "@/lib/collection-slugs";
+import { collectionPath, type CollectionKey } from "@/lib/cms";
 
 /**
  * One row per (content collection × taxonomy) attachment — see
@@ -22,7 +22,7 @@ export type TaxonomyRegistryEntry = {
    * / "danh-muc" (vi) in /blog/category/<slug> vs /vi/tin-tuc/danh-muc/<slug>.
    * This is a dynamic route param (the `[slug]` folder one level above
    * `[term]` — see archive.tsx), not a physical route folder, so unlike
-   * lib/collection-slugs.ts's `locales` map it needs no matching
+   * lib/cms.ts's `locales` map it needs no matching
    * next.config.ts redirect/rewrite pair to make the translated segment
    * resolve. */
   urlSegment: Record<Locale, string>;

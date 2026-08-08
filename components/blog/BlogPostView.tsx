@@ -5,10 +5,10 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/collection-slugs";
+import { collectionPath } from "@/lib/cms";
 import { taxonomyArchivePath } from "@/lib/taxonomies";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
-import type { getBlogPosts } from "@/lib/tina-content";
+import type { getBlogPosts } from "@/lib/cms";
 import Breadcrumb from "@/components/Breadcrumb";
 
 export default function BlogPostView({

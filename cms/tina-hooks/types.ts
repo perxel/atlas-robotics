@@ -6,7 +6,7 @@ export type BeforeSubmitArgs = {
         request: (
           query: string,
           opts: { variables: Record<string, unknown> }
-        ) => Promise<{ data?: Record<string, any> }>;
+        ) => Promise<{ data?: Record<string, unknown> }>;
       };
     };
   };

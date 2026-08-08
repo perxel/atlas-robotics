@@ -3,8 +3,8 @@ import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
 import type { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/collection-slugs";
-import type { getBlogPosts } from "@/lib/tina-content";
+import { collectionPath } from "@/lib/cms";
+import type { getBlogPosts } from "@/lib/cms";
 
 export default function FeaturedBlogPosts({
   data,

@@ -1,4 +1,4 @@
-import { collectionSlugs } from "@/lib/collection-slugs";
+import { listingPageFilenames } from "@/lib/cms";
 import type { Locale } from "@/lib/i18n";
 
 /**
@@ -39,7 +39,7 @@ export const reservedSlugs = new Set<string>(["admin", "api"]);
  * matched by filename (`form.path`'s basename), not by current slug value.
  *
  * `home` and every registered collection's `listingPageFilename` (see
- * lib/collection-slugs.ts) end up here. These documents' slugs aren't
+ * lib/cms.ts) end up here. These documents' slugs aren't
  * really a public URL choice: `home` is resolved by the hardcoded key
  * "home" (app/[locale]/page.tsx), and a collection's listing page's real
  * URL segment is owned by `collectionSlugs`, not by this document's slug
@@ -52,10 +52,7 @@ export const reservedSlugs = new Set<string>(["admin", "api"]);
  * mean fighting Tina rather than extending it, so this is a documented
  * convention, not a hard guarantee.
  */
-export const lockedSlugFilenames = new Set<string>([
-  "home",
-  ...Object.values(collectionSlugs).map((c) => c.listingPageFilename),
-]);
+export const lockedSlugFilenames = new Set<string>(["home", ...listingPageFilenames]);
 
 /**
  * The contact page's slug, per locale — content/pages/<locale>/contact.md

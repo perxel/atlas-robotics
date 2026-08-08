@@ -51,7 +51,7 @@ type BeforeSubmitArgs = {
  *    registered collection's listing page), changing `slug` is rejected
  *    outright. Those slugs aren't a real editorial choice: `home` is
  *    resolved by a hardcoded key, and a listing page's real public URL
- *    segment is owned by `lib/collection-slugs.ts`, not this field. The
+ *    segment is owned by `lib/cms.ts`, not this field. The
  *    on-disk slug is only fetched for this check, and only for a locked
  *    filename — everything else skips straight to the uniqueness check.
  *
@@ -89,7 +89,7 @@ export function slugLifecycleGuard(collectionName: string) {
           const onDiskSlug: string | undefined = res?.data?.pages?.slug;
           if (onDiskSlug && onDiskSlug !== slug) {
             throw new Error(
-              `The slug for "${filename}" is locked and can't be changed here — its public URL is controlled in code (lib/collection-slugs.ts, or the "home" special case), not this field.`
+              `The slug for "${filename}" is locked and can't be changed here — its public URL is controlled in code (lib/cms.ts, or the "home" special case), not this field.`
             );
           }
         } catch (err) {

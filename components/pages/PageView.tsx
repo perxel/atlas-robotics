@@ -6,7 +6,7 @@ import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types
 import { isBlocksEnabled } from "@/lib/pages-config";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
-import type { getBlogPosts, getProducts } from "@/lib/tina-content";
+import type { getBlogPosts, getProducts } from "@/lib/cms";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
 

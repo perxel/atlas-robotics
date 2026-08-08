@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { locales } from "@/lib/i18n";
-import { collectionPath, resolvePagesDocumentUrl } from "@/lib/collection-slugs";
+import { collectionPath, resolvePagesDocumentUrl } from "@/lib/cms";
 import { siteUrl } from "@/lib/seo";
 import { inLocale } from "@/lib/tina-content";
 import { client } from "@/tina/__generated__/client";

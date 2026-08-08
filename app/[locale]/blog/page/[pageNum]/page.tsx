@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { defaultLocale, isLocale } from "@/lib/i18n";
-import { collectionPath } from "@/lib/collection-slugs";
+import { collectionPath } from "@/lib/cms";
 import { parsePageParam } from "@/cms/pagination";
 import { generateBlogMetadata, BlogListing } from "../../listing";
 

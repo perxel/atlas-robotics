@@ -5,11 +5,11 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/collection-slugs";
+import { collectionPath } from "@/lib/cms";
 import { taxonomyArchivePath } from "@/lib/taxonomies";
 import { contactSlug } from "@/lib/pages-config";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
-import type { getProducts } from "@/lib/tina-content";
+import type { getProducts } from "@/lib/cms";
 import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ProductView({
