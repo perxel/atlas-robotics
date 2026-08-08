@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { CMSMultilingual, CMSCollection, siteUrl } from "@/lib/cms";
-import { inLocale } from "@/lib/tina-content";
+import { inLocale } from "@/cms/collection";
 import { client } from "@/tina/__generated__/client";
 
 // Reflects current CMS content on every request, not a snapshot from the

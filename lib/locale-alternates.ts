@@ -1,5 +1,13 @@
-import { locales, CMSMultilingual, CMSCollection, CMSTaxonomy, type Locale } from "@/lib/cms";
-import { getPageQuery, getPageAlternates, getCollectionListingAlternates } from "@/lib/tina-content";
+import {
+  locales,
+  CMSMultilingual,
+  CMSCollection,
+  CMSTaxonomy,
+  type Locale,
+  getPageQuery,
+  getPageAlternates,
+  getCollectionListingAlternates,
+} from "@/lib/cms";
 
 /**
  * Given the current locale and pathname (locale-prefixed), resolves the
@@ -38,9 +46,11 @@ import { getPageQuery, getPageAlternates, getCollectionListingAlternates } from 
  *   nothing pairing them but a matching filename — resolved with a real
  *   cross-locale document lookup (`getPageAlternates`) instead of a guess.
  *
- * `getPageQuery`/`getPageAlternates` are wrapped in React's `cache()`, so
- * calling this once from `generateMetadata` and again from `Header` within
- * the same request only costs one fetch each, not two.
+ * `getPageQuery`/`getPageAlternates` are NOT wrapped in React's `cache()`
+ * (lib/cms.ts is reachable from Tina's admin bundle, where `cache()` isn't
+ * available — see that file's registration comments), so calling this once
+ * from `generateMetadata` and again from `Header` within the same request
+ * costs one fetch each, not a shared one.
  */
 export async function resolveLocaleAlternates(
   locale: Locale,

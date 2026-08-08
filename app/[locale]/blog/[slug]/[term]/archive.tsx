@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { getSiteSettings } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
@@ -15,6 +14,7 @@ import {
   CMSSeo,
   CMSMultilingual,
   type BlogPostItem,
+  getSiteSettings,
 } from "@/lib/cms";
 
 /**

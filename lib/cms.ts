@@ -9,6 +9,8 @@ import {
   TranslationDashboardService,
 } from "@/cms/multilingual";
 import { SeoService, SeoDashboardService, createSeoDashboardScreen } from "@/cms/seo";
+import { SingletonService } from "@/cms/singleton";
+import { PagesService } from "@/cms/pages";
 
 /**
  * Project registration for the cms/ framework — the one file a future
@@ -127,6 +129,84 @@ export const getBlogPostQuery = (locale: Locale, slug: string) =>
 
 export const getProductQuery = (locale: Locale, slug: string) =>
   CMSCollection.getCollectionItem<ProductDocQuery>({ collectionName: "products", lang: locale, slug });
+
+// --- Singleton document registration — site-wide config docs, one file
+// per locale, no list/slug of their own. ---
+
+const singletonRegistry = {
+  siteSettings: {
+    fetchDoc: (l: Locale) => client.queries.siteSettings({ relativePath: `${l}.json` }).then((r) => r.data.siteSettings),
+  },
+  nav: {
+    fetchDoc: (l: Locale) => client.queries.nav({ relativePath: `${l}.json` }).then((r) => r.data.nav),
+  },
+  footer: {
+    fetchDoc: (l: Locale) => client.queries.footer({ relativePath: `${l}.json` }).then((r) => r.data.footer),
+  },
+};
+
+export const CMSSingleton = new SingletonService<keyof typeof singletonRegistry, Locale>(singletonRegistry, {
+  defaultLocale,
+});
+
+type SiteSettingsDoc = Awaited<ReturnType<typeof client.queries.siteSettings>>["data"]["siteSettings"];
+type NavDoc = Awaited<ReturnType<typeof client.queries.nav>>["data"]["nav"];
+type FooterDoc = Awaited<ReturnType<typeof client.queries.footer>>["data"]["footer"];
+
+export const getSiteSettings = (locale: Locale) => CMSSingleton.get<SiteSettingsDoc>({ name: "siteSettings", lang: locale });
+
+export const getNav = (locale: Locale) => CMSSingleton.get<NavDoc>({ name: "nav", lang: locale });
+
+export const getFooter = (locale: Locale) => CMSSingleton.get<FooterDoc>({ name: "footer", lang: locale });
+
+// --- Pages (generic slug-routed collection) registration — depends on
+// CMSCollection/CMSMultilingual via "Option A" injection, same as
+// CMSTaxonomy above. ---
+
+export const CMSPages = new PagesService(
+  {
+    fetchConnection: (args) =>
+      client.queries
+        .pagesConnection({
+          filter: { draft: { eq: false }, ...(args?.slug ? { slug: { eq: args.slug } } : {}) },
+        })
+        .then((r) => r.data.pagesConnection.edges),
+    fetchByPath: (relativePath: string) => client.queries.pages({ relativePath }),
+  },
+  {
+    localePath: CMSMultilingual.localePath.bind(CMSMultilingual),
+    getCollectionPath: (args) =>
+      CMSCollection.getCollectionPath({ collectionName: args.collectionName as CollectionKey, lang: args.lang }),
+  },
+  { locales, defaultLocale }
+);
+
+type PagesDocQuery = Awaited<ReturnType<typeof client.queries.pages>>;
+
+/** Same two-step slug resolution as getBlogPostQuery — see its comment. */
+export const getPageQuery = (locale: Locale, slug: string) => CMSPages.getBySlug<PagesDocQuery>({ lang: locale, slug });
+
+/**
+ * Cross-locale sibling lookup for `pages` documents, keyed by filename —
+ * e.g. getPageAlternates("about") finds en/about.md AND vi/about.md (even
+ * though the vi one's `slug` field is "ve-chung-toi", a different word),
+ * and returns each locale's real public URL built from that document's own
+ * `slug`. Used by lib/locale-alternates.ts for both hreflang and the
+ * language switcher.
+ */
+export const getPageAlternates = (filename: string) => CMSPages.getAlternates(filename);
+
+/**
+ * Cross-locale existence check for a collection's listing page (e.g. the
+ * `pages` document named by `CMSCollection.getListingPageFilename()` for
+ * "blog"), returning the collection's REAL translated URL
+ * (`CMSCollection.getCollectionPath()`) per locale — NOT `getPageAlternates`,
+ * which would build the URL from that document's own `slug` field. That
+ * field is locked and doesn't drive the public URL for a listing page (see
+ * CLAUDE.md's "Collection-backed listing pages" section).
+ */
+export const getCollectionListingAlternates = (collection: CollectionKey, filename: string) =>
+  CMSPages.getListingAlternates({ collectionName: collection, filename });
 
 // --- Taxonomy registration (.claude/plans/02-taxonomy.md) — depends on
 // CMSCollection via "Option A" injection: TaxonomyService is handed the

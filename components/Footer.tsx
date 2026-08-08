@@ -1,5 +1,4 @@
-import { getFooter, getSiteSettings } from "@/lib/tina-content";
-import { type Locale, CMSDictionary } from "@/lib/cms";
+import { type Locale, CMSDictionary, getFooter, getSiteSettings } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import SocialIcons from "./SocialIcons";
 
