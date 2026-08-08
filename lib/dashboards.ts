@@ -2,23 +2,13 @@ import { createTranslationDashboardScreen, TranslationDashboardService } from "@
 import { SeoDashboardService, createSeoDashboardScreen } from "@/cms/seo";
 import { CMSCollection, CMSMultilingual, CMSPages, defaultLocale, locales, type CollectionKey } from "./cms";
 
-/**
- * Tina admin plugin screens — kept out of lib/cms.ts as a separate file
- * since these are admin-only (registered by tina/config.ts's cmsCallback,
- * never touched by the public app), unlike everything else lib/cms.ts
- * registers. Not project-generic either — SeoCollectionKey/getSeoIndexFor
- * below hardcode this project's "pages" collection and its configured
- * CMSCollection/CMSPages instances, so this can't live in cms/ (which never
- * hardcodes a project's collection names) — the actual generic machinery
- * (SeoDashboardService, createSeoDashboardScreen, TranslationDashboardService,
- * createTranslationDashboardScreen) already lives there, untouched.
- */
+// Tina admin plugin screens — kept out of lib/cms.ts since they're
+// admin-only and project-specific (see .claude/docs/03-multilingual.md,
+// 04-seo.md, 08-beyond-the-plan.md for the design behind this).
 
-// `pages` isn't part of CollectionService's registry (its per-collection
-// `locales`/`listingPageFilename` shape doesn't fit a slug-driven generic
-// collection — see 01-collection.md's Addendum #4), so it's routed to
-// CMSPages.getSeoIndex() instead of CMSCollection.getSeoIndex() — same
-// shape, different service backing it.
+// `pages` isn't in CollectionService's registry (see
+// .claude/docs/01-collection.md), so it's routed to CMSPages.getSeoIndex()
+// instead of CMSCollection.getSeoIndex().
 type SeoCollectionKey = CollectionKey | "pages";
 
 const getSeoIndexFor = (collectionName: SeoCollectionKey) =>
@@ -37,8 +27,7 @@ export const seoDashboardScreen = createSeoDashboardScreen(
   )
 );
 
-// Only registered when multilingual is actually on — a single-locale
-// project has nothing to show a translation-coverage dashboard for.
+// Only registered when multilingual is on.
 export const translationDashboardScreen = CMSMultilingual.isEnabled()
   ? createTranslationDashboardScreen(
       new TranslationDashboardService(
