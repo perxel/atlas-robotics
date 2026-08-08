@@ -4,10 +4,9 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getProductCategories, getSiteSettings, filterByTaxonomyTerm } from "@/lib/tina-content";
-import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
+import { getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
-import { collectionPath, getProducts } from "@/lib/cms";
+import { collectionPath, CMSTaxonomy, type ProductItem } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
@@ -22,23 +21,25 @@ import type { Locale } from "@/lib/i18n";
  * page/[pageNum]/page.tsx (page >= 2), same as
  * app/[locale]/products/listing.tsx for the main listing page.
  */
-async function resolveTerm(taxonomy: string, locale: Locale, termSlug: string) {
-  if (taxonomy !== "productCategories") return null;
-  const categories = await getProductCategories(locale);
-  return categories.find((c) => c.slug === termSlug) || null;
-}
-
 async function loadArchive(locale: Locale, taxonomySegment: string, termSlug: string) {
-  const entry = getTaxonomyRegistryEntry("products", locale, taxonomySegment);
-  if (!entry) return null;
+  const taxonomyName = CMSTaxonomy.resolveUrlSegment({
+    collectionName: "products",
+    lang: locale,
+    urlSegment: taxonomySegment,
+  });
+  if (!taxonomyName) return null;
 
-  const term = await resolveTerm(entry.taxonomy, locale, termSlug);
+  const term = await CMSTaxonomy.getTerm({ taxonomyName, lang: locale, slug: termSlug });
   if (!term) return null;
 
-  const products = await getProducts(locale);
-  const filtered = filterByTaxonomyTerm(products, entry.fieldName, termSlug);
+  const { items: products } = await CMSTaxonomy.getItemsByTerm<ProductItem>({
+    collectionName: "products",
+    taxonomyName,
+    termSlug,
+    lang: locale,
+  });
 
-  return { term, products: filtered };
+  return { term, products };
 }
 
 export async function generateProductsArchiveMetadata(

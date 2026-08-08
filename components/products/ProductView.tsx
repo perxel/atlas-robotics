@@ -6,7 +6,7 @@ import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionary";
 import { collectionPath } from "@/lib/cms";
-import { taxonomyArchivePath } from "@/lib/taxonomies";
+import { taxonomyArchivePath } from "@/lib/cms";
 import { contactSlug } from "@/lib/pages-config";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
 import type { getProducts } from "@/lib/cms";

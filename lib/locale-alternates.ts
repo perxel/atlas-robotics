@@ -5,9 +5,9 @@ import {
   collectionPath,
   listingPageFilenameFor,
   getCollectionDocAlternates,
+  CMSTaxonomy,
 } from "@/lib/cms";
-import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
-import { getPageQuery, getPageAlternates, getTaxonomyTermAlternates, getCollectionListingAlternates } from "@/lib/tina-content";
+import { getPageQuery, getPageAlternates, getCollectionListingAlternates } from "@/lib/tina-content";
 
 /**
  * Given the current locale and pathname (locale-prefixed), resolves the
@@ -17,12 +17,12 @@ import { getPageQuery, getPageAlternates, getTaxonomyTermAlternates, getCollecti
  * switcher (Header.tsx). Three cases:
  *
  * - **A taxonomy archive route** (blog/products + a registered taxonomy
- *   urlSegment + a term slug — see lib/taxonomies.ts): the term slug is its
- *   own document's `slug` field, which can diverge per locale the same way
- *   a `pages` document's can, so it gets a real cross-locale lookup
- *   (`getTaxonomyTermAlternates`) — see `resolveTaxonomyArchiveAlternates`
- *   below. Checked before the plain collection-route case since its path
- *   shape is a superset of it.
+ *   urlSegment + a term slug — see lib/cms.ts's CMSTaxonomy registration):
+ *   the term slug is its own document's `slug` field, which can diverge per
+ *   locale the same way a `pages` document's can, so it gets a real
+ *   cross-locale lookup (`CMSTaxonomy.getTermAlternates`) — see
+ *   `resolveTaxonomyArchiveAlternates` below. Checked before the plain
+ *   collection-route case since its path shape is a superset of it.
  * - **A collection's listing page** (e.g. "/blog" itself): a real
  *   existence check (`getCollectionListingAlternates`) against the locked
  *   `pages` document named in lib/cms.ts's
@@ -45,10 +45,9 @@ import { getPageQuery, getPageAlternates, getTaxonomyTermAlternates, getCollecti
  *   nothing pairing them but a matching filename — resolved with a real
  *   cross-locale document lookup (`getPageAlternates`) instead of a guess.
  *
- * `getPageQuery`/`getPageAlternates`/`getTaxonomyTermAlternates` are all
- * wrapped in React's `cache()`, so calling this once from `generateMetadata`
- * and again from `Header` within the same request only costs one fetch each,
- * not two.
+ * `getPageQuery`/`getPageAlternates` are wrapped in React's `cache()`, so
+ * calling this once from `generateMetadata` and again from `Header` within
+ * the same request only costs one fetch each, not two.
  */
 export async function resolveLocaleAlternates(
   locale: Locale,
@@ -113,26 +112,30 @@ async function resolveTaxonomyArchiveAlternates(
   const [, , taxonomySegment, termSlug, ...rest] = path.split("/");
   if (!taxonomySegment || !termSlug) return null;
 
-  const entry = getTaxonomyRegistryEntry(collectionKey, locale, taxonomySegment);
-  if (!entry) return null;
+  const taxonomyName = CMSTaxonomy.resolveUrlSegment({
+    collectionName: collectionKey,
+    lang: locale,
+    urlSegment: taxonomySegment,
+  });
+  if (!taxonomyName) return null;
 
-  const termAlternates = await getTaxonomyTermAlternates(entry.taxonomy, locale, termSlug);
+  const termAlternates = await CMSTaxonomy.getTermAlternates({ taxonomyName, lang: locale, termSlug });
   if (Object.keys(termAlternates).length === 0) return null;
 
   // Both the term's own slug AND the taxonomy's urlSegment ("category" vs
-  // "danh-muc") can differ per locale — see lib/taxonomies.ts's
-  // urlSegment map — so both parts of the path are rebuilt per locale,
-  // not just the term slug.
+  // "danh-muc") can differ per locale, so both parts of the path are
+  // rebuilt per locale, not just the term slug.
   const restPath = rest.length ? `/${rest.join("/")}` : "";
   const result: Partial<Record<Locale, string>> = {};
   for (const l of locales) {
     const termSlugForLocale = termAlternates[l];
-    if (!termSlugForLocale) continue;
-    result[l] = collectionPath(
-      l,
-      collectionKey,
-      `/${entry.urlSegment[l]}/${termSlugForLocale}${restPath}`
-    );
+    const urlSegmentForLocale = CMSTaxonomy.getUrlSegment({
+      collectionName: collectionKey,
+      taxonomyName,
+      lang: l,
+    });
+    if (!termSlugForLocale || !urlSegmentForLocale) continue;
+    result[l] = collectionPath(l, collectionKey, `/${urlSegmentForLocale}/${termSlugForLocale}${restPath}`);
   }
   return result;
 }

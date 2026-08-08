@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getRelatedEntries, getSiteSettings } from "@/lib/tina-content";
-import { getBlogPostQuery, getBlogPosts } from "@/lib/cms";
+import { getSiteSettings } from "@/lib/tina-content";
+import { getBlogPostQuery, CMSTaxonomy, type BlogPostItem } from "@/lib/cms";
 import { getDictionary } from "@/lib/dictionary";
 import { collectionPath } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
@@ -45,9 +45,15 @@ export default async function BlogDetailPage({
 }) {
   const { locale: rawLocale, slug } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
-  const [result, allPosts] = await Promise.all([
+  const [result, relatedPosts] = await Promise.all([
     getBlogPostQuery(locale, slug),
-    getBlogPosts(locale),
+    CMSTaxonomy.getRelatedEntries<BlogPostItem>({
+      collectionName: "blog",
+      taxonomyName: "categories",
+      lang: locale,
+      slug,
+      limit: 3,
+    }),
   ]);
 
   // getBlogPostQuery resolves the slug via a draft-filtered query, so a
@@ -55,8 +61,6 @@ export default async function BlogDetailPage({
   // admin preview pane while editing it. See the "Drafts" note in
   // CLAUDE.md for what full draft-preview support would additionally need.
   if (!result) notFound();
-
-  const relatedPosts = getRelatedEntries("blog", allPosts, slug, 3);
 
   return (
     <BlogPostView

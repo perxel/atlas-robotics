@@ -2,6 +2,7 @@ import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
 import { CollectionService } from "@/cms/collection";
+import { TaxonomyService } from "@/cms/taxonomy";
 import { defaultLocale, locales, type Locale } from "@/lib/i18n";
 
 /**
@@ -22,14 +23,19 @@ const collectionRegistry = {
     locales: { en: "blog", vi: "tin-tuc" } as Record<Locale, string>,
     listingPageFilename: "blog",
     draftFieldName: "draft",
-    fetchEdges: () => client.queries.blogConnection().then((r) => r.data.blogConnection.edges),
+    // Wrapped in cache() so a request that fetches "all blog posts" more
+    // than once (e.g. a detail page's related-entries lookup alongside its
+    // own listing fetch) shares one GraphQL request instead of two.
+    fetchEdges: cache(() => client.queries.blogConnection().then((r) => r.data.blogConnection.edges)),
     fetchBySlug: (relativePath: string) => client.queries.blog({ relativePath }),
   },
   products: {
     locales: { en: "products", vi: "san-pham" } as Record<Locale, string>,
     listingPageFilename: "products",
     draftFieldName: "draft",
-    fetchEdges: () => client.queries.productsConnection().then((r) => r.data.productsConnection.edges),
+    fetchEdges: cache(() =>
+      client.queries.productsConnection().then((r) => r.data.productsConnection.edges)
+    ),
     fetchBySlug: (relativePath: string) => client.queries.products({ relativePath }),
   },
 };
@@ -92,3 +98,53 @@ export const getCollectionDocAlternates = cache(
   (collection: CollectionKey, locale: Locale, slug: string): Promise<Partial<Record<Locale, string>>> =>
     CMSCollection.getCollectionAlternates({ collectionName: collection, lang: locale, slug })
 );
+
+// --- Taxonomy registration (.claude/plans/02-taxonomy.md) — depends on
+// CMSCollection via "Option A" injection: TaxonomyService is handed the
+// specific CollectionService methods it needs, never the whole instance. ---
+
+const taxonomyRegistry = {
+  categories: {
+    fetchTerms: cache(() =>
+      client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges)
+    ),
+    attachments: {
+      blog: { fieldName: "categories", urlSegment: { en: "category", vi: "danh-muc" } as Record<Locale, string> },
+    },
+  },
+  productCategories: {
+    fetchTerms: cache(() =>
+      client.queries.productCategoriesConnection().then((r) => r.data.productCategoriesConnection.edges)
+    ),
+    attachments: {
+      products: {
+        fieldName: "productCategories",
+        urlSegment: { en: "category", vi: "danh-muc" } as Record<Locale, string>,
+      },
+    },
+  },
+};
+
+export type TaxonomyKey = keyof typeof taxonomyRegistry;
+
+export const CMSTaxonomy = new TaxonomyService(
+  taxonomyRegistry,
+  {
+    getCollectionPath: CMSCollection.getCollectionPath.bind(CMSCollection),
+    getCollectionItems: CMSCollection.getCollectionItems.bind(CMSCollection),
+    getRelatedEntries: CMSCollection.getRelatedEntries.bind(CMSCollection),
+  },
+  { defaultLocale, locales }
+);
+
+export const getCategories = (locale: Locale) => CMSTaxonomy.getTerms({ taxonomyName: "categories", lang: locale });
+
+export const getProductCategories = (locale: Locale) =>
+  CMSTaxonomy.getTerms({ taxonomyName: "productCategories", lang: locale });
+
+export const taxonomyArchivePath = (
+  collectionName: CollectionKey,
+  taxonomyName: TaxonomyKey,
+  locale: Locale,
+  termSlug: string
+): string | null => CMSTaxonomy.getArchivePath({ collectionName, taxonomyName, lang: locale, termSlug });

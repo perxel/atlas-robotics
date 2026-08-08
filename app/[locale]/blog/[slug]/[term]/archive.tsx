@@ -4,11 +4,9 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
-import { getCategories, getSiteSettings, filterByTaxonomyTerm } from "@/lib/tina-content";
-import { getBlogPosts } from "@/lib/cms";
-import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
+import { getSiteSettings } from "@/lib/tina-content";
+import { collectionPath, CMSTaxonomy, type BlogPostItem } from "@/lib/cms";
 import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
@@ -16,11 +14,11 @@ import type { Locale } from "@/lib/i18n";
 
 /**
  * Generic archive route for any taxonomy attached to `blog` (see
- * lib/taxonomies.ts) — the first segment is the registry's `urlSegment`
- * (e.g. "category"), the second is the term document's slug. Adding a
- * taxonomy to blog needs one registry row plus a case in `resolveTerm`
- * below — everything else (route matching, post filtering) already
- * generalizes via the registry and `filterByTaxonomyTerm`.
+ * lib/cms.ts's CMSTaxonomy registration) — the first segment is the
+ * registry's `urlSegment` (e.g. "category"), the second is the term
+ * document's slug. Adding a taxonomy to blog needs one registry row in
+ * lib/cms.ts — everything else (route matching, term lookup, post
+ * filtering) already generalizes via CMSTaxonomy.
  *
  * The folder above this one is named `[slug]`, not `[taxonomy]`, only
  * because Next.js requires every dynamic segment at the same route level
@@ -32,23 +30,25 @@ import type { Locale } from "@/lib/i18n";
  * page/[pageNum]/page.tsx (page >= 2), same as app/[locale]/blog/listing.tsx
  * for the main listing page.
  */
-async function resolveTerm(taxonomy: string, locale: Locale, termSlug: string) {
-  if (taxonomy !== "categories") return null;
-  const categories = await getCategories(locale);
-  return categories.find((c) => c.slug === termSlug) || null;
-}
-
 async function loadArchive(locale: Locale, taxonomySegment: string, termSlug: string) {
-  const entry = getTaxonomyRegistryEntry("blog", locale, taxonomySegment);
-  if (!entry) return null;
+  const taxonomyName = CMSTaxonomy.resolveUrlSegment({
+    collectionName: "blog",
+    lang: locale,
+    urlSegment: taxonomySegment,
+  });
+  if (!taxonomyName) return null;
 
-  const term = await resolveTerm(entry.taxonomy, locale, termSlug);
+  const term = await CMSTaxonomy.getTerm({ taxonomyName, lang: locale, slug: termSlug });
   if (!term) return null;
 
-  const posts = await getBlogPosts(locale);
-  const filtered = filterByTaxonomyTerm(posts, entry.fieldName, termSlug);
+  const { items: posts } = await CMSTaxonomy.getItemsByTerm<BlogPostItem>({
+    collectionName: "blog",
+    taxonomyName,
+    termSlug,
+    lang: locale,
+  });
 
-  return { term, posts: filtered };
+  return { term, posts };
 }
 
 export async function generateBlogArchiveMetadata(
