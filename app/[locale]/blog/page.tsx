@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { defaultLocale, isLocale } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/cms";
 import { generateBlogMetadata, BlogListing } from "./listing";
 
 // The blog listing is a `pages` document too (fixed filename "blog", same

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, stripLocalePrefix } from "@/lib/i18n";
+import { defaultLocale, isLocale, stripLocalePrefix, getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, collectionPath, type BlogPostItem } from "@/lib/cms";
 import { getSiteSettings } from "@/lib/tina-content";
-import { getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, collectionPath, type BlogPostItem } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import BlogPostView from "@/components/blog/BlogPostView";

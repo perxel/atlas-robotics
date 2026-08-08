@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath, stripLocalePrefix } from "@/lib/i18n";
+import { defaultLocale, isLocale, localePath, stripLocalePrefix, CMSDictionary, CMSSeo } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
-import { CMSDictionary, CMSSeo } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import PageView from "@/components/pages/PageView";
 

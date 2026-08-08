@@ -12,9 +12,8 @@ import { featuredBlogPostsTemplate } from "@/components/blocks/FeaturedBlogPosts
 import { contactFormTemplate } from "@/components/blocks/ContactFormBlock.template";
 import { blogListingTemplate } from "@/components/blocks/BlogListingBlock.template";
 import { productListingTemplate } from "@/components/blocks/ProductListingBlock.template";
-import type { Locale } from "@/lib/i18n";
+import { type Locale, resolvePagesDocumentUrl } from "@/lib/cms";
 import { reservedSlugs, lockedSlugFilenames } from "@/lib/pages-config";
-import { resolvePagesDocumentUrl } from "@/lib/cms";
 
 // Block set for the `pages` collection's block-based editing.
 // https://tina.io/docs/editing/blocks

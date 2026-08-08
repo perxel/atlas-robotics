@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { defaultLocale, pathnameHasLocalePrefix, isLocale, CMSMultilingual } from "@/lib/i18n";
+import { defaultLocale, pathnameHasLocalePrefix, isLocale, CMSMultilingual } from "@/lib/cms";
 
 // Locale routing strategy: the default locale is served unprefixed at "/"
 // (internally rewritten to the "/<defaultLocale>" route segment), every

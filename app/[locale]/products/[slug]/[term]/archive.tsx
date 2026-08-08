@@ -2,14 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, stripLocalePrefix } from "@/lib/i18n";
 import { getSiteSettings } from "@/lib/tina-content";
-import { collectionPath, CMSTaxonomy, CMSDictionary, CMSSeo, type ProductItem } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
-import type { Locale } from "@/lib/i18n";
+import {
+  defaultLocale,
+  isLocale,
+  stripLocalePrefix,
+  type Locale,
+  collectionPath,
+  CMSTaxonomy,
+  CMSDictionary,
+  CMSSeo,
+  type ProductItem,
+} from "@/lib/cms";
 
 /**
  * Generic archive route for any taxonomy attached to `products` — same

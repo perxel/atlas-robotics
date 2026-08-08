@@ -1,5 +1,4 @@
-import { listingPageFilenames } from "@/lib/cms";
-import type { Locale } from "@/lib/i18n";
+import { type Locale, listingPageFilenames } from "@/lib/cms";
 
 /**
  * Pages listed here render as a fixed layout (title + intro only), ignoring

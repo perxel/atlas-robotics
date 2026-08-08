@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { defaultLocale, isLocale } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/cms";
 import { generateBlogArchiveMetadata, BlogArchive } from "./archive";
 
 // Page 1 of a taxonomy archive (e.g. /blog/category/news);

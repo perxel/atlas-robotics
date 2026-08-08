@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
-import { collectionPath, taxonomyArchivePath, type CollectionKey } from "@/lib/cms";
-import type { getProducts } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
-import type { Locale } from "@/lib/i18n";
+import { type Locale, collectionPath, taxonomyArchivePath, type CollectionKey, type getProducts } from "@/lib/cms";
 import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 

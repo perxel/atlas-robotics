@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import { localePath, type Locale } from "@/lib/i18n";
-import { collectionPath, taxonomyArchivePath, siteUrl } from "@/lib/cms";
+import { localePath, type Locale, collectionPath, taxonomyArchivePath, siteUrl, type getProducts } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import { contactSlug } from "@/lib/pages-config";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
-import type { getProducts } from "@/lib/cms";
 import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ProductView({

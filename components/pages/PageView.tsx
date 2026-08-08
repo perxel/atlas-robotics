@@ -4,10 +4,9 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types";
 import { isBlocksEnabled } from "@/lib/pages-config";
-import { localePath, type Locale } from "@/lib/i18n";
+import { localePath, type Locale, siteUrl, type getBlogPosts, type getProducts } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
-import { siteUrl, type getBlogPosts, type getProducts } from "@/lib/cms";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
 

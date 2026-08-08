@@ -2,16 +2,85 @@ import { client } from "@/tina/__generated__/client";
 import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
 import { CollectionService } from "@/cms/collection";
 import { TaxonomyService } from "@/cms/taxonomy";
-import { DictionaryService, createTranslationDashboardScreen, TranslationDashboardService } from "@/cms/multilingual";
+import {
+  MultilingualService,
+  DictionaryService,
+  createTranslationDashboardScreen,
+  TranslationDashboardService,
+} from "@/cms/multilingual";
 import { SeoService, SeoDashboardService, createSeoDashboardScreen } from "@/cms/seo";
-import { defaultLocale, locales, CMSMultilingual, type Locale } from "@/lib/i18n";
 
 /**
  * Project registration for the cms/ framework — the one file a future
  * project edits to register its own collections/taxonomies/locales.
  * cms/ itself never hardcodes this project's collections, locales, or
  * translated strings; see .claude/plans/00-overview.md's guiding rules.
+ *
+ * Single source of truth: every collection/taxonomy/locale/SEO setting this
+ * app has lives here. To reuse this boilerplate on a new project: edit the
+ * registries below (and content/*'s seed data) — nothing else in the app
+ * hardcodes a collection, taxonomy, or locale string.
  */
+
+// --- Locale registration (.claude/plans/03-multilingual.md). ---
+
+export const locales = ["vi", "en"] as const;
+export type Locale = (typeof locales)[number];
+
+// The default locale is served unprefixed at "/" (e.g. "/products").
+// Every other locale is served under its own prefix (e.g. "/vi/products").
+export const defaultLocale: Locale = "en";
+
+export const localeLabels: Record<Locale, string> = {
+  en: "English",
+  vi: "Tiếng Việt",
+};
+
+export const CMSMultilingual = new MultilingualService<Locale>({
+  locales,
+  defaultLocale,
+  // Both locales are enabled today. Disable one by trimming this array —
+  // its content stays fully intact and editable, it just stops showing up
+  // in the sitemap, hreflang, the language switcher, and the Translation
+  // Dashboard. See MultilingualService's own doc comment. Admin can only
+  // ever reorder/relabel/add-flag among locales registered here (the
+  // language switcher's `locale` field is a dropdown constrained to
+  // `options: [...locales]`, see cms/multilingual/fields.ts) — it cannot
+  // add a locale that isn't registered in this file.
+  enabledLocales: locales,
+});
+
+export function isLocale(value: string): value is Locale {
+  return CMSMultilingual.isLocale(value);
+}
+
+/** True if `pathname` starts with an explicit /<locale> prefix. */
+export function pathnameHasLocalePrefix(pathname: string): boolean {
+  return CMSMultilingual.pathnameHasLocalePrefix(pathname);
+}
+
+/** Strips a leading /<locale> segment off a pathname, if present. */
+export function stripLocalePrefix(pathname: string): string {
+  return CMSMultilingual.stripLocalePrefix(pathname);
+}
+
+/**
+ * Builds the URL path for `locale` given a locale-free path (e.g. "/catalog").
+ * The default locale is left unprefixed; others get a "/<locale>" prefix.
+ *
+ * Note for middleware.ts specifically: it imports these locale primitives
+ * from this file (the single registration source of truth), which also
+ * pulls in the full Tina GraphQL client and the React/JSX admin dashboard
+ * screens below into its edge Worker bundle — a real bundle-weight cost on
+ * a per-request hot path (Cloudflare Workers has a hard bundle-size limit),
+ * accepted deliberately in favor of one config file over splitting the
+ * registration across multiple files for a bundling optimization.
+ */
+export function localePath(locale: Locale, pathWithoutLocale: string): string {
+  return CMSMultilingual.localePath(locale, pathWithoutLocale);
+}
+
+// --- Collection registration (.claude/plans/01-collection.md). ---
 
 type BlogEdge = NonNullable<BlogConnectionQuery["blogConnection"]["edges"]>[number];
 export type BlogPostItem = NonNullable<NonNullable<BlogEdge>["node"]>;
@@ -154,14 +223,10 @@ export const taxonomyArchivePath = (
   termSlug: string
 ): string | null => CMSTaxonomy.getArchivePath({ collectionName, taxonomyName, lang: locale, termSlug });
 
-// --- Multilingual registration (.claude/plans/03-multilingual.md). Locale
-// routing/enable-disable itself (CMSMultilingual) is instantiated in
-// lib/i18n.ts, not here — see that file's comment for why (middleware.ts,
-// which needs it, runs on Cloudflare's edge Worker runtime and can't
-// afford this file's GraphQL client + admin dashboard bundle weight on a
-// per-request hot path). ---
+// --- Multilingual dictionary + dashboard registration
+// (.claude/plans/03-multilingual.md). ---
 
-export const CMSDictionary = new DictionaryService(
+export const CMSDictionary = new DictionaryService<Locale>(
   {
     fetchEntries: () =>
       client.queries.multilingual({ relativePath: "index.json" }).then(

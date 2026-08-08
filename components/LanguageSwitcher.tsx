@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { localeLabels, CMSMultilingual, type Locale } from "@/lib/i18n";
+import { localeLabels, CMSMultilingual, type Locale } from "@/lib/cms";
 import type { SwitcherConfigItem } from "@/cms/multilingual";
 
 export default function LanguageSwitcher({

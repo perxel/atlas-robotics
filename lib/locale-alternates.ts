@@ -1,4 +1,4 @@
-import { locales, localePath, stripLocalePrefix, type Locale } from "@/lib/i18n";
+import { locales, localePath, stripLocalePrefix, type Locale } from "@/lib/cms";
 import {
   collectionForSegment,
   translateCollectionPath,

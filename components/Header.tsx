@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { getNav, getSiteSettings } from "@/lib/tina-content";
-import { localePath, type Locale } from "@/lib/i18n";
-import { CMSDictionary, getMultilingualSettings } from "@/lib/cms";
+import { localePath, type Locale, CMSDictionary, getMultilingualSettings } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import LanguageSwitcher from "./LanguageSwitcher";

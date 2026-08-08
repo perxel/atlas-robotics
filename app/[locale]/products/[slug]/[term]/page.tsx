@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { defaultLocale, isLocale } from "@/lib/i18n";
+import { defaultLocale, isLocale } from "@/lib/cms";
 import { generateProductsArchiveMetadata, ProductsArchive } from "./archive";
 
 // Page 1 of a taxonomy archive (e.g. /products/category/automation);

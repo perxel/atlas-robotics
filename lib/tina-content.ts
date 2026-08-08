@@ -1,7 +1,6 @@
 import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
-import { locales, localePath, type Locale } from "@/lib/i18n";
-import { collectionPath, getBlogPosts, getProducts, CMSDictionary, type CollectionKey } from "@/lib/cms";
+import { locales, localePath, type Locale, collectionPath, getBlogPosts, getProducts, CMSDictionary, type CollectionKey } from "@/lib/cms";
 
 /** Directory-based localization: content/<collection>/<locale>/<file>. Exported for app/sitemap.ts. */
 export function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
