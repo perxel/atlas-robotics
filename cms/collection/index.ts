@@ -1,6 +1,7 @@
 export { CollectionService } from "./CollectionService";
 export { draftField } from "./draft.field";
 export { authorField } from "./author.field";
+export { excerptField } from "./excerpt.field";
 export { publishDateField } from "./publish-date.field";
 export { modifiedDateField } from "./modified-date.field";
 export { inLocale } from "./internal/in-locale";

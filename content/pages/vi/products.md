@@ -3,8 +3,9 @@ title: Sản Phẩm
 slug: products
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
-intro: Toàn bộ sản phẩm của Lorem ipsum, tại một nơi.
 blocks:
+  - _template: richText
+    body: Toàn bộ sản phẩm của Lorem ipsum, tại một nơi.
   - heading: Tất Cả Sản Phẩm
     mode: all
     _template: productListing

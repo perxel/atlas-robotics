@@ -44,11 +44,11 @@ export default function FeaturedBlogPosts({
               href={blogPath(`/${post.slug}`)}
               className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
             >
-              {post.coverImage && (
+              {post.seo?.ogImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={post.coverImage}
-                  alt={post.coverImageAlt || ""}
+                  src={post.seo.ogImage}
+                  alt={post.seo.ogImageAlt || post.title}
                   className="aspect-video w-full object-cover"
                 />
               )}

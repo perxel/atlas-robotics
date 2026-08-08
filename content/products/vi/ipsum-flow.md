@@ -4,8 +4,6 @@ slug: ipsum-flow
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Biến các quy trình nhiều bước thành một quy tắc bạn chỉ cần thiết lập một lần — phê duyệt, bàn giao và các tác vụ lặp lại từng chiếm cả buổi chiều của bạn.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Hình minh họa tự động hóa quy trình cho Ipsum Flow'
 price: '$29/tháng'
 highlights:
   - 'Trình xây dựng quy trình kéo-thả, không cần biết code'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Flow — Tự Động Hóa Quy Trình'
   metaDescription: 'Tự động hóa phê duyệt, bàn giao và các tác vụ lặp lại với Ipsum Flow, chỉ từ $29/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Hình minh họa tự động hóa quy trình cho Ipsum Flow'
 ---
 
 Hầu hết các nhóm đều mất hàng giờ mỗi tuần cho cùng một quy trình năm bước: ai đó điền biểu mẫu, người khác phê duyệt, người thứ ba nhận thông báo, và một bảng tính nào đó được cập nhật thủ công. **Ipsum Flow** biến toàn bộ chuỗi đó thành một quy tắc bạn chỉ cần thiết lập một lần.

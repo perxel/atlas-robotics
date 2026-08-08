@@ -2,8 +2,6 @@
 title: '5 Cách Tự Động Hóa Việc Vặt Của Nhóm Bạn'
 slug: automate-team-busywork
 draft: false
-coverImage: /uploads/blog-automate-busywork.jpg
-coverImageAlt: 'Hình minh họa trừu tượng về quy trình tự động hóa'
 author: 'Đội Ngũ Lorem ipsum'
 publishDate: '2026-06-02T00:00:00.000Z'
 excerpt: 'Năm chuỗi phê duyệt và bàn giao tốn thời gian nhất — và cách giao mỗi việc đó cho một quy tắc thay vì một con người.'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: '5 Cách Tự Động Hóa Việc Vặt Của Nhóm Bạn — Blog'
   metaDescription: 'Năm chuỗi phê duyệt và bàn giao tốn thời gian nhất, và cách tự động hóa từng việc.'
-  ogImage: ''
+  ogImage: /uploads/blog-automate-busywork.jpg
+  ogImageAlt: 'Hình minh họa trừu tượng về quy trình tự động hóa'
 ---
 
 Nếu bạn hỏi năm người trong nhóm điều gì tốn thời gian nhất trong một tuần bình thường, ít nhất ba người sẽ mô tả một phiên bản nào đó của cùng một việc: chờ phê duyệt, đôn đốc bàn giao, hoặc cập nhật thủ công một bảng theo dõi sau khi mọi thứ đã xong.

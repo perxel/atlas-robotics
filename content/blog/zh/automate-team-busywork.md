@@ -2,8 +2,6 @@
 title: '5 种方法自动化团队的琐碎工作'
 slug: automate-team-busywork
 draft: false
-coverImage: /uploads/blog-automate-busywork.jpg
-coverImageAlt: '象征自动化工作流的抽象插图'
 author: 'Lorem ipsum 团队'
 publishDate: '2026-06-02T00:00:00.000Z'
 excerpt: '最消耗时间的五种审批与交接流程——以及如何用规则而非人力来处理每一种。'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: '5 种方法自动化团队的琐碎工作 — 博客'
   metaDescription: '最消耗时间的五种审批与交接流程，以及如何将每一种自动化。'
-  ogImage: ''
+  ogImage: /uploads/blog-automate-busywork.jpg
+  ogImageAlt: '象征自动化工作流的抽象插图'
 ---
 
 如果你问团队里五个人，一周中最消耗时间的是什么，至少有三个人会描述出同一件事的不同版本：等待审批、追问交接进度，或事后手动更新跟踪表。

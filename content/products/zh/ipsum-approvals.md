@@ -4,8 +4,6 @@ slug: ipsum-approvals
 draft: false
 publishDate: '2026-08-08T00:00:00.000Z'
 excerpt: '多步骤审批无需再靠邮件催促——提醒会自动发送，直到有人处理为止。'
-coverImage: /uploads/product-ipsum-insights.jpg
-coverImageAlt: '象征 Ipsum Approvals 多步骤审批的抽象插图'
 price: '$19/月'
 highlights:
   - '支持顺序或并行审批链'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Approvals — 无需邮件催促的审批流程'
   metaDescription: '设置一次审批链，剩下的催促交给自动提醒完成，起价每月 $19。'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-insights.jpg
+  ogImageAlt: '象征 Ipsum Approvals 多步骤审批的抽象插图'
 ---
 
 一份躺在收件箱里的审批，就是一份会被遗忘的审批。**Ipsum Approvals** 把签核链变成一条规则，由提醒来替你催促。

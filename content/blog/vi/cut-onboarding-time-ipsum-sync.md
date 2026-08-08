@@ -2,8 +2,6 @@
 title: 'Cách Chúng Tôi Giảm 60% Thời Gian Hòa Nhập Với Ipsum Sync'
 slug: cut-onboarding-time-ipsum-sync
 draft: false
-coverImage: /uploads/blog-onboarding-time.jpg
-coverImageAlt: 'Hình minh họa trừu tượng về không gian làm việc chung của nhóm'
 author: 'Đội Ngũ Lorem ipsum'
 publishDate: '2026-07-22T00:00:00.000Z'
 excerpt: 'Chúng tôi chuyển quy trình hòa nhập nhân viên mới sang một không gian làm việc chung duy nhất và giảm thời gian bắt nhịp công việc từ mười ngày xuống còn bốn ngày. Đây là những gì đã thay đổi.'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: 'Cách Chúng Tôi Giảm 60% Thời Gian Hòa Nhập — Blog'
   metaDescription: 'Một không gian làm việc chung thay thế sáu tài liệu rải rác và một kênh Slack cho việc hòa nhập nhân viên mới — đây là những gì đã thay đổi và vì sao.'
-  ogImage: ''
+  ogImage: /uploads/blog-onboarding-time.jpg
+  ogImageAlt: 'Hình minh họa trừu tượng về không gian làm việc chung của nhóm'
 ---
 
 Sáu tháng trước, một nhân viên mới trong nhóm chúng tôi mất khoảng mười ngày làm việc để cảm thấy bắt nhịp được công việc. Không phải vì công việc khó — mà vì tìm nơi mọi thứ nằm còn tốn thời gian hơn cả làm việc đó.

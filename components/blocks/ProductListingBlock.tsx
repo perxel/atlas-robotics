@@ -88,11 +88,11 @@ export default function ProductListingBlock({
             className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             <Link href={productPath(`/${product.slug}`)}>
-              {product.coverImage && (
+              {product.seo?.ogImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={product.coverImage}
-                  alt={product.coverImageAlt || ""}
+                  src={product.seo.ogImage}
+                  alt={product.seo.ogImageAlt || product.title}
                   className="aspect-video w-full object-cover"
                 />
               )}

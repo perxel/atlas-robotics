@@ -4,8 +4,6 @@ slug: ipsum-sync
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'One shared workspace for your team and every tool you connect — fewer tabs, fewer status-update meetings.'
-coverImage: /uploads/product-ipsum-sync.jpg
-coverImageAlt: 'Abstract team collaboration visual for Ipsum Sync'
 price: '$19/mo'
 highlights:
   - 'Shared workspace with real-time presence'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Sync — Team Collaboration Hub'
   metaDescription: 'A shared workspace that keeps your team and your tools in sync, starting at $19/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-sync.jpg
+  ogImageAlt: 'Abstract team collaboration visual for Ipsum Sync'
 ---
 
 New hires at fast-growing teams spend their first weeks just figuring out where things live. **Ipsum Sync** gives everyone one shared workspace instead of a scavenger hunt across six different apps.

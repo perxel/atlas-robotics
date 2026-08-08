@@ -4,8 +4,6 @@ slug: ipsum-flow
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Turn multi-step busywork into a rule you set once — approvals, handoffs, and repetitive tasks that used to eat your afternoons.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Abstract workflow automation visual for Ipsum Flow'
 price: '$29/mo'
 highlights:
   - 'Drag-and-drop workflow builder, no code required'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Flow — Workflow Automation'
   metaDescription: 'Automate approvals, handoffs, and repetitive tasks with Ipsum Flow, starting at $29/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Abstract workflow automation visual for Ipsum Flow'
 ---
 
 Most teams lose hours a week to the same five-step process: someone fills out a form, someone else approves it, a third person gets notified, and a spreadsheet somewhere gets updated by hand. **Ipsum Flow** turns that whole chain into a rule you set up once.

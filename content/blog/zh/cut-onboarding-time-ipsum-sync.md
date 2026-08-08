@@ -2,8 +2,6 @@
 title: '我们如何借助 Ipsum Sync 将入职时间缩短 60%'
 slug: cut-onboarding-time-ipsum-sync
 draft: false
-coverImage: /uploads/blog-onboarding-time.jpg
-coverImageAlt: '象征共享团队工作区的抽象插图'
 author: 'Lorem ipsum 团队'
 publishDate: '2026-07-22T00:00:00.000Z'
 excerpt: '我们把新员工入职流程迁移到一个共享工作区，将上手时间从十天缩短到四天。以下是我们做出的改变。'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: '如何将入职时间缩短 60% — 博客'
   metaDescription: '一个共享工作区取代了六份分散的文档和一个 Slack 频道，用于新员工入职——以下是具体的改变与原因。'
-  ogImage: ''
+  ogImage: /uploads/blog-onboarding-time.jpg
+  ogImageAlt: '象征共享团队工作区的抽象插图'
 ---
 
 六个月前，我们团队的新员工大约需要十个工作日才能进入高效状态。原因不是工作本身有多难——而是找到东西所在的位置，比完成工作本身还要花时间。

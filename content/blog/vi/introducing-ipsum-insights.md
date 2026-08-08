@@ -2,8 +2,6 @@
 title: 'Ra Mắt Ipsum Insights: Phân Tích Thời Gian Thực Cho Mọi Nhóm'
 slug: introducing-ipsum-insights
 draft: false
-coverImage: /uploads/blog-ipsum-insights-launch.jpg
-coverImageAlt: 'Hình minh họa trừu tượng về bảng điều khiển phân tích trực tiếp'
 author: 'Đội Ngũ Lorem ipsum'
 publishDate: '2026-07-08T00:00:00.000Z'
 excerpt: 'Sản phẩm mới nhất của chúng tôi đã ra mắt: bảng điều khiển cập nhật theo dữ liệu thực tế, không phải mỗi tuần một lần khi có ai đó nhớ xuất báo cáo.'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: 'Ra Mắt Ipsum Insights — Blog'
   metaDescription: 'Ipsum Insights mang đến bảng điều khiển thời gian thực và báo cáo theo lịch cho mọi nhóm. Đây là những gì có trong bản phát hành đầu tiên.'
-  ogImage: ''
+  ogImage: /uploads/blog-ipsum-insights-launch.jpg
+  ogImageAlt: 'Hình minh họa trừu tượng về bảng điều khiển phân tích trực tiếp'
 ---
 
 Hôm nay chúng tôi ra mắt [Ipsum Insights](/vi/san-pham/ipsum-insights), câu trả lời của chúng tôi cho một câu hỏi mà rất nhiều khách hàng đặt ra sau khi dùng Ipsum Flow: "giờ quy trình đã tự vận hành, làm sao để chúng tôi thực sự thấy nó đang làm gì?"

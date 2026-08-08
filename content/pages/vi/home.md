@@ -4,7 +4,6 @@ slug: home
 draft: false
 publishDate: '2026-08-06T00:00:00.000Z'
 hideTitle: true
-intro: ''
 blocks:
   - slides:
       - heading: Làm nhiều hơn với ít việc vặt hơn

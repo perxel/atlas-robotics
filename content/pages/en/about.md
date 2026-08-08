@@ -3,17 +3,18 @@ title: About Lorem ipsum
 slug: about
 draft: false
 publishDate: '2026-08-06T00:00:00.000Z'
-intro: >-
-  Lorem ipsum started with a simple observation: most teams don't need more
-  software, they need the software they already have to talk to each other.
-  We build small, focused products — Ipsum Flow, Ipsum Insights, and Ipsum
-  Sync — that plug into the tools you use today and quietly take the
-  busywork off your plate.
-
-
-  We're a remote-first team of about thirty people, and we ship the same
-  products we use to run our own company.
 blocks:
+  - _template: richText
+    body: >-
+      Lorem ipsum started with a simple observation: most teams don't need more
+      software, they need the software they already have to talk to each other.
+      We build small, focused products — Ipsum Flow, Ipsum Insights, and Ipsum
+      Sync — that plug into the tools you use today and quietly take the
+      busywork off your plate.
+
+
+      We're a remote-first team of about thirty people, and we ship the same
+      products we use to run our own company.
   - heading: See the products
     buttonLabel: Explore our products
     buttonUrl: /products

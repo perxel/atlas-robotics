@@ -4,8 +4,6 @@ slug: ipsum-approvals
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Multi-step approvals without the email chase — reminders go out automatically until someone acts.'
-coverImage: /uploads/product-ipsum-insights.jpg
-coverImageAlt: 'Abstract multi-step approval visual for Ipsum Approvals'
 price: '$19/mo'
 highlights:
   - 'Sequential or parallel approval chains'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Approvals — Approvals Without the Email Chase'
   metaDescription: 'Set up an approval chain once and let reminders do the chasing, starting at $19/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-insights.jpg
+  ogImageAlt: 'Abstract multi-step approval visual for Ipsum Approvals'
 ---
 
 An approval that lives in someone's inbox is an approval that gets forgotten. **Ipsum Approvals** turns a sign-off chain into a rule, with reminders that do the chasing for you.

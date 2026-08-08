@@ -4,8 +4,6 @@ slug: ipsum-alerts
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Biết ngay khi có điều cần chú ý, với ngưỡng cảnh báo tùy chỉnh gửi qua Slack, email hoặc SMS.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Hình minh họa ngưỡng cảnh báo cho Ipsum Alerts'
 price: '$12/tháng'
 highlights:
   - 'Ngưỡng cảnh báo tùy chỉnh trên bất kỳ chỉ số nào'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Alerts — Cảnh Báo Ngưỡng Cho Mọi Chỉ Số'
   metaDescription: 'Thiết lập một ngưỡng cảnh báo một lần và được thông báo ngay khi nó bị vượt qua, chỉ từ $12/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Hình minh họa ngưỡng cảnh báo cho Ipsum Alerts'
 ---
 
 Bảng điều khiển chỉ hữu ích khi có người đang nhìn vào nó. **Ipsum Alerts** thay bạn theo dõi các chỉ số, và chỉ làm phiền bạn khi thực sự có điều cần chú ý.

@@ -2,8 +2,6 @@
 title: 'Introducing Ipsum Insights: Real-Time Analytics for Every Team'
 slug: introducing-ipsum-insights
 draft: false
-coverImage: /uploads/blog-ipsum-insights-launch.jpg
-coverImageAlt: 'Abstract illustration representing a live analytics dashboard'
 author: 'Lorem ipsum Team'
 publishDate: '2026-07-08T00:00:00.000Z'
 excerpt: 'Our newest product is live: dashboards that update as your data changes, not once a week when someone remembers to export it.'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: 'Introducing Ipsum Insights — Blog'
   metaDescription: 'Ipsum Insights brings real-time dashboards and scheduled reporting to every team. Here''s what''s in the first release.'
-  ogImage: ''
+  ogImage: /uploads/blog-ipsum-insights-launch.jpg
+  ogImageAlt: 'Abstract illustration representing a live analytics dashboard'
 ---
 
 Today we're launching [Ipsum Insights](/products/ipsum-insights), our answer to a question a lot of customers asked us after using Ipsum Flow: "now that the process runs itself, how do we actually see what it's doing?"

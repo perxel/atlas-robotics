@@ -2,8 +2,6 @@
 title: '推出 Ipsum Insights：为每个团队提供实时数据分析'
 slug: introducing-ipsum-insights
 draft: false
-coverImage: /uploads/blog-ipsum-insights-launch.jpg
-coverImageAlt: '象征实时数据分析仪表盘的抽象插图'
 author: 'Lorem ipsum 团队'
 publishDate: '2026-07-08T00:00:00.000Z'
 excerpt: '我们的最新产品正式上线：仪表盘会随数据变化实时更新，而不是每周等有人记得手动导出一次。'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: '推出 Ipsum Insights — 博客'
   metaDescription: 'Ipsum Insights 为每个团队带来实时仪表盘与定期报告。以下是首个版本的具体内容。'
-  ogImage: ''
+  ogImage: /uploads/blog-ipsum-insights-launch.jpg
+  ogImageAlt: '象征实时数据分析仪表盘的抽象插图'
 ---
 
 今天我们正式推出 [Ipsum Insights](/products/ipsum-insights)，这是我们对许多客户在使用 Ipsum Flow 之后提出的一个问题的回答："既然流程已经能自动运行，我们要怎么才能真正看到它在做什么？"

@@ -4,8 +4,6 @@ slug: ipsum-track
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Watch every automated step happen in real time, with alerts the moment a workflow stalls or fails.'
-coverImage: /uploads/product-ipsum-insights.jpg
-coverImageAlt: 'Abstract live event-stream visual for Ipsum Track'
 price: '$39/mo'
 highlights:
   - 'Real-time event stream from every connected tool'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Track — Live Workflow Monitoring'
   metaDescription: 'See every automated step as it happens and get alerted the moment something stalls, starting at $39/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-insights.jpg
+  ogImageAlt: 'Abstract live event-stream visual for Ipsum Track'
 ---
 
 Automation is only trustworthy if you can see it working. **Ipsum Track** turns every step Ipsum Flow runs into a live event you can watch, search, and get alerted on.

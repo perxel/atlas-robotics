@@ -4,8 +4,6 @@ slug: ipsum-forms
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Turn any form into a workflow trigger — submissions kick off an Ipsum Flow automation instead of landing in an inbox.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Abstract form-building visual for Ipsum Forms'
 price: '$19/mo'
 highlights:
   - 'Drag-and-drop form builder with conditional logic'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Forms — Forms That Trigger Workflows'
   metaDescription: 'Build forms that kick off automations the moment someone submits, starting at $19/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Abstract form-building visual for Ipsum Forms'
 ---
 
 A form that just emails you a submission is only half done. **Ipsum Forms** connects directly to Ipsum Flow, so a submission is the first step of a process, not the last.

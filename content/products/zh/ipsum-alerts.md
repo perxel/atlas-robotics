@@ -4,8 +4,6 @@ slug: ipsum-alerts
 draft: false
 publishDate: '2026-08-08T00:00:00.000Z'
 excerpt: '第一时间知道需要关注的问题，自定义阈值可发送至 Slack、邮箱或短信。'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: '象征 Ipsum Alerts 阈值告警的抽象插图'
 price: '$12/月'
 highlights:
   - '可为任意指标自定义阈值'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Alerts — 适用于任意指标的阈值告警'
   metaDescription: '设置一次阈值，一旦触发即刻收到通知，起价每月 $12。'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: '象征 Ipsum Alerts 阈值告警的抽象插图'
 ---
 
 仪表盘只有在有人盯着看时才有用。**Ipsum Alerts** 替你时刻关注这些指标，只有真正需要关注时才会打扰你。

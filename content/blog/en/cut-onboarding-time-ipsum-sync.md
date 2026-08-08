@@ -2,8 +2,6 @@
 title: 'How We Cut Onboarding Time by 60% With Ipsum Sync'
 slug: cut-onboarding-time-ipsum-sync
 draft: false
-coverImage: /uploads/blog-onboarding-time.jpg
-coverImageAlt: 'Abstract illustration representing a shared team workspace'
 author: 'Lorem ipsum Team'
 publishDate: '2026-07-22T00:00:00.000Z'
 excerpt: 'We moved our own new-hire onboarding into a single shared workspace and cut the time-to-productive from ten days to four. Here''s what changed.'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: 'How We Cut Onboarding Time by 60% — Blog'
   metaDescription: 'A shared workspace replaced six scattered docs and a Slack channel for new-hire onboarding — here''s what changed and why.'
-  ogImage: ''
+  ogImage: /uploads/blog-onboarding-time.jpg
+  ogImageAlt: 'Abstract illustration representing a shared team workspace'
 ---
 
 Six months ago, a new hire on our team took about ten working days to feel productive. Not because the work was hard — because finding where things lived took longer than doing them.

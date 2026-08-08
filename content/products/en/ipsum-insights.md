@@ -4,8 +4,6 @@ slug: ipsum-insights
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Real-time dashboards that pull from every tool your team already uses — no more end-of-week spreadsheet exports.'
-coverImage: /uploads/product-ipsum-insights.jpg
-coverImageAlt: 'Abstract analytics dashboard visual for Ipsum Insights'
 price: '$49/mo'
 highlights:
   - 'Live dashboards, no manual exports or refreshes'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Insights — Real-Time Analytics'
   metaDescription: 'Live dashboards and reporting for every team, starting at $49/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-insights.jpg
+  ogImageAlt: 'Abstract analytics dashboard visual for Ipsum Insights'
 ---
 
 **Ipsum Insights** replaces the end-of-week ritual of exporting spreadsheets from five different tools and stitching them into a deck. Connect your sources once, and every dashboard stays live.

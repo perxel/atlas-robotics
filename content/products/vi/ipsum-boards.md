@@ -4,8 +4,6 @@ slug: ipsum-boards
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Bảng kanban tự động kích hoạt bước tiếp theo — di chuyển một thẻ có thể chạy một quy trình Ipsum Flow.'
-coverImage: /uploads/product-ipsum-sync.jpg
-coverImageAlt: 'Hình minh họa bảng kanban cho Ipsum Boards'
 price: '$25/tháng'
 highlights:
   - 'Bảng kéo-thả cho bất kỳ quy trình nào'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Boards — Bảng Kết Nối Với Quy Trình Của Bạn'
   metaDescription: 'Bảng kanban tự động kích hoạt bước tiếp theo ngay khi thẻ được di chuyển, chỉ từ $25/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-sync.jpg
+  ogImageAlt: 'Hình minh họa bảng kanban cho Ipsum Boards'
 ---
 
 Một bảng chỉ theo dõi trạng thái vẫn cần ai đó nhận ra một thẻ đã di chuyển rồi tự tay xử lý tiếp. **Ipsum Boards** lấp khoảng trống đó bằng cách kết nối trực tiếp với Ipsum Flow.

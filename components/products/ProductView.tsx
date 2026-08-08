@@ -54,12 +54,12 @@ export default function ProductView({
   return (
     <>
       <article className="mx-auto max-w-3xl px-4 py-12">
-        {product.coverImage && (
+        {product.seo?.ogImage && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.coverImage}
-            alt={product.coverImageAlt || ""}
-            data-tina-field={tinaField(product, "coverImage")}
+            src={product.seo.ogImage}
+            alt={product.seo.ogImageAlt || product.title}
+            data-tina-field={tinaField(product.seo, "ogImage")}
             className="aspect-video w-full rounded-lg object-cover"
           />
         )}
@@ -147,11 +147,11 @@ export default function ProductView({
                 href={productsPath(`/${related.slug}`)}
                 className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
               >
-                {related.coverImage && (
+                {related.seo?.ogImage && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={related.coverImage}
-                    alt={related.coverImageAlt || ""}
+                    src={related.seo.ogImage}
+                    alt={related.seo.ogImageAlt || related.title}
                     className="aspect-video w-full object-cover"
                   />
                 )}

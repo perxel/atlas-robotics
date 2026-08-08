@@ -4,8 +4,6 @@ slug: ipsum-alerts
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Know the moment something needs attention, with custom thresholds delivered to Slack, email, or SMS.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Abstract alert-threshold visual for Ipsum Alerts'
 price: '$12/mo'
 highlights:
   - 'Custom thresholds on any metric'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Alerts — Threshold Alerts For Any Metric'
   metaDescription: 'Set a threshold once and get notified the moment it is crossed, starting at $12/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Abstract alert-threshold visual for Ipsum Alerts'
 ---
 
 Dashboards only help if someone is looking at them. **Ipsum Alerts** watches the metrics for you, and only interrupts you when something actually needs attention.

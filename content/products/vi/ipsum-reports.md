@@ -4,8 +4,6 @@ slug: ipsum-reports
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Báo cáo theo lịch tự xây dựng và tự gửi — không còn phải kéo lại cùng những con số bằng tay mỗi sáng thứ Hai.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Hình minh họa báo cáo theo lịch cho Ipsum Reports'
 price: '$29/tháng'
 highlights:
   - 'Trình xây dựng báo cáo kéo-thả, không cần SQL'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Reports — Báo Cáo Tự Gửi Đi'
   metaDescription: 'Xây dựng báo cáo một lần và để nó tự gửi đi theo lịch, chỉ từ $29/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Hình minh họa báo cáo theo lịch cho Ipsum Reports'
 ---
 
 Ở nhóm nào cũng có người dành giờ đầu tiên mỗi sáng thứ Hai để kéo lại cùng những con số vào cùng một bản trình chiếu. **Ipsum Reports** xây dựng báo cáo đó một lần rồi tự động gửi đi từ đó về sau.

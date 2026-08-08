@@ -2,8 +2,6 @@
 title: '5 Ways to Automate Your Team’s Busywork'
 slug: automate-team-busywork
 draft: false
-coverImage: /uploads/blog-automate-busywork.jpg
-coverImageAlt: 'Abstract illustration representing automated workflows'
 author: 'Lorem ipsum Team'
 publishDate: '2026-06-02T00:00:00.000Z'
 excerpt: 'The five approval-and-handoff chains that eat the most time — and how to hand each one off to a rule instead of a person.'
@@ -12,7 +10,8 @@ categories:
 seo:
   metaTitle: '5 Ways to Automate Your Team’s Busywork — Blog'
   metaDescription: 'The five approval-and-handoff chains that eat the most time, and how to automate each one.'
-  ogImage: ''
+  ogImage: /uploads/blog-automate-busywork.jpg
+  ogImageAlt: 'Abstract illustration representing automated workflows'
 ---
 
 If you asked five people on your team what eats the most time in a normal week, at least three of them would describe some version of the same thing: waiting on an approval, chasing a handoff, or updating a tracker by hand after the fact.

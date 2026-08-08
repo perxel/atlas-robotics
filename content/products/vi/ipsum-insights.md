@@ -4,8 +4,6 @@ slug: ipsum-insights
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Bảng điều khiển thời gian thực tổng hợp dữ liệu từ mọi công cụ nhóm bạn đang dùng — không còn cảnh xuất bảng tính vào cuối tuần.'
-coverImage: /uploads/product-ipsum-insights.jpg
-coverImageAlt: 'Hình minh họa bảng điều khiển phân tích cho Ipsum Insights'
 price: '$49/tháng'
 highlights:
   - 'Bảng điều khiển trực tiếp, không cần xuất hay làm mới thủ công'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Insights — Phân Tích Thời Gian Thực'
   metaDescription: 'Bảng điều khiển và báo cáo trực tiếp cho mọi nhóm, chỉ từ $49/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-insights.jpg
+  ogImageAlt: 'Hình minh họa bảng điều khiển phân tích cho Ipsum Insights'
 ---
 
 **Ipsum Insights** thay thế nghi thức cuối tuần xuất bảng tính từ năm công cụ khác nhau rồi ghép lại thành một bản trình bày. Kết nối nguồn dữ liệu một lần, mọi bảng điều khiển sẽ luôn cập nhật.

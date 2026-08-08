@@ -33,7 +33,6 @@ export async function generateMetadata({
     seo: post?.seo,
     fallbackTitle: post?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,
     fallbackDescription: post?.excerpt,
-    fallbackOgImage: post?.coverImage,
   });
 }
 

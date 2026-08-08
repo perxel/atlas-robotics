@@ -4,8 +4,6 @@ slug: ipsum-chat
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Team chat that stays connected to your actual work, instead of living in a separate app nobody checks.'
-coverImage: /uploads/product-ipsum-sync.jpg
-coverImageAlt: 'Abstract team chat visual for Ipsum Chat'
 price: '$15/mo'
 highlights:
   - 'Threaded channels tied to projects and documents'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Chat — Team Chat Built Around Your Work'
   metaDescription: 'Chat that stays attached to the projects and documents it belongs to, starting at $15/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-sync.jpg
+  ogImageAlt: 'Abstract team chat visual for Ipsum Chat'
 ---
 
 Most chat apps end up as a second copy of everything — the doc lives one place, the conversation about it lives somewhere else. **Ipsum Chat** keeps the two attached.

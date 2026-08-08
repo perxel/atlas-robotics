@@ -4,8 +4,6 @@ slug: ipsum-sync
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Một không gian làm việc chung cho cả nhóm và mọi công cụ bạn kết nối — ít tab hơn, ít cuộc họp cập nhật tình trạng hơn.'
-coverImage: /uploads/product-ipsum-sync.jpg
-coverImageAlt: 'Hình minh họa cộng tác nhóm cho Ipsum Sync'
 price: '$19/tháng'
 highlights:
   - 'Không gian làm việc chung, hiển thị trạng thái theo thời gian thực'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Sync — Trung Tâm Cộng Tác Nhóm'
   metaDescription: 'Không gian làm việc chung giúp nhóm và công cụ của bạn luôn đồng bộ, chỉ từ $19/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-sync.jpg
+  ogImageAlt: 'Hình minh họa cộng tác nhóm cho Ipsum Sync'
 ---
 
 Nhân viên mới ở các nhóm tăng trưởng nhanh thường mất vài tuần đầu chỉ để tìm hiểu mọi thứ nằm ở đâu. **Ipsum Sync** mang đến một không gian làm việc chung duy nhất thay vì một cuộc truy lùng qua sáu ứng dụng khác nhau.

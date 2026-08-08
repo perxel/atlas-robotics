@@ -4,8 +4,6 @@ slug: ipsum-boards
 draft: false
 publishDate: '2026-08-08T00:00:00.000Z'
 excerpt: '看板能自动触发下一步——移动一张卡片即可启动一条 Ipsum Flow 自动化流程。'
-coverImage: /uploads/product-ipsum-sync.jpg
-coverImageAlt: '象征 Ipsum Boards 看板的抽象插图'
 price: '$25/月'
 highlights:
   - '适用于任意流程的拖拽式看板'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Boards — 与工作流直连的看板'
   metaDescription: '看板能在卡片移动的瞬间触发下一步，起价每月 $25。'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-sync.jpg
+  ogImageAlt: '象征 Ipsum Boards 看板的抽象插图'
 ---
 
 一块只用来追踪状态的看板，仍然需要有人注意到卡片移动并采取行动。**Ipsum Boards** 通过直接连接 Ipsum Flow 来弥补这一差距。

@@ -1,6 +1,6 @@
 import type {Collection, Template, TinaField} from "tinacms";
 import {slugField, slugLifecycleGuard} from "./slug";
-import {authorField, draftField, modifiedDateField, publishDateField} from "./collection";
+import {authorField, draftField, excerptField, modifiedDateField, publishDateField} from "./collection";
 import {seoField} from "./seo";
 import {type BeforeSubmitHook, composeBeforeSubmit, stampModifiedDate} from "./tina-hooks";
 
@@ -12,14 +12,41 @@ export type ContentCollectionConfig<TLocale extends string> = {
     /** Defaults to `content/${name}`. */
     path?: string;
     hasAuthor?: boolean;
+    /** Short teaser field, shared across collections rather than each
+     * hand-rolling its own — see `cms/collection/excerpt.field.ts` for why
+     * it's kept separate from `seo.metaDescription` rather than merged
+     * into it the way `coverImage` was merged into `seo.ogImage`. Off by
+     * default: only worth it for a collection with actual card/listing UI
+     * to show it in (`blog`/`products`); a collection with no such
+     * listing (`pages`) would just get an unused field. */
+    hasExcerpt?: boolean;
     body: ContentCollectionBody;
     /** Pre-built `taxonomyField({ taxonomy, label })` calls — this factory
      * doesn't know about a project's registered taxonomies. */
     taxonomyFields?: TinaField[];
-    /** Collection-specific fields (coverImage, price, excerpt, a pages-only
-     * `hideTitle`/`intro`, ...) — inserted after draft/author, before the
-     * standard publishDate/modifiedDate pair. */
+    /**
+     * Explicit position slots instead of one catch-all field bucket — so a
+     * schema file states *where* a custom field belongs instead of it
+     * landing wherever it was pushed into an array. All three are plain
+     * `TinaField[]`; a collection with enough of its own fields to want a
+     * visually distinct section can nest them under its own
+     * `{ type: "object", ... }` field in any of these — this factory
+     * doesn't need to know, since only that collection's own frontend code
+     * reads them (unlike draft/publishDate/author/excerpt/taxonomy, which
+     * `cms/collection`/`cms/taxonomy`/`cms/tina-hooks` read by a fixed flat
+     * key — nesting *those* would mean teaching that framework code to
+     * follow paths instead of flat keys, for a form-layout nicety).
+     *
+     * - `topFields`: right after slug — for a collection's one or two most
+     *   important custom fields, e.g. a product's `price`.
+     * - `extraFields`: in the standard sequence, after excerpt and before
+     *   taxonomy — secondary custom fields, e.g. a product's `highlights`.
+     * - `bottomFields`: after the body/blocks field, for anything that
+     *   only makes sense once the main content is already in view.
+     */
+    topFields?: TinaField[];
     extraFields?: TinaField[];
+    bottomFields?: TinaField[];
     reserved?: Set<string>;
     lockedFilenames?: Set<string>;
     allowedActions?: { create?: boolean; delete?: boolean };
@@ -59,13 +86,13 @@ export type ContentCollectionConfig<TLocale extends string> = {
 
 /**
  * The "content collection" primitive this boilerplate is built around: a
- * WordPress-post-shaped Tina collection (title, slug, draft, optional
- * author, publishDate, auto-stamped modifiedDate, optional taxonomies, a
- * rich-text body or a page-builder `blocks` list, SEO) with the router +
- * beforeSubmit wiring every such collection needs, wired once instead of
- * hand-copied per collection. `blog`/`products`/`pages` are each one call
- * to this in their own `tina/collections/<name>.schema.tsx` file — see
- * those for the concrete per-collection config.
+ * WordPress-post-shaped Tina collection (title, slug, draft, publishDate,
+ * auto-stamped modifiedDate, optional author, optional excerpt, optional
+ * taxonomies, a rich-text body or a page-builder `blocks` list, SEO) with
+ * the router + beforeSubmit wiring every such collection needs, wired once
+ * instead of hand-copied per collection. `blog`/`products`/`pages` are
+ * each one call to this in their own `tina/collections/<name>.schema.tsx`
+ * file — see those for the concrete per-collection config.
  *
  * Takes `locales`/`defaultLocale` directly (rather than requiring every
  * caller to build a `getUrl` from a live `CollectionService` instance) so
@@ -141,17 +168,29 @@ export function defineContentCollection<TLocale extends string>(config: ContentC
                 ...(config.extraBeforeSubmitHooks ?? []),
             ]),
         },
+        // Deliberately ordered, not just concatenated: identity fields
+        // first, this collection's own headline field(s) next, then the
+        // standard settings every content collection shares, then this
+        // collection's secondary fields and taxonomy, then SEO, and the
+        // main content editing surface (body/blocks) last — so an editor
+        // confirms all the metadata before landing in the longest part of
+        // the form, not the reverse. See `topFields`/`extraFields`/
+        // `bottomFields`'s own comment for the reasoning behind naming
+        // slots instead of one array.
         fields: [
             {type: "string", name: "title", label: "Title", required: true},
             slugField({reserved: config.reserved}),
+            ...(config.topFields ?? []),
             draftField(),
-            ...(config.hasAuthor ? [authorField()] : []),
-            ...(config.extraFields ?? []),
             publishDateField(),
             modifiedDateField(),
+            ...(config.hasAuthor ? [authorField()] : []),
+            ...(config.hasExcerpt ? [excerptField()] : []),
+            ...(config.extraFields ?? []),
             ...(config.taxonomyFields ?? []),
-            bodyField,
             seoField(),
+            bodyField,
+            ...(config.bottomFields ?? []),
         ],
     };
 

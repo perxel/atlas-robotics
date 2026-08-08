@@ -4,8 +4,6 @@ slug: ipsum-boards
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Kanban boards that trigger the next step automatically — moving a card can kick off an Ipsum Flow automation.'
-coverImage: /uploads/product-ipsum-sync.jpg
-coverImageAlt: 'Abstract kanban board visual for Ipsum Boards'
 price: '$25/mo'
 highlights:
   - 'Drag-and-drop boards for any process'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Boards — Boards Connected To Your Workflows'
   metaDescription: 'Kanban boards that trigger the next step the moment a card moves, starting at $25/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-sync.jpg
+  ogImageAlt: 'Abstract kanban board visual for Ipsum Boards'
 ---
 
 A board that just tracks status still needs someone to notice a card moved and do something about it. **Ipsum Boards** closes that gap by connecting directly to Ipsum Flow.

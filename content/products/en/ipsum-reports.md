@@ -4,8 +4,6 @@ slug: ipsum-reports
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Scheduled reports that build and send themselves — no more pulling the same numbers by hand every Monday.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Abstract scheduled-report visual for Ipsum Reports'
 price: '$29/mo'
 highlights:
   - 'Drag-and-drop report builder, no SQL required'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Reports — Reports That Send Themselves'
   metaDescription: 'Build a report once and let it deliver itself on schedule, starting at $29/mo.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Abstract scheduled-report visual for Ipsum Reports'
 ---
 
 Somebody on every team spends the first hour of Monday pulling the same numbers into the same slide deck. **Ipsum Reports** builds that report once and delivers it automatically from then on.

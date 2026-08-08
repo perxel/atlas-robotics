@@ -4,8 +4,6 @@ slug: ipsum-track
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Theo dõi từng bước tự động hóa theo thời gian thực, với cảnh báo ngay khi một quy trình bị kẹt hoặc lỗi.'
-coverImage: /uploads/product-ipsum-insights.jpg
-coverImageAlt: 'Hình minh họa luồng sự kiện trực tiếp cho Ipsum Track'
 price: '$39/tháng'
 highlights:
   - 'Luồng sự kiện thời gian thực từ mọi công cụ đã kết nối'
@@ -17,7 +15,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Track — Giám Sát Quy Trình Trực Tiếp'
   metaDescription: 'Xem từng bước tự động hóa diễn ra theo thời gian thực và được cảnh báo ngay khi có sự cố, chỉ từ $39/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-insights.jpg
+  ogImageAlt: 'Hình minh họa luồng sự kiện trực tiếp cho Ipsum Track'
 ---
 
 Tự động hóa chỉ đáng tin khi bạn có thể thấy nó đang hoạt động. **Ipsum Track** biến mỗi bước mà Ipsum Flow thực hiện thành một sự kiện trực tiếp mà bạn có thể theo dõi, tìm kiếm và nhận cảnh báo.

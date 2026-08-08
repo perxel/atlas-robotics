@@ -4,8 +4,6 @@ slug: ipsum-forms
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Biến bất kỳ biểu mẫu nào thành yếu tố kích hoạt quy trình — mỗi lượt gửi sẽ chạy một quy trình Ipsum Flow thay vì chỉ nằm im trong hộp thư.'
-coverImage: /uploads/product-ipsum-flow.jpg
-coverImageAlt: 'Hình minh họa xây dựng biểu mẫu cho Ipsum Forms'
 price: '$19/tháng'
 highlights:
   - 'Trình xây dựng biểu mẫu kéo-thả với logic điều kiện'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Forms — Biểu Mẫu Kích Hoạt Quy Trình'
   metaDescription: 'Xây dựng biểu mẫu tự động kích hoạt quy trình ngay khi có người gửi, chỉ từ $19/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-flow.jpg
+  ogImageAlt: 'Hình minh họa xây dựng biểu mẫu cho Ipsum Forms'
 ---
 
 Một biểu mẫu chỉ gửi email thông báo cho bạn thì mới hoàn thành một nửa công việc. **Ipsum Forms** kết nối trực tiếp với Ipsum Flow, để mỗi lượt gửi là bước đầu tiên của một quy trình, chứ không phải điểm dừng cuối cùng.

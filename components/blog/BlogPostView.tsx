@@ -47,12 +47,12 @@ export default function BlogPostView({
   return (
     <>
       <article className="mx-auto max-w-3xl px-4 py-12">
-        {post.coverImage && (
+        {post.seo?.ogImage && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={post.coverImage}
-            alt={post.coverImageAlt || ""}
-            data-tina-field={tinaField(post, "coverImage")}
+            src={post.seo.ogImage}
+            alt={post.seo.ogImageAlt || post.title}
+            data-tina-field={tinaField(post.seo, "ogImage")}
             className="aspect-video w-full rounded-lg object-cover"
           />
         )}
@@ -113,11 +113,11 @@ export default function BlogPostView({
                 href={blogPath(`/${related.slug}`)}
                 className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
               >
-                {related.coverImage && (
+                {related.seo?.ogImage && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={related.coverImage}
-                    alt={related.coverImageAlt || ""}
+                    src={related.seo.ogImage}
+                    alt={related.seo.ogImageAlt || related.title}
                     className="aspect-video w-full object-cover"
                   />
                 )}

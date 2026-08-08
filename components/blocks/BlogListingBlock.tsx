@@ -48,11 +48,11 @@ export default function BlogListingBlock({
             className="overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             <Link href={blogPath(`/${post.slug}`)}>
-              {post.coverImage && (
+              {post.seo?.ogImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={post.coverImage}
-                  alt={post.coverImageAlt || ""}
+                  src={post.seo.ogImage}
+                  alt={post.seo.ogImageAlt || post.title}
                   className="aspect-video w-full object-cover"
                 />
               )}

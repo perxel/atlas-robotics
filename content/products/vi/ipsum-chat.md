@@ -4,8 +4,6 @@ slug: ipsum-chat
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Trò chuyện nhóm luôn gắn liền với công việc thực tế, thay vì nằm trong một ứng dụng riêng chẳng ai mở lên xem.'
-coverImage: /uploads/product-ipsum-sync.jpg
-coverImageAlt: 'Hình minh họa trò chuyện nhóm cho Ipsum Chat'
 price: '$15/tháng'
 highlights:
   - 'Kênh theo luồng gắn liền với dự án và tài liệu'
@@ -16,7 +14,8 @@ productCategories:
 seo:
   metaTitle: 'Ipsum Chat — Trò Chuyện Nhóm Gắn Liền Công Việc'
   metaDescription: 'Trò chuyện luôn gắn liền với dự án và tài liệu mà nó thuộc về, chỉ từ $15/tháng.'
-  ogImage: ''
+  ogImage: /uploads/product-ipsum-sync.jpg
+  ogImageAlt: 'Hình minh họa trò chuyện nhóm cho Ipsum Chat'
 ---
 
 Hầu hết các ứng dụng chat cuối cùng đều trở thành một bản sao thứ hai của mọi thứ — tài liệu nằm một nơi, cuộc trò chuyện về nó lại nằm một nơi khác. **Ipsum Chat** giữ cho hai thứ này luôn gắn liền với nhau.

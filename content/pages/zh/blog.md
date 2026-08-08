@@ -3,7 +3,6 @@ title: 博客
 slug: blog
 draft: false
 publishDate: '2026-08-08T00:00:00.000Z'
-intro: ''
 blocks:
   - _template: blogListing
 seo:
