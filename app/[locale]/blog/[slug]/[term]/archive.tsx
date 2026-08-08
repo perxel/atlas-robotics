@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { translateText } from "@/cms/multilingual";
-import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 import {
@@ -15,6 +14,7 @@ import {
   CMSMultilingual,
   type BlogPostItem,
   getSiteSettings,
+  resolveLocaleAlternates,
 } from "@/lib/cms";
 
 /**

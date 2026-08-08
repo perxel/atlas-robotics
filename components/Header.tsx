@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { type Locale, CMSDictionary, getMultilingualSettings, CMSMultilingual, getNav, getSiteSettings } from "@/lib/cms";
+import {
+  type Locale,
+  CMSDictionary,
+  getMultilingualSettings,
+  CMSMultilingual,
+  getNav,
+  getSiteSettings,
+  resolveLocaleAlternates,
+} from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
-import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default async function Header({ locale }: { locale: Locale }) {

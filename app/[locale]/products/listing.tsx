@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { CMSMultilingual, type Locale, CMSCollection, CMSDictionary, CMSSeo, getPageQuery, getSiteSettings } from "@/lib/cms";
-import { resolveLocaleAlternates } from "@/lib/locale-alternates";
-import { getPageBlockData } from "@/lib/tina-content";
+import {
+  CMSMultilingual,
+  type Locale,
+  CMSCollection,
+  CMSDictionary,
+  CMSSeo,
+  getPageQuery,
+  getSiteSettings,
+  resolveLocaleAlternates,
+  getPageBlockData,
+} from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";

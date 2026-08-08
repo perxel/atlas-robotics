@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, CMSDictionary, CMSSeo, CMSMultilingual, getPageQuery, getSiteSettings } from "@/lib/cms";
-import { resolveLocaleAlternates } from "@/lib/locale-alternates";
-import { getPageBlockData } from "@/lib/tina-content";
+import {
+  defaultLocale,
+  CMSDictionary,
+  CMSSeo,
+  CMSMultilingual,
+  getPageQuery,
+  getSiteSettings,
+  resolveLocaleAlternates,
+  getPageBlockData,
+} from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import PageView from "@/components/pages/PageView";
 

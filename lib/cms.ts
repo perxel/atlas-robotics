@@ -11,6 +11,7 @@ import {
 import { SeoService, SeoDashboardService, createSeoDashboardScreen } from "@/cms/seo";
 import { SingletonService } from "@/cms/singleton";
 import { PagesService } from "@/cms/pages";
+import { LocaleAlternatesService } from "@/cms/locale-alternates";
 
 /**
  * Project registration for the cms/ framework — the one file a future
@@ -208,6 +209,62 @@ export const getPageAlternates = (filename: string) => CMSPages.getAlternates(fi
 export const getCollectionListingAlternates = (collection: CollectionKey, filename: string) =>
   CMSPages.getListingAlternates({ collectionName: collection, filename });
 
+/**
+ * Pages listed here render as a fixed layout (title + intro only), ignoring
+ * whatever sections editors have added in the admin. The `pages` collection
+ * schema always supports block editing (tina/collections/pages.schema.tsx)
+ * — this is a developer-only, per-page override in code, not something
+ * editors can toggle themselves.
+ */
+export const blocksDisabledSlugs = new Set<string>([
+  // "home",
+]);
+
+export function isBlocksEnabled(slug: string): boolean {
+  return !blocksDisabledSlugs.has(slug);
+}
+
+/**
+ * The `pages` collection resolves at the root of each locale (e.g. `/about`,
+ * see app/[locale]/[slug]/page.tsx), so a page can't reuse a slug that a
+ * dedicated route already owns — Next.js would resolve to the dedicated
+ * route silently (literal segments win over the dynamic sibling), leaving
+ * the page unreachable rather than erroring. Enforced in the Tina schema
+ * itself via the `slug` field's `ui.validate` (tina/collections/pages.schema.tsx).
+ *
+ * Note `blog`/`products` (and their vi spellings) are deliberately NOT
+ * reserved here, even though they're dedicated routes — those two are
+ * exactly the slugs the locked listing-page documents legitimately use
+ * (see `lockedSlugFilenames` below), the same reasoning `home` already
+ * gets: a reservation would block the very document that's supposed to
+ * hold that slug from ever being saved through the admin.
+ */
+export const reservedSlugs = new Set<string>(["admin", "api"]);
+
+/**
+ * `pages` documents whose `slug` field is locked — checked by
+ * `slugLifecycleGuard` (cms/slug/slug-lifecycle-guard.ts), matched by
+ * filename (`form.path`'s basename), not by current slug value.
+ *
+ * `home` and every registered collection's `listingPageFilename` end up
+ * here. These documents' slugs aren't really a public URL choice: `home`
+ * is resolved by the hardcoded key "home" (app/[locale]/page.tsx), and a
+ * collection's listing page's real URL segment is owned by
+ * `collectionRegistry` above, not by this document's slug field — letting
+ * an editor "change" a slug that doesn't actually move anything would be
+ * actively misleading, so it's blocked outright instead.
+ *
+ * Also don't delete these documents — nothing currently enforces that
+ * (see CLAUDE.md); Tina has no per-document delete-protection hook the way
+ * it has `beforeSubmit` for saves, and building around that would mean
+ * fighting Tina rather than extending it, so this is a documented
+ * convention, not a hard guarantee.
+ */
+export const lockedSlugFilenames = new Set<string>([
+  "home",
+  ...CMSCollection.getRegisteredCollectionNames().map((name) => CMSCollection.getListingPageFilename(name)),
+]);
+
 // --- Taxonomy registration (.claude/plans/02-taxonomy.md) — depends on
 // CMSCollection via "Option A" injection: TaxonomyService is handed the
 // specific CollectionService methods it needs, never the whole instance. ---
@@ -251,6 +308,47 @@ export const getProductCategories = (locale: Locale) =>
 
 // Call sites use CMSTaxonomy.getArchivePath directly — no wrapper here.
 
+// --- Locale-alternates registration — depends on CMSMultilingual/
+// CMSCollection/CMSTaxonomy/CMSPages via "Option A" injection, same pattern
+// as CMSTaxonomy above. ---
+
+export const CMSLocaleAlternates = new LocaleAlternatesService<CollectionKey, TaxonomyKey, Locale>(
+  {
+    stripLocalePrefix: CMSMultilingual.stripLocalePrefix.bind(CMSMultilingual),
+    localePath: CMSMultilingual.localePath.bind(CMSMultilingual),
+    getCollectionForSegment: CMSCollection.getCollectionForSegment.bind(CMSCollection),
+    getCollectionPath: CMSCollection.getCollectionPath.bind(CMSCollection),
+    translateCollectionPath: CMSCollection.translateCollectionPath.bind(CMSCollection),
+    getCollectionAlternates: CMSCollection.getCollectionAlternates.bind(CMSCollection),
+    getListingPageFilename: CMSCollection.getListingPageFilename.bind(CMSCollection),
+    resolveTaxonomyUrlSegment: CMSTaxonomy.resolveUrlSegment.bind(CMSTaxonomy),
+    getTermAlternates: CMSTaxonomy.getTermAlternates.bind(CMSTaxonomy),
+    getTaxonomyUrlSegment: CMSTaxonomy.getUrlSegment.bind(CMSTaxonomy),
+    getPageFilenameBySlug: async (args) => {
+      const result = await getPageQuery(args.lang ?? defaultLocale, args.slug);
+      const relativePath = result?.data.pages?._sys.relativePath;
+      return relativePath ? (relativePath.split("/").pop()?.replace(/\.md$/, "") ?? null) : null;
+    },
+    getPageAlternates,
+    getListingAlternates: (args) => getCollectionListingAlternates(args.collectionName, args.filename),
+  },
+  { locales }
+);
+
+/**
+ * Given the current locale and pathname (locale-prefixed), resolves the
+ * correct URL for every locale that has one. Single source of truth for
+ * "what's the equivalent of this page in another locale" — used by both
+ * hreflang/canonical (CMSSeo.buildAlternates below) and the language
+ * switcher (Header.tsx). See LocaleAlternatesService's own doc comment for
+ * how each route shape is resolved.
+ *
+ * Not wrapped in React's `cache()` — same reasoning as collectionRegistry
+ * above — so calling this once from `generateMetadata` and again from
+ * `Header` within the same request costs one fetch each, not a shared one.
+ */
+export const resolveLocaleAlternates = (locale: Locale, pathname: string) => CMSLocaleAlternates.resolve(locale, pathname);
+
 // --- Multilingual dictionary + dashboard registration
 // (.claude/plans/03-multilingual.md). ---
 
@@ -273,6 +371,41 @@ export const CMSDictionary = new DictionaryService<Locale>(
 // `config` argument at the call site (Header.tsx).
 export const getMultilingualSettings = () =>
   client.queries.multilingual({ relativePath: "index.json" }).then((r) => r.data.multilingual);
+
+/**
+ * Extra data some `pages` blocks need but don't carry themselves — fetched
+ * only when a page actually uses that block, and shared between every
+ * route that renders `pages` blocks (home, generic [slug], and the
+ * blog/products listing pages) so the conditional-fetch logic lives in one
+ * place instead of being duplicated across all of them.
+ *
+ * Project-specific glue, not generic `cms/` framework logic: it hardcodes
+ * this project's own block typenames (PagesBlocksFeaturedBlogPosts, etc.,
+ * from tina/collections/pages.schema.tsx's `pageBlocks`), which a
+ * different project's block set would differ on — kept here rather than in
+ * `cms/` since `cms/` itself never hardcodes this project's content.
+ */
+export async function getPageBlockData(
+  locale: Locale,
+  blocks: Array<{ __typename?: string | null } | null> | null | undefined
+) {
+  const typenames = new Set((blocks ?? []).map((b) => b?.__typename));
+  const needsPosts =
+    typenames.has("PagesBlocksFeaturedBlogPosts") || typenames.has("PagesBlocksBlogListing");
+  const needsProducts = typenames.has("PagesBlocksProductListing");
+
+  // Fetched unconditionally (unlike posts/products above): almost any block
+  // — and PageView itself, for its breadcrumb — needs at least one
+  // translated UI-chrome string, and it's one cheap single-document fetch
+  // rather than worth conditioning on block typenames too.
+  const [latestPosts, products, uiDictionary] = await Promise.all([
+    needsPosts ? getBlogPosts(locale) : Promise.resolve([]),
+    needsProducts ? getProducts(locale) : Promise.resolve([]),
+    CMSDictionary.loadMap(locale),
+  ]);
+
+  return { latestPosts, products, uiDictionary };
+}
 
 // Only registered when multilingual is actually on — a single-locale
 // project has nothing to show a translation-coverage dashboard for.

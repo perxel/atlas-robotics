@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type ProductItem, CMSMultilingual, getSiteSettings, getPageAlternates } from "@/lib/cms";
+import { defaultLocale, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type ProductItem, CMSMultilingual, getSiteSettings, getPageAlternates, resolveLocaleAlternates } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
-import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import ProductView from "@/components/products/ProductView";
 
 export async function generateMetadata({
