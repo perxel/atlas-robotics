@@ -4,7 +4,7 @@ import {draftField} from "@/cms/collection";
 import {composeBeforeSubmit} from "@/cms/tina-hooks";
 import {seoField} from "@/cms/seo";
 import {taxonomyField} from "./shared-fields/taxonomy.schema";
-import {CMSCollection, type Locale} from "@/lib/cms";
+import {CMSCollection, type Locale} from "@/lib/cms-server";
 
 export const blogCollection: Collection = {
     name: "blog",
@@ -24,7 +24,7 @@ export const blogCollection: Collection = {
         // filename, this link can point at the wrong preview URL — the
         // actual page route is unaffected, since rendering resolves the
         // `slug` field via a GraphQL query (lib/tina-content.ts), not this.
-        // Uses CMSCollection.getCollectionPath (lib/cms.ts), not a literal
+        // Uses CMSCollection.getCollectionPath (lib/cms-server.ts), not a literal
         // "/blog" — this used to hardcode the English segment, which broke the
         // vi preview link once "blog" got a translated URL ("tin-tuc").
         router: ({document}) => {

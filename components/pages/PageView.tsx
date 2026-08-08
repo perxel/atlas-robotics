@@ -3,9 +3,8 @@
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types";
-import type { Locale, BlogPostItem, ProductItem } from "@/lib/cms";
-import { CMSMultilingual } from "@/lib/locale";
-import { blocksDisabledSlugs } from "@/lib/collection-paths";
+import type { Locale, BlogPostItem, ProductItem } from "@/lib/cms-server";
+import { CMSMultilingual, blocksDisabledSlugs } from "@/lib/registry";
 import { siteUrl } from "@/cms/seo";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";

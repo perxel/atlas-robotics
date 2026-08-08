@@ -3,7 +3,7 @@ import type { SeoFields } from "./types";
 
 /**
  * `buildMetadata`/`buildAlternates`, ported from the project's old
- * project's old lib/seo.ts (now removed — see lib/cms.ts's CMSSeo) to a
+ * project's old lib/seo.ts (now removed — see lib/cms-server.ts's CMSSeo) to a
  * class. See .claude/plans/04-seo.md.
  */
 export class SeoService<TLocale extends string> {

@@ -12,7 +12,8 @@ import { featuredBlogPostsTemplate } from "@/components/blocks/FeaturedBlogPosts
 import { contactFormTemplate } from "@/components/blocks/ContactFormBlock.template";
 import { blogListingTemplate } from "@/components/blocks/BlogListingBlock.template";
 import { productListingTemplate } from "@/components/blocks/ProductListingBlock.template";
-import { type Locale, CMSCollection, reservedSlugs, lockedSlugFilenames } from "@/lib/cms";
+import { CMSCollection } from "@/lib/cms-server";
+import { type Locale, reservedSlugs, lockedSlugFilenames } from "@/lib/registry";
 
 // Block set for the `pages` collection's block-based editing.
 // https://tina.io/docs/editing/blocks
@@ -49,7 +50,7 @@ export const pagesCollection: Collection = {
     // filename (_sys.breadcrumbs), not the `slug` field — `document` in
     // this callback only reliably carries `_sys` (confirmed live: reading
     // `document.slug` here produced a broken preview URL). Delegates to
-    // CMSCollection.resolvePagesDocumentUrl (lib/cms.ts), passing `filename`
+    // CMSCollection.resolvePagesDocumentUrl (lib/cms-server.ts), passing `filename`
     // as a stand-in for `slug` since the real field isn't available here —
     // only correct when filename === slug, same limitation as before; that
     // helper's `home`/listing-page special cases don't depend on it, only

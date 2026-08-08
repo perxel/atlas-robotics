@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type BlogPostItem, CMSMultilingual, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms";
+import { getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type BlogPostItem, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms-server";
+import { defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import BlogPostView from "@/components/blog/BlogPostView";
 

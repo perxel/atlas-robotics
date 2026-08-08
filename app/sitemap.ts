@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { CMSMultilingual, CMSCollection } from "@/lib/cms";
+import { CMSCollection } from "@/lib/cms-server";
+import { CMSMultilingual } from "@/lib/registry";
 import { siteUrl } from "@/cms/seo";
 import { inLocale } from "@/cms/collection";
 import { client } from "@/tina/__generated__/client";

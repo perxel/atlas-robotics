@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, CMSPages, type ProductItem, CMSMultilingual, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms";
+import { getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, CMSPages, type ProductItem, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms-server";
+import { defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import ProductView from "@/components/products/ProductView";
 

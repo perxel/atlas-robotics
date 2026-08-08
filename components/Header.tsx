@@ -1,14 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import {
-  type Locale,
-  CMSDictionary,
-  getMultilingualSettings,
-  CMSMultilingual,
-  getNav,
-  getSiteSettings,
-  resolveLocaleAlternates,
-} from "@/lib/cms";
+import { type Locale, CMSDictionary, getMultilingualSettings, getNav, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms-server";
+import { CMSMultilingual } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import LanguageSwitcher from "./LanguageSwitcher";
 

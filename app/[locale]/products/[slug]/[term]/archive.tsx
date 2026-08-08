@@ -11,11 +11,11 @@ import {
   CMSTaxonomy,
   CMSDictionary,
   CMSSeo,
-  CMSMultilingual,
   type ProductItem,
   getSiteSettings,
   resolveLocaleAlternates,
-} from "@/lib/cms";
+} from "@/lib/cms-server";
+import { CMSMultilingual } from "@/lib/registry";
 
 /**
  * Generic archive route for any taxonomy attached to `products` — same

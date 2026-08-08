@@ -1,6 +1,6 @@
 import type { Collection } from "tinacms";
 import { switcherConfigField, dictionaryEntriesField } from "@/cms/multilingual";
-import { locales, defaultLocale } from "@/lib/cms";
+import { locales, defaultLocale } from "@/lib/registry";
 
 /**
  * Everything about how multiple languages behave, in one admin page: the

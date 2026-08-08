@@ -1,6 +1,6 @@
 import { defineConfig, type Collection } from "tinacms";
 import { assertSlugFieldsHaveGuard } from "@/cms/slug";
-import { translationDashboardScreen, seoDashboardScreen } from "@/lib/dashboards";
+import { translationDashboardScreen, seoDashboardScreen } from "@/lib/cms-server";
 import { siteSettingsCollection } from "./collections/site-settings.schema";
 import { navCollection } from "./collections/nav.schema";
 import { footerCollection } from "./collections/footer.schema";

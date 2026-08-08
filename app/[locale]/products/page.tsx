@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { defaultLocale, CMSMultilingual } from "@/lib/cms";
+import { defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { generateProductsMetadata, ProductsListing } from "./listing";
 
 // Same pattern as app/[locale]/blog/page.tsx — a `pages` document with the

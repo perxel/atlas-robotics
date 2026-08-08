@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-// From lib/locale.ts, not lib/cms.ts — this is a client component, and
-// lib/cms.ts drags in the generated Tina client/admin-JSX graph, which has
-// no business in a client bundle. Same reasoning as middleware.ts's import.
-import { localeLabels, CMSMultilingual, type Locale } from "@/lib/locale";
+// From lib/registry.ts, not lib/cms-server.ts — this is a client component,
+// and lib/cms-server.ts drags in the generated Tina client, which has no
+// business in a client bundle. Same reasoning as middleware.ts's import.
+import { localeLabels, CMSMultilingual, type Locale } from "@/lib/registry";
 import type { SwitcherConfigItem } from "@/cms/multilingual";
 
 export default function LanguageSwitcher({

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { defaultLocale, CMSCollection, CMSMultilingual } from "@/lib/cms";
+import { CMSCollection } from "@/lib/cms-server";
+import { defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { parsePageParam } from "@/cms/pagination";
 import { generateBlogArchiveMetadata, BlogArchive } from "../../archive";
 

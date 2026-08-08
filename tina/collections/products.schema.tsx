@@ -4,7 +4,7 @@ import {draftField} from "@/cms/collection";
 import {composeBeforeSubmit} from "@/cms/tina-hooks";
 import {seoField} from "@/cms/seo";
 import {taxonomyField} from "./shared-fields/taxonomy.schema";
-import {CMSCollection, type Locale} from "@/lib/cms";
+import {CMSCollection, type Locale} from "@/lib/cms-server";
 
 export const productsCollection: Collection = {
     name: "products",

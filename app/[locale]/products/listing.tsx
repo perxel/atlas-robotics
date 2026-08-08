@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import {
-  CMSMultilingual,
   type Locale,
   CMSCollection,
   CMSDictionary,
@@ -11,7 +10,8 @@ import {
   getSiteSettings,
   resolveLocaleAlternates,
   getPageBlockData,
-} from "@/lib/cms";
+} from "@/lib/cms-server";
+import { CMSMultilingual } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";

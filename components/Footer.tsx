@@ -1,4 +1,4 @@
-import { type Locale, CMSDictionary, getFooter, getSiteSettings } from "@/lib/cms";
+import { type Locale, CMSDictionary, getFooter, getSiteSettings } from "@/lib/cms-server";
 import { translateText } from "@/cms/multilingual";
 import SocialIcons from "./SocialIcons";
 

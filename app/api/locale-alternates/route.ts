@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CMSMultilingual, resolveLocaleAlternates } from "@/lib/cms";
+import { resolveLocaleAlternates } from "@/lib/cms-server";
+import { CMSMultilingual } from "@/lib/registry";
 
 // Backs LanguageSwitcher's client-side refresh — see that component's
 // comment for why this can't just be server-computed once in Header.

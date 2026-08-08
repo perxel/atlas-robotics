@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import type { Locale, BlogPostItem } from "@/lib/cms";
-import { CMSMultilingual } from "@/lib/locale";
-import { CMSCollection, CMSTaxonomy } from "@/lib/collection-paths";
+import type { Locale, BlogPostItem } from "@/lib/cms-server";
+import { CMSMultilingual, CMSCollection, CMSTaxonomy } from "@/lib/registry";
 import { siteUrl } from "@/cms/seo";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";

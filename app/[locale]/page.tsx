@@ -1,16 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import {
-  defaultLocale,
-  CMSDictionary,
-  CMSSeo,
-  CMSMultilingual,
-  getPageQuery,
-  getSiteSettings,
-  resolveLocaleAlternates,
-  getPageBlockData,
-} from "@/lib/cms";
+import { CMSDictionary, CMSSeo, getPageQuery, getSiteSettings, resolveLocaleAlternates, getPageBlockData } from "@/lib/cms-server";
+import { defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import PageView from "@/components/pages/PageView";
 

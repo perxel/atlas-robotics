@@ -11,18 +11,18 @@ import {
   CMSTaxonomy,
   CMSDictionary,
   CMSSeo,
-  CMSMultilingual,
   type BlogPostItem,
   getSiteSettings,
   resolveLocaleAlternates,
-} from "@/lib/cms";
+} from "@/lib/cms-server";
+import { CMSMultilingual } from "@/lib/registry";
 
 /**
  * Generic archive route for any taxonomy attached to `blog` (see
- * lib/cms.ts's CMSTaxonomy registration) — the first segment is the
+ * lib/cms-server.ts's CMSTaxonomy registration) — the first segment is the
  * registry's `urlSegment` (e.g. "category"), the second is the term
  * document's slug. Adding a taxonomy to blog needs one registry row in
- * lib/cms.ts — everything else (route matching, term lookup, post
+ * lib/cms-server.ts — everything else (route matching, term lookup, post
  * filtering) already generalizes via CMSTaxonomy.
  *
  * The folder above this one is named `[slug]`, not `[taxonomy]`, only

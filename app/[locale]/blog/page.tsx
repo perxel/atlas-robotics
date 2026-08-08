@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { defaultLocale, CMSMultilingual } from "@/lib/cms";
+import { defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { generateBlogMetadata, BlogListing } from "./listing";
 
 // The blog listing is a `pages` document too (fixed filename "blog", same
-// pattern as home's fixed "home" — see lib/cms.ts's
+// pattern as home's fixed "home" — see lib/cms-server.ts's
 // `listingPageFilename` and lib/pages-config.ts's lockedSlugFilenames),
 // rendered here rather than through the generic [slug] catch-all: this
 // physical route folder has to exist anyway for the nested

@@ -1,6 +1,6 @@
 import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
-import { type Locale, type BlogPostItem, type ProductItem } from "@/lib/cms";
+import { type Locale, type BlogPostItem, type ProductItem } from "@/lib/cms-server";
 import Hero from "./Hero";
 import RichTextBlock from "./RichTextBlock";
 import Cta from "./Cta";
