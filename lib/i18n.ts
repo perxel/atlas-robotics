@@ -1,6 +1,8 @@
 // Single source of truth for locale routing. To reuse this boilerplate on a
 // new project: list every locale here and set which one is the default —
 // nothing else in the app hardcodes locale strings.
+import { MultilingualService } from "@/cms/multilingual";
+
 export const locales = ["vi", "en"] as const;
 export type Locale = (typeof locales)[number];
 
@@ -13,22 +15,35 @@ export const localeLabels: Record<Locale, string> = {
   vi: "Tiếng Việt",
 };
 
+// Instantiated here (not lib/cms.ts) deliberately: lib/cms.ts pulls in
+// tina/__generated__/client for CMSCollection/CMSTaxonomy, and middleware.ts
+// (edge runtime) needs the routing/enable-disable logic without dragging
+// that whole GraphQL-client import graph along. MultilingualService itself
+// has no such dependency — locale routing is pure array/string logic — so
+// it's safe and lightweight to construct right where `locales`/`defaultLocale`
+// are already defined.
+export const CMSMultilingual = new MultilingualService<Locale>({
+  locales,
+  defaultLocale,
+  // Both locales are enabled today. Disable one by trimming this array —
+  // its content stays fully intact and editable, it just stops showing up
+  // in the sitemap, hreflang, the language switcher, and the Translation
+  // Dashboard. See MultilingualService's own doc comment.
+  enabledLocales: locales,
+});
+
 export function isLocale(value: string): value is Locale {
-  return (locales as readonly string[]).includes(value);
+  return CMSMultilingual.isLocale(value);
 }
 
 /** True if `pathname` starts with an explicit /<locale> prefix. */
 export function pathnameHasLocalePrefix(pathname: string): boolean {
-  return locales.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
+  return CMSMultilingual.pathnameHasLocalePrefix(pathname);
 }
 
 /** Strips a leading /<locale> segment off a pathname, if present. */
 export function stripLocalePrefix(pathname: string): string {
-  for (const l of locales) {
-    if (pathname === `/${l}`) return "/";
-    if (pathname.startsWith(`/${l}/`)) return pathname.slice(`/${l}`.length);
-  }
-  return pathname;
+  return CMSMultilingual.stripLocalePrefix(pathname);
 }
 
 /**
@@ -36,6 +51,5 @@ export function stripLocalePrefix(pathname: string): string {
  * The default locale is left unprefixed; others get a "/<locale>" prefix.
  */
 export function localePath(locale: Locale, pathWithoutLocale: string): string {
-  const clean = pathWithoutLocale === "/" ? "" : pathWithoutLocale;
-  return locale === defaultLocale ? clean || "/" : `/${locale}${clean}`;
+  return CMSMultilingual.localePath(locale, pathWithoutLocale);
 }

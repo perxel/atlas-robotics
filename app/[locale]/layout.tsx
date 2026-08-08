@@ -6,7 +6,8 @@ import "../globals.css";
 import { locales, defaultLocale, isLocale, localePath } from "@/lib/i18n";
 import { buildMetadata, stripLocale, siteUrl } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/tina-content";
-import { getDictionary } from "@/lib/dictionary";
+import { CMSDictionary } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -34,8 +35,7 @@ export async function generateMetadata({
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || localePath(locale, "/");
   const pathWithoutLocale = stripLocale(pathname);
-  const settings = await getSiteSettings(locale);
-  const dict = getDictionary(locale);
+  const [settings, uiDictionary] = await Promise.all([getSiteSettings(locale), CMSDictionary.loadMap(locale)]);
 
   return {
     metadataBase: new URL(siteUrl),
@@ -44,7 +44,7 @@ export async function generateMetadata({
       locale,
       pathWithoutLocale,
       seo: settings?.defaultSeo,
-      fallbackTitle: settings?.title || dict.siteName,
+      fallbackTitle: settings?.title || translateText(uiDictionary, "Lorem ipsum"),
     }),
   };
 }

@@ -6,9 +6,9 @@ export const newsletterTemplate: Template = {
   fields: [
     { type: "string", name: "heading", label: "Heading", required: true },
     { type: "string", name: "subheading", label: "Subheading" },
-    // Optional per-instance overrides — components/blocks/NewsletterForm.tsx
-    // falls back to lib/dictionary.ts (the UI-chrome translation) whenever
-    // one isn't set.
+    // Optional per-instance overrides — components/blocks/Newsletter.tsx
+    // resolves the site default (the CMS-editable translation dictionary,
+    // cms/multilingual) whenever one isn't set.
     {
       type: "object",
       name: "email",

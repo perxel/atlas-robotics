@@ -1,0 +1,51 @@
+{
+  "switcher": [
+    { "locale": "en", "label": "EN", "flag": "/uploads/flag-en.svg" },
+    { "locale": "vi", "label": "VI", "flag": "/uploads/flag-vi.svg" }
+  ],
+  "entries": [
+    { "key": "Primary", "values": { "vi": "Chính" } },
+    { "key": "Home", "values": { "vi": "Trang chủ" } },
+    { "key": "No posts published yet.", "values": { "vi": "Chưa có bài viết nào được đăng." } },
+    { "key": "View all posts", "values": { "vi": "Xem tất cả bài viết" } },
+    { "key": "Related posts", "values": { "vi": "Bài viết liên quan" } },
+    { "key": "Products", "values": { "vi": "Sản Phẩm" } },
+    {
+      "key": "Everything Lorem ipsum ships, in one place.",
+      "values": { "vi": "Toàn bộ sản phẩm của Lorem ipsum, tại một nơi." }
+    },
+    { "key": "No products published yet.", "values": { "vi": "Chưa có sản phẩm nào được đăng." } },
+    { "key": "View details", "values": { "vi": "Xem chi tiết" } },
+    { "key": "Get started", "values": { "vi": "Bắt đầu ngay" } },
+    { "key": "View all products", "values": { "vi": "Xem tất cả sản phẩm" } },
+    { "key": "Related products", "values": { "vi": "Sản phẩm liên quan" } },
+    { "key": "Pagination", "values": { "vi": "Phân trang" } },
+    { "key": "Previous", "values": { "vi": "Trước" } },
+    { "key": "Next", "values": { "vi": "Sau" } },
+    { "key": "Page", "values": { "vi": "Trang" } },
+    { "key": "Email address", "values": { "vi": "Địa chỉ email" } },
+    { "key": "you@example.com", "values": { "vi": "ban@example.com" } },
+    { "key": "Subscribe", "values": { "vi": "Đăng ký" } },
+    { "key": "Subscribing…", "values": { "vi": "Đang đăng ký…" } },
+    {
+      "key": "You're in — check your inbox to confirm.",
+      "values": { "vi": "Đã đăng ký — kiểm tra hộp thư để xác nhận nhé." }
+    },
+    {
+      "key": "Something went wrong. Please try again.",
+      "values": { "vi": "Đã xảy ra lỗi. Vui lòng thử lại." }
+    },
+    { "key": "Send", "values": { "vi": "Gửi" } },
+    { "key": "Sending…", "values": { "vi": "Đang gửi…" } },
+    {
+      "key": "Thanks — your message was logged server side.",
+      "values": { "vi": "Cảm ơn — tin nhắn của bạn đã được ghi lại ở phía máy chủ." }
+    },
+    { "key": "Name", "values": { "vi": "Họ và Tên" } },
+    { "key": "Your name", "values": { "vi": "Tên của bạn" } },
+    { "key": "Message", "values": { "vi": "Lời Nhắn" } },
+    { "key": "How can we help?", "values": { "vi": "Chúng tôi có thể giúp gì cho bạn?" } },
+    { "key": "Contact", "values": { "vi": "Liên Hệ" } },
+    { "key": "Social link", "values": { "vi": "Liên kết mạng xã hội" } }
+  ]
+}

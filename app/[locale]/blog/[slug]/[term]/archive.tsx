@@ -5,8 +5,8 @@ import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/tina-content";
-import { collectionPath, CMSTaxonomy, type BlogPostItem } from "@/lib/cms";
-import { getDictionary } from "@/lib/dictionary";
+import { collectionPath, CMSTaxonomy, CMSDictionary, type BlogPostItem } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
@@ -60,20 +60,21 @@ export async function generateBlogArchiveMetadata(
   const pathname =
     headersList.get("x-pathname") ||
     collectionPath(locale, "blog", `/${taxonomySegment}/${termSlug}`);
-  const [archive, settings, alternates] = await Promise.all([
+  const [archive, settings, alternates, uiDictionary] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
     resolveLocaleAlternates(locale, pathname),
+    CMSDictionary.loadMap(locale),
   ]);
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
     alternates,
     fallbackTitle: archive
-      ? `${archive.term.title} — ${dict.blog.pageTitle} — ${settings?.title || dict.siteName}`
-      : dict.blog.pageTitle,
+      ? `${archive.term.title} — ${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`
+      : t("Blog"),
   });
 }
 
@@ -88,8 +89,11 @@ export async function BlogArchive({
   termSlug: string;
   requestedPage: number;
 }) {
-  const dict = getDictionary(locale);
-  const archive = await loadArchive(locale, taxonomySegment, termSlug);
+  const [archive, uiDictionary] = await Promise.all([
+    loadArchive(locale, taxonomySegment, termSlug),
+    CMSDictionary.loadMap(locale),
+  ]);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   if (!archive) notFound();
 
@@ -101,7 +105,7 @@ export async function BlogArchive({
     <div className="mx-auto max-w-4xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
         <Link href={collectionPath(locale, "blog")} className="hover:text-accent">
-          {dict.blog.pageTitle}
+          {t("Blog")}
         </Link>
       </p>
       <h1 className="mt-2 text-2xl font-semibold">{archive.term.title}</h1>
@@ -136,14 +140,14 @@ export async function BlogArchive({
       </div>
 
       {shown.length === 0 && (
-        <p className="mt-8 text-sm text-muted-foreground">{dict.blog.noPosts}</p>
+        <p className="mt-8 text-sm text-muted-foreground">{t("No posts published yet.")}</p>
       )}
 
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         basePath={basePath}
-        locale={locale}
+        uiDictionary={uiDictionary}
       />
     </div>
   );

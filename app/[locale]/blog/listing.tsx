@@ -6,7 +6,8 @@ import { buildMetadata, stripLocale } from "@/lib/seo";
 import { collectionPath } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
-import { getDictionary } from "@/lib/dictionary";
+import { CMSDictionary } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";
 
@@ -20,20 +21,21 @@ import PageView from "@/components/pages/PageView";
 export async function generateBlogMetadata(locale: Locale): Promise<Metadata> {
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || collectionPath(locale, "blog");
-  const [result, settings, alternates] = await Promise.all([
+  const [result, settings, alternates, uiDictionary] = await Promise.all([
     getPageQuery(locale, "blog"),
     getSiteSettings(locale),
     resolveLocaleAlternates(locale, pathname),
+    CMSDictionary.loadMap(locale),
   ]);
   const page = result?.data.pages;
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
     alternates,
     seo: page?.seo,
-    fallbackTitle: page?.title || `${dict.blog.pageTitle} — ${settings?.title || dict.siteName}`,
+    fallbackTitle: page?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,
   });
 }
 
@@ -48,7 +50,7 @@ export async function BlogListing({
 
   if (!result) notFound();
 
-  const { latestPosts, products } = await getPageBlockData(locale, result.data.pages.blocks);
+  const { latestPosts, products, uiDictionary } = await getPageBlockData(locale, result.data.pages.blocks);
 
   // The BlogListingBlock on this locked document paginates the same
   // `latestPosts` array — checking here too lets an out-of-range page
@@ -65,6 +67,7 @@ export async function BlogListing({
       latestPosts={latestPosts}
       products={products}
       currentPage={currentPage}
+      uiDictionary={uiDictionary}
     />
   );
 }

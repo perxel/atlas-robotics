@@ -2,19 +2,22 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { getNav, getSiteSettings } from "@/lib/tina-content";
 import { localePath, type Locale } from "@/lib/i18n";
-import { getDictionary } from "@/lib/dictionary";
+import { CMSDictionary, getMultilingualSettings } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default async function Header({ locale }: { locale: Locale }) {
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || localePath(locale, "/");
-  const [nav, settings, alternates] = await Promise.all([
+  const [nav, settings, alternates, multilingual, uiDictionary] = await Promise.all([
     getNav(locale),
     getSiteSettings(locale),
     resolveLocaleAlternates(locale, pathname),
+    getMultilingualSettings(),
+    CMSDictionary.loadMap(locale),
   ]);
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface">
@@ -27,10 +30,10 @@ export default async function Header({ locale }: { locale: Locale }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={settings.logo} alt={settings.logoAlt || ""} className="h-8 w-8 rounded" />
           )}
-          {settings?.title || dict.siteName}
+          {settings?.title || t("Lorem ipsum")}
         </Link>
 
-        <nav className="hidden items-center gap-6 text-sm md:flex" aria-label={dict.nav.primary}>
+        <nav className="hidden items-center gap-6 text-sm md:flex" aria-label={t("Primary")}>
           {nav?.links?.map(
             (link, i) =>
               link && (
@@ -47,11 +50,7 @@ export default async function Header({ locale }: { locale: Locale }) {
           )}
         </nav>
 
-        <LanguageSwitcher
-          currentLocale={locale}
-          urls={alternates}
-          config={settings?.languageSwitcher}
-        />
+        <LanguageSwitcher currentLocale={locale} urls={alternates} config={multilingual?.switcher} />
       </div>
     </header>
   );

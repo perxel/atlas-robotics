@@ -5,7 +5,8 @@ import { defaultLocale, isLocale, localePath } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
-import { getDictionary } from "@/lib/dictionary";
+import { CMSDictionary } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import PageView from "@/components/pages/PageView";
 
 // The home page is a `pages` document with slug "home" — same collection
@@ -21,20 +22,20 @@ export async function generateMetadata({
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || localePath(locale, "/");
-  const [result, settings, alternates] = await Promise.all([
+  const [result, settings, alternates, uiDictionary] = await Promise.all([
     getPageQuery(locale, "home"),
     getSiteSettings(locale),
     resolveLocaleAlternates(locale, pathname),
+    CMSDictionary.loadMap(locale),
   ]);
   const page = result?.data.pages;
-  const dict = getDictionary(locale);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
     alternates,
     seo: page?.seo || settings?.defaultSeo,
-    fallbackTitle: page?.title || settings?.title || dict.siteName,
+    fallbackTitle: page?.title || settings?.title || translateText(uiDictionary, "Lorem ipsum"),
   });
 }
 
@@ -49,7 +50,7 @@ export default async function Home({
 
   if (!result) notFound();
 
-  const { latestPosts, products } = await getPageBlockData(locale, result.data.pages.blocks);
+  const { latestPosts, products, uiDictionary } = await getPageBlockData(locale, result.data.pages.blocks);
 
   return (
     <PageView
@@ -59,6 +60,7 @@ export default async function Home({
       locale={locale}
       latestPosts={latestPosts}
       products={products}
+      uiDictionary={uiDictionary}
     />
   );
 }

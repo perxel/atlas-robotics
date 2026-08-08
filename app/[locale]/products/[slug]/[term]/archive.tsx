@@ -5,8 +5,8 @@ import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/tina-content";
-import { getDictionary } from "@/lib/dictionary";
-import { collectionPath, CMSTaxonomy, type ProductItem } from "@/lib/cms";
+import { collectionPath, CMSTaxonomy, CMSDictionary, type ProductItem } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
@@ -51,20 +51,21 @@ export async function generateProductsArchiveMetadata(
   const pathname =
     headersList.get("x-pathname") ||
     collectionPath(locale, "products", `/${taxonomySegment}/${termSlug}`);
-  const [archive, settings, alternates] = await Promise.all([
+  const [archive, settings, alternates, uiDictionary] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
     resolveLocaleAlternates(locale, pathname),
+    CMSDictionary.loadMap(locale),
   ]);
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
     alternates,
     fallbackTitle: archive
-      ? `${archive.term.title} — ${dict.products.pageTitle} — ${settings?.title || dict.siteName}`
-      : dict.products.pageTitle,
+      ? `${archive.term.title} — ${t("Products")} — ${settings?.title || t("Lorem ipsum")}`
+      : t("Products"),
   });
 }
 
@@ -79,8 +80,11 @@ export async function ProductsArchive({
   termSlug: string;
   requestedPage: number;
 }) {
-  const dict = getDictionary(locale);
-  const archive = await loadArchive(locale, taxonomySegment, termSlug);
+  const [archive, uiDictionary] = await Promise.all([
+    loadArchive(locale, taxonomySegment, termSlug),
+    CMSDictionary.loadMap(locale),
+  ]);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   if (!archive) notFound();
 
@@ -92,7 +96,7 @@ export async function ProductsArchive({
     <div className="mx-auto max-w-6xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
         <Link href={collectionPath(locale, "products")} className="hover:text-accent">
-          {dict.products.pageTitle}
+          {t("Products")}
         </Link>
       </p>
       <h1 className="mt-2 text-2xl font-semibold">{archive.term.title}</h1>
@@ -126,14 +130,14 @@ export async function ProductsArchive({
       </div>
 
       {shown.length === 0 && (
-        <p className="mt-8 text-sm text-muted-foreground">{dict.products.noProducts}</p>
+        <p className="mt-8 text-sm text-muted-foreground">{t("No products published yet.")}</p>
       )}
 
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         basePath={basePath}
-        locale={locale}
+        uiDictionary={uiDictionary}
       />
     </div>
   );

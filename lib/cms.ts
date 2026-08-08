@@ -3,7 +3,8 @@ import { client } from "@/tina/__generated__/client";
 import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
 import { CollectionService } from "@/cms/collection";
 import { TaxonomyService } from "@/cms/taxonomy";
-import { defaultLocale, locales, type Locale } from "@/lib/i18n";
+import { DictionaryService, createTranslationDashboardScreen, TranslationDashboardService } from "@/cms/multilingual";
+import { defaultLocale, locales, CMSMultilingual, type Locale } from "@/lib/i18n";
 
 /**
  * Project registration for the cms/ framework — the one file a future
@@ -148,3 +149,42 @@ export const taxonomyArchivePath = (
   locale: Locale,
   termSlug: string
 ): string | null => CMSTaxonomy.getArchivePath({ collectionName, taxonomyName, lang: locale, termSlug });
+
+// --- Multilingual registration (.claude/plans/03-multilingual.md). Locale
+// routing/enable-disable itself (CMSMultilingual) is instantiated in
+// lib/i18n.ts, not here — see that file's comment for why (middleware.ts's
+// edge runtime can't afford this file's tina/__generated__/client import). ---
+
+export const CMSDictionary = new DictionaryService(
+  {
+    fetchEntries: () =>
+      client.queries.multilingual({ relativePath: "index.json" }).then(
+        (r) =>
+          (r.data.multilingual.entries ?? []).filter(
+            (entry): entry is NonNullable<typeof entry> => !!entry
+          ) as { key: string; values: Record<string, string | null | undefined> }[]
+      ),
+  },
+  { defaultLocale }
+);
+
+// Switcher config lives in the same document — a plain project-level fetch
+// (same shape as getSiteSettings), not a CMS* service method, since it's a
+// one-off read passed straight into CMSMultilingual.resolveSwitcherEntries's
+// `config` argument at the call site (Header.tsx).
+export const getMultilingualSettings = () =>
+  client.queries.multilingual({ relativePath: "index.json" }).then((r) => r.data.multilingual);
+
+// Only registered when multilingual is actually on — a single-locale
+// project has nothing to show a translation-coverage dashboard for.
+export const translationDashboardScreen = CMSMultilingual.isEnabled()
+  ? createTranslationDashboardScreen(
+      new TranslationDashboardService(
+        {
+          getRegisteredCollectionNames: () => Object.keys(collectionRegistry) as CollectionKey[],
+          getItemLocaleIndex: CMSCollection.getItemLocaleIndex.bind(CMSCollection),
+        },
+        { locales: CMSMultilingual.getEnabledLocales(), defaultLocale }
+      )
+    )
+  : null;

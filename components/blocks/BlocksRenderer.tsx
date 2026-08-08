@@ -20,14 +20,18 @@ import ProductListingBlock from "./ProductListingBlock";
 // click-to-edit in Tina's admin preview — a no-op outside that context,
 // since tinaField() returns "" when the object has no live-edit metadata.
 //
-// `locale`/`latestPosts`/`products` are extra data blocks need but don't
-// carry themselves (FeaturedBlogPosts/BlogListingBlock need blog posts,
-// ProductListingBlock needs products) — threaded down from the page
+// `locale`/`latestPosts`/`products`/`uiDictionary` are extra data blocks
+// need but don't carry themselves (FeaturedBlogPosts/BlogListingBlock need
+// blog posts, ProductListingBlock needs products, several blocks need
+// translated UI-chrome fallback strings) — threaded down from the page
 // component through PageView rather than fetched by the block itself,
-// since blocks render inside PageView's client component tree. Newsletter
-// and ContactFormBlock's field-level copy (labels/placeholders/button text)
-// is optional on the block itself, falling back to lib/dictionary.ts (UI
-// chrome) when unset — see NewsletterForm.tsx/ContactForm.tsx.
+// since blocks render inside PageView's client component tree and a CMS
+// fetch (or a closure wrapping one) can't happen there — see
+// cms/multilingual/translate-text.ts's comment on why `uiDictionary` is a
+// plain resolved `{sourceText: translation}` map, not a live function.
+// Newsletter and ContactFormBlock's field-level copy (labels/placeholders/
+// button text) is optional on the block itself, falling back to the
+// translated site default when unset — see NewsletterForm.tsx/ContactForm.tsx.
 //
 // `currentPage` is the same idea but comes from the URL (see
 // app/[locale]/blog/listing.tsx and .../products/listing.tsx), not CMS
@@ -49,12 +53,14 @@ export default function BlocksRenderer({
   latestPosts,
   products,
   currentPage = 1,
+  uiDictionary,
 }: {
   blocks: Blocks;
   locale: Locale;
   latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
   products: Awaited<ReturnType<typeof getProducts>>;
   currentPage?: number;
+  uiDictionary: Record<string, string>;
 }) {
   return (
     <>
@@ -67,13 +73,13 @@ export default function BlocksRenderer({
             {block.__typename === "PagesBlocksCta" && <Cta data={block} />}
             {block.__typename === "PagesBlocksFeatureGrid" && <FeatureGrid data={block} />}
             {block.__typename === "PagesBlocksNewsletter" && (
-              <Newsletter data={block} locale={locale} />
+              <Newsletter data={block} uiDictionary={uiDictionary} />
             )}
             {block.__typename === "PagesBlocksFeaturedBlogPosts" && (
-              <FeaturedBlogPosts data={block} posts={latestPosts} locale={locale} />
+              <FeaturedBlogPosts data={block} posts={latestPosts} locale={locale} uiDictionary={uiDictionary} />
             )}
             {block.__typename === "PagesBlocksContactForm" && (
-              <ContactFormBlock data={block} locale={locale} />
+              <ContactFormBlock data={block} uiDictionary={uiDictionary} />
             )}
             {block.__typename === "PagesBlocksBlogListing" && (
               <BlogListingBlock
@@ -81,6 +87,7 @@ export default function BlocksRenderer({
                 posts={latestPosts}
                 locale={locale}
                 currentPage={currentPage}
+                uiDictionary={uiDictionary}
               />
             )}
             {block.__typename === "PagesBlocksProductListing" && (
@@ -89,6 +96,7 @@ export default function BlocksRenderer({
                 products={products}
                 locale={locale}
                 currentPage={currentPage}
+                uiDictionary={uiDictionary}
               />
             )}
           </div>

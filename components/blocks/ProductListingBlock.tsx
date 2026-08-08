@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
-import { collectionPath, type CollectionKey } from "@/lib/cms";
-import { taxonomyArchivePath } from "@/lib/cms";
-import { getDictionary } from "@/lib/dictionary";
-import type { Locale } from "@/lib/i18n";
+import { collectionPath, taxonomyArchivePath, type CollectionKey } from "@/lib/cms";
 import type { getProducts } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
+import type { Locale } from "@/lib/i18n";
 import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
@@ -60,13 +59,15 @@ export default function ProductListingBlock({
   products,
   locale,
   currentPage = 1,
+  uiDictionary,
 }: {
   data: ProductListingData;
   products: Product[];
   locale: Locale;
   currentPage?: number;
+  uiDictionary: Record<string, string>;
 }) {
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
   const { shown, pagination } = resolveShownProducts(data, products, currentPage);
 
   return (
@@ -128,7 +129,7 @@ export default function ProductListingBlock({
                   href={collectionPath(locale, COLLECTION, `/${product.slug}`)}
                   className="text-sm font-medium text-accent hover:opacity-80"
                 >
-                  {dict.products.viewDetails}
+                  {t("View details")}
                 </Link>
               </div>
             </div>
@@ -137,7 +138,7 @@ export default function ProductListingBlock({
       </div>
 
       {shown.length === 0 && (
-        <p className="mt-8 text-sm text-muted-foreground">{dict.products.noProducts}</p>
+        <p className="mt-8 text-sm text-muted-foreground">{t("No products published yet.")}</p>
       )}
 
       {data.mode !== "all" && (
@@ -146,7 +147,7 @@ export default function ProductListingBlock({
             href={collectionPath(locale, COLLECTION)}
             className="text-sm font-medium text-accent hover:opacity-80"
           >
-            {dict.products.viewAll}
+            {t("View all products")}
           </Link>
         </div>
       )}
@@ -156,7 +157,7 @@ export default function ProductListingBlock({
           currentPage={pagination.currentPage}
           totalPages={pagination.totalPages}
           basePath={collectionPath(locale, COLLECTION)}
-          locale={locale}
+          uiDictionary={uiDictionary}
         />
       )}
     </section>

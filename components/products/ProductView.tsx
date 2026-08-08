@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
-import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/cms";
-import { taxonomyArchivePath } from "@/lib/cms";
+import { collectionPath, taxonomyArchivePath } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import { contactSlug } from "@/lib/pages-config";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
 import type { getProducts } from "@/lib/cms";
@@ -18,18 +17,20 @@ export default function ProductView({
   data,
   locale,
   relatedProducts,
+  uiDictionary,
 }: {
   query: string;
   variables: ProductsQueryVariables;
   data: ProductsQuery;
   locale: Locale;
   relatedProducts: Awaited<ReturnType<typeof getProducts>>;
+  uiDictionary: Record<string, string>;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,
   // so this renders identically for normal visitors and the production build.
   const { data: liveData } = useTina({ query, variables, data });
   const product = liveData.products;
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   type CategoryItem = NonNullable<NonNullable<typeof product.productCategories>[number]>;
   const categories = (product.productCategories ?? []).filter(
@@ -71,8 +72,8 @@ export default function ProductView({
         <div className="mt-2">
           <Breadcrumb
             items={[
-              { label: dict.breadcrumb.home, href: localePath(locale, "/") },
-              { label: dict.products.pageTitle, href: collectionPath(locale, "products") },
+              { label: t("Home"), href: localePath(locale, "/") },
+              { label: t("Products"), href: collectionPath(locale, "products") },
               { label: product.title },
             ]}
           />
@@ -111,14 +112,14 @@ export default function ProductView({
             href={localePath(locale, `/${contactSlug[locale]}`)}
             className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
           >
-            {dict.products.getStarted}
+            {t("Get started")}
           </Link>
         </div>
       </article>
 
       {relatedProducts.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pb-16">
-          <h2 className="text-xl font-semibold">{dict.products.related}</h2>
+          <h2 className="text-xl font-semibold">{t("Related products")}</h2>
           <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {relatedProducts.map((related) => (
               <Link
@@ -148,7 +149,7 @@ export default function ProductView({
               href={collectionPath(locale, "products")}
               className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
             >
-              {dict.products.viewAll}
+              {t("View all products")}
             </Link>
           </div>
         </section>

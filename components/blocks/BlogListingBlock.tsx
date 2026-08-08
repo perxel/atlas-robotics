@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksBlogListing } from "@/tina/__generated__/types";
-import { collectionPath, type CollectionKey } from "@/lib/cms";
-import { taxonomyArchivePath } from "@/lib/cms";
-import { getDictionary } from "@/lib/dictionary";
-import type { Locale } from "@/lib/i18n";
+import { collectionPath, taxonomyArchivePath, type CollectionKey } from "@/lib/cms";
 import type { getBlogPosts } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
+import type { Locale } from "@/lib/i18n";
 import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
@@ -16,13 +15,15 @@ export default function BlogListingBlock({
   posts,
   locale,
   currentPage = 1,
+  uiDictionary,
 }: {
   data: PagesBlocksBlogListing;
   posts: Awaited<ReturnType<typeof getBlogPosts>>;
   locale: Locale;
   currentPage?: number;
+  uiDictionary: Record<string, string>;
 }) {
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
   const { items: shown, currentPage: resolvedPage, totalPages } = paginateItems(
     posts,
     currentPage,
@@ -90,14 +91,14 @@ export default function BlogListingBlock({
       </div>
 
       {shown.length === 0 && (
-        <p className="mt-8 text-sm text-muted-foreground">{dict.blog.noPosts}</p>
+        <p className="mt-8 text-sm text-muted-foreground">{t("No posts published yet.")}</p>
       )}
 
       <Pagination
         currentPage={resolvedPage}
         totalPages={totalPages}
         basePath={collectionPath(locale, COLLECTION)}
-        locale={locale}
+        uiDictionary={uiDictionary}
       />
     </section>
   );

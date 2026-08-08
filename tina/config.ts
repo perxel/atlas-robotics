@@ -1,8 +1,10 @@
 import { defineConfig, type Collection } from "tinacms";
 import { assertSlugFieldsHaveGuard } from "@/cms/slug";
+import { translationDashboardScreen } from "@/lib/cms";
 import { siteSettingsCollection } from "./collections/site-settings.schema";
 import { navCollection } from "./collections/nav.schema";
 import { footerCollection } from "./collections/footer.schema";
+import { multilingualCollection } from "./collections/multilingual.schema";
 import { categoriesCollection } from "./collections/categories.schema";
 import { productCategoriesCollection } from "./collections/product-categories.schema";
 import { blogCollection } from "./collections/blog.schema";
@@ -23,6 +25,7 @@ const collections: Collection[] = [
   siteSettingsCollection,
   navCollection,
   footerCollection,
+  multilingualCollection,
   categoriesCollection,
   productCategoriesCollection,
   blogCollection,
@@ -50,5 +53,9 @@ export default defineConfig({
   },
   schema: {
     collections,
+  },
+  cmsCallback: (cms) => {
+    if (translationDashboardScreen) cms.plugins.add(translationDashboardScreen);
+    return cms;
   },
 });

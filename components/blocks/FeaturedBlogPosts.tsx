@@ -2,7 +2,7 @@ import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
 import type { Locale } from "@/lib/i18n";
-import { getDictionary } from "@/lib/dictionary";
+import { translateText } from "@/cms/multilingual";
 import { collectionPath } from "@/lib/cms";
 import type { getBlogPosts } from "@/lib/cms";
 
@@ -10,12 +10,14 @@ export default function FeaturedBlogPosts({
   data,
   posts,
   locale,
+  uiDictionary,
 }: {
   data: PagesBlocksFeaturedBlogPosts;
   posts: Awaited<ReturnType<typeof getBlogPosts>>;
   locale: Locale;
+  uiDictionary: Record<string, string>;
 }) {
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
   const shown = posts.slice(0, data.postsToShow || 3);
 
   return (
@@ -66,7 +68,7 @@ export default function FeaturedBlogPosts({
           href={collectionPath(locale, "blog")}
           className="text-sm font-medium text-accent hover:opacity-80"
         >
-          {dict.blog.viewAll}
+          {t("View all posts")}
         </Link>
       </div>
     </section>

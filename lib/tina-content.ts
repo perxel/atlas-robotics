@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import { locales, localePath, type Locale } from "@/lib/i18n";
-import { collectionPath, getBlogPosts, getProducts, type CollectionKey } from "@/lib/cms";
+import { collectionPath, getBlogPosts, getProducts, CMSDictionary, type CollectionKey } from "@/lib/cms";
 
 /** Directory-based localization: content/<collection>/<locale>/<file>. Exported for app/sitemap.ts. */
 export function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
@@ -95,12 +95,18 @@ export async function getPageBlockData(
     typenames.has("PagesBlocksFeaturedBlogPosts") || typenames.has("PagesBlocksBlogListing");
   const needsProducts = typenames.has("PagesBlocksProductListing");
 
-  const [latestPosts, products] = await Promise.all([
+  // Fetched unconditionally (unlike posts/products above): almost any block
+  // — and PageView itself, for its breadcrumb — needs at least one
+  // translated UI-chrome string, and it's one cheap single-document fetch
+  // (wrapped in cache() at the source, see lib/cms.ts's multilingual
+  // registration) rather than worth conditioning on block typenames too.
+  const [latestPosts, products, uiDictionary] = await Promise.all([
     needsPosts ? getBlogPosts(locale) : Promise.resolve([]),
     needsProducts ? getProducts(locale) : Promise.resolve([]),
+    CMSDictionary.loadMap(locale),
   ]);
 
-  return { latestPosts, products };
+  return { latestPosts, products, uiDictionary };
 }
 
 /** Same two-step slug resolution as getBlogPostQuery — see its comment. */

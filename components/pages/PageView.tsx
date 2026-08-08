@@ -5,7 +5,7 @@ import { TinaMarkdown } from "tinacms/dist/rich-text";
 import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types";
 import { isBlocksEnabled } from "@/lib/pages-config";
 import { localePath, type Locale } from "@/lib/i18n";
-import { getDictionary } from "@/lib/dictionary";
+import { translateText } from "@/cms/multilingual";
 import type { getBlogPosts, getProducts } from "@/lib/cms";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -18,6 +18,7 @@ export default function PageView({
   latestPosts,
   products,
   currentPage = 1,
+  uiDictionary,
 }: {
   query: string;
   variables: PagesQueryVariables;
@@ -27,6 +28,12 @@ export default function PageView({
   products: Awaited<ReturnType<typeof getProducts>>;
   /** Which page of a paginated block ("all" mode ProductListingBlock, BlogListingBlock) is showing — only meaningful on the /blog and /products listing routes. */
   currentPage?: number;
+  /** Resolved `{sourceText: translation}` snapshot for this locale — see
+   * cms/multilingual/translate-text.ts's comment on why this is plain data
+   * fetched by a real server component, not a live function: PageView
+   * itself is a client component (useTina() needs it for visual editing),
+   * and a closure can't safely cross that boundary as a prop. */
+  uiDictionary: Record<string, string>;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,
   // so this renders identically for normal visitors and the production build.
@@ -39,7 +46,7 @@ export default function PageView({
   // truthy. Check for actual content instead, or an empty intro leaves a
   // blank, padded div in the DOM even with nothing to show.
   const hasIntro = (page.intro?.children?.length ?? 0) > 0;
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   return (
     <article>
@@ -51,7 +58,7 @@ export default function PageView({
           <div className="mt-2">
             <Breadcrumb
               items={[
-                { label: dict.breadcrumb.home, href: localePath(locale, "/") },
+                { label: t("Home"), href: localePath(locale, "/") },
                 { label: page.title },
               ]}
             />
@@ -74,6 +81,7 @@ export default function PageView({
           latestPosts={latestPosts}
           products={products}
           currentPage={currentPage}
+          uiDictionary={uiDictionary}
         />
       )}
     </article>

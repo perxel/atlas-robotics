@@ -1,11 +1,6 @@
 import Link from "next/link";
-import { locales, localeLabels, isLocale, localePath, type Locale } from "@/lib/i18n";
-
-export type LanguageSwitcherConfigItem = {
-  locale?: string | null;
-  label?: string | null;
-  flag?: string | null;
-} | null;
+import { localeLabels, CMSMultilingual, type Locale } from "@/lib/i18n";
+import type { SwitcherConfigItem } from "@/cms/multilingual";
 
 export default function LanguageSwitcher({
   currentLocale,
@@ -19,49 +14,33 @@ export default function LanguageSwitcher({
    * document lookup, not assumed) and is hidden from the switcher entirely
    * rather than linking to a URL that might not exist. */
   urls: Partial<Record<Locale, string>>;
-  /** Site settings' `languageSwitcher` field — editor-controlled display
-   * order, label text, and an optional flag image. Only affects how the
-   * switcher looks; it never changes which locales exist or which URL
-   * each one links to (that's still lib/i18n.ts + `urls` above). A locale
-   * missing from this list — including an empty/unconfigured list — falls
-   * back to lib/i18n.ts's `localeLabels`, appended in `locales` order, so
-   * the switcher always shows every locale even before an editor touches
-   * this field. */
-  config?: LanguageSwitcherConfigItem[] | null;
+  /** The `multilingual` document's `switcher` field — editor-controlled
+   * display order, label text, and an optional flag image. Only affects
+   * how the switcher looks; it never changes which locales exist or which
+   * URL each one links to (that's still CMSMultilingual + `urls` above). A
+   * locale missing from this list — including an empty/unconfigured list —
+   * falls back to lib/i18n.ts's `localeLabels`, so the switcher always
+   * shows every enabled locale even before an editor touches this field. */
+  config?: SwitcherConfigItem[] | null;
 }) {
-  const seen = new Set<Locale>();
-  const entries: { locale: Locale; label: string; flag?: string | null }[] = [];
-
-  for (const item of config ?? []) {
-    if (!item?.locale || !isLocale(item.locale) || seen.has(item.locale)) continue;
-    seen.add(item.locale);
-    entries.push({ locale: item.locale, label: item.label || localeLabels[item.locale], flag: item.flag });
-  }
-  for (const locale of locales) {
-    if (seen.has(locale)) continue;
-    entries.push({ locale, label: localeLabels[locale] });
-  }
-
-  // Only show a locale this content actually has a translation for. The
-  // current locale always shows (it's the page you're on, even if for some
-  // reason it's missing from `urls`); every other locale needs a real entry
-  // in `urls` — a locale resolveLocaleAlternates found no sibling document
-  // for has nothing to link to.
-  const available = entries.filter(({ locale }) => locale === currentLocale || urls[locale]);
+  const entries = CMSMultilingual.resolveSwitcherEntries({
+    currentLocale,
+    urls,
+    labels: localeLabels,
+    config,
+  });
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      {available.map(({ locale, label, flag }) => (
+      {entries.map(({ locale, label, flag, href, isCurrent }) => (
         <Link
           key={locale}
-          href={urls[locale] ?? localePath(locale, "/")}
+          href={href}
           hrefLang={locale}
-          aria-current={locale === currentLocale ? "true" : undefined}
+          aria-current={isCurrent ? "true" : undefined}
           className={
             "flex items-center gap-1.5 " +
-            (locale === currentLocale
-              ? "font-semibold text-accent"
-              : "text-muted-foreground hover:text-foreground")
+            (isCurrent ? "font-semibold text-accent" : "text-muted-foreground hover:text-foreground")
           }
         >
           {flag && (

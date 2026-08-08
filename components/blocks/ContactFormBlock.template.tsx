@@ -11,10 +11,10 @@ import type { Template } from "tinacms";
 // it too, so it's safe.
 //
 // name/email/message/submitLabel are all optional per-instance overrides —
-// components/blocks/ContactForm.tsx falls back to lib/dictionary.ts (the
-// UI-chrome translation) whenever one isn't set, so an editor only needs
-// to touch these if a specific page's form should say something different
-// from the site default.
+// components/blocks/ContactFormBlock.tsx resolves the site default (the
+// CMS-editable translation dictionary, cms/multilingual) whenever one
+// isn't set, so an editor only needs to touch these if a specific page's
+// form should say something different from the site default.
 export const contactFormTemplate: Template = {
   name: "contactForm",
   label: "Contact Form",

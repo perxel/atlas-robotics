@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { localePath, type Locale } from "@/lib/i18n";
-import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/cms";
-import { taxonomyArchivePath } from "@/lib/cms";
+import { collectionPath, taxonomyArchivePath } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
 import type { getBlogPosts } from "@/lib/cms";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -17,18 +16,20 @@ export default function BlogPostView({
   data,
   locale,
   relatedPosts,
+  uiDictionary,
 }: {
   query: string;
   variables: BlogQueryVariables;
   data: BlogQuery;
   locale: Locale;
   relatedPosts: Awaited<ReturnType<typeof getBlogPosts>>;
+  uiDictionary: Record<string, string>;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,
   // so this renders identically for normal visitors and the production build.
   const { data: liveData } = useTina({ query, variables, data });
   const post = liveData.blog;
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   type CategoryItem = NonNullable<NonNullable<typeof post.categories>[number]>;
   const categories = (post.categories ?? []).filter(
@@ -54,8 +55,8 @@ export default function BlogPostView({
         <div className="mt-2">
           <Breadcrumb
             items={[
-              { label: dict.breadcrumb.home, href: localePath(locale, "/") },
-              { label: dict.blog.pageTitle, href: collectionPath(locale, "blog") },
+              { label: t("Home"), href: localePath(locale, "/") },
+              { label: t("Blog"), href: collectionPath(locale, "blog") },
               { label: post.title },
             ]}
           />
@@ -91,7 +92,7 @@ export default function BlogPostView({
 
       {relatedPosts.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pb-16">
-          <h2 className="text-xl font-semibold">{dict.blog.related}</h2>
+          <h2 className="text-xl font-semibold">{t("Related posts")}</h2>
           <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {relatedPosts.map((related) => (
               <Link
@@ -126,7 +127,7 @@ export default function BlogPostView({
               href={collectionPath(locale, "blog")}
               className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
             >
-              {dict.blog.viewAll}
+              {t("View all posts")}
             </Link>
           </div>
         </section>

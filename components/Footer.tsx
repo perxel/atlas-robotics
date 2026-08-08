@@ -1,11 +1,16 @@
 import { getFooter, getSiteSettings } from "@/lib/tina-content";
 import type { Locale } from "@/lib/i18n";
-import { getDictionary } from "@/lib/dictionary";
+import { CMSDictionary } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import SocialIcons from "./SocialIcons";
 
 export default async function Footer({ locale }: { locale: Locale }) {
-  const [footer, settings] = await Promise.all([getFooter(locale), getSiteSettings(locale)]);
-  const dict = getDictionary(locale);
+  const [footer, settings, uiDictionary] = await Promise.all([
+    getFooter(locale),
+    getSiteSettings(locale),
+    CMSDictionary.loadMap(locale),
+  ]);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   return (
     <footer className="border-t border-border bg-surface-muted">
@@ -32,18 +37,18 @@ export default async function Footer({ locale }: { locale: Locale }) {
         )}
 
         <div>
-          <h3 className="mb-3 text-sm font-semibold">{dict.footer.contactHeading}</h3>
+          <h3 className="mb-3 text-sm font-semibold">{t("Contact")}</h3>
           <p className="text-sm text-muted-foreground">{footer?.contactInfo?.address}</p>
           <p className="text-sm text-muted-foreground">{footer?.contactInfo?.phone}</p>
           <p className="text-sm text-muted-foreground">{footer?.contactInfo?.email}</p>
           <div className="mt-4">
-            <SocialIcons links={settings?.socialLinks} fallbackLabel={dict.social.fallbackLabel} />
+            <SocialIcons links={settings?.socialLinks} fallbackLabel={t("Social link")} />
           </div>
         </div>
       </div>
 
       <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-        &copy; {new Date().getFullYear()} {settings?.title || dict.siteName}
+        &copy; {new Date().getFullYear()} {settings?.title || t("Lorem ipsum")}
       </div>
     </footer>
   );

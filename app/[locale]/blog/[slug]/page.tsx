@@ -4,9 +4,8 @@ import { headers } from "next/headers";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { buildMetadata, stripLocale } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/tina-content";
-import { getBlogPostQuery, CMSTaxonomy, type BlogPostItem } from "@/lib/cms";
-import { getDictionary } from "@/lib/dictionary";
-import { collectionPath } from "@/lib/cms";
+import { getBlogPostQuery, CMSTaxonomy, CMSDictionary, collectionPath, type BlogPostItem } from "@/lib/cms";
+import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import BlogPostView from "@/components/blog/BlogPostView";
 
@@ -19,20 +18,21 @@ export async function generateMetadata({
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || collectionPath(locale, "blog", `/${slug}`);
-  const [result, settings, alternates] = await Promise.all([
+  const [result, settings, alternates, uiDictionary] = await Promise.all([
     getBlogPostQuery(locale, slug),
     getSiteSettings(locale),
     resolveLocaleAlternates(locale, pathname),
+    CMSDictionary.loadMap(locale),
   ]);
   const post = result?.data.blog;
-  const dict = getDictionary(locale);
+  const t = (text: string) => translateText(uiDictionary, text);
 
   return buildMetadata({
     locale,
     pathWithoutLocale: stripLocale(pathname),
     alternates,
     seo: post?.seo,
-    fallbackTitle: post?.title || `${dict.blog.pageTitle} — ${settings?.title || dict.siteName}`,
+    fallbackTitle: post?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,
     fallbackDescription: post?.excerpt,
     fallbackOgImage: post?.coverImage,
   });
@@ -45,7 +45,7 @@ export default async function BlogDetailPage({
 }) {
   const { locale: rawLocale, slug } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
-  const [result, relatedPosts] = await Promise.all([
+  const [result, relatedPosts, uiDictionary] = await Promise.all([
     getBlogPostQuery(locale, slug),
     CMSTaxonomy.getRelatedEntries<BlogPostItem>({
       collectionName: "blog",
@@ -54,6 +54,7 @@ export default async function BlogDetailPage({
       slug,
       limit: 3,
     }),
+    CMSDictionary.loadMap(locale),
   ]);
 
   // getBlogPostQuery resolves the slug via a draft-filtered query, so a
@@ -69,6 +70,7 @@ export default async function BlogDetailPage({
       data={result.data}
       locale={locale}
       relatedPosts={relatedPosts}
+      uiDictionary={uiDictionary}
     />
   );
 }
