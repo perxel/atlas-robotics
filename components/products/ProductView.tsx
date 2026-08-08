@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type ProductItem, CMSMultilingual } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, type ProductItem, CMSMultilingual } from "@/lib/cms";
+import { siteUrl } from "@/cms/seo";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";

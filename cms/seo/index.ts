@@ -4,5 +4,6 @@ export { SeoDashboardService } from "./dashboard/SeoDashboardService";
 export { createSeoDashboardScreen } from "./dashboard/createSeoDashboardScreen";
 export { buildBreadcrumbJsonLd } from "./breadcrumb/build-breadcrumb-json-ld";
 export { requireInProduction } from "./require-in-production";
+export { siteUrl } from "./site-url";
 export type { SeoFields, SeoAuditRow, SeoCoverage } from "./types";
 export type { BreadcrumbItem } from "./breadcrumb/types";

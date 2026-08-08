@@ -2,16 +2,14 @@ import { client } from "@/tina/__generated__/client";
 import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
 import { CollectionService, type ConnectionItem } from "@/cms/collection";
 import { TaxonomyService } from "@/cms/taxonomy";
-import {
-  MultilingualService,
-  DictionaryService,
-  createTranslationDashboardScreen,
-  TranslationDashboardService,
-} from "@/cms/multilingual";
-import { SeoService, SeoDashboardService, createSeoDashboardScreen, requireInProduction } from "@/cms/seo";
+import { DictionaryService } from "@/cms/multilingual";
+import { SeoService, siteUrl } from "@/cms/seo";
 import { SingletonService } from "@/cms/singleton";
 import { PagesService } from "@/cms/pages";
 import { LocaleAlternatesService } from "@/cms/locale-alternates";
+import { locales, type Locale, defaultLocale, localeLabels, CMSMultilingual } from "./locale";
+
+export { locales, type Locale, defaultLocale, localeLabels, CMSMultilingual };
 
 /**
  * Project registration for the cms/ framework — the one file a future
@@ -23,45 +21,13 @@ import { LocaleAlternatesService } from "@/cms/locale-alternates";
  * app has lives here. To reuse this boilerplate on a new project: edit the
  * registries below (and content/*'s seed data) — nothing else in the app
  * hardcodes a collection, taxonomy, or locale string.
+ *
+ * Locale registration itself lives in ./locale.ts, not here — middleware.ts
+ * needs it on every request and must never pull in the rest of this file's
+ * dependency graph (the generated Tina client, and transitively any
+ * admin-only code built on top of it). Re-exported below so every other
+ * consumer still just imports from "@/lib/cms".
  */
-
-// --- Locale registration (.claude/plans/03-multilingual.md). ---
-
-export const locales = ["vi", "en"] as const;
-export type Locale = (typeof locales)[number];
-
-// The default locale is served unprefixed at "/" (e.g. "/products").
-// Every other locale is served under its own prefix (e.g. "/vi/products").
-export const defaultLocale: Locale = "en";
-
-export const localeLabels: Record<Locale, string> = {
-  en: "English",
-  vi: "Tiếng Việt",
-};
-
-export const CMSMultilingual = new MultilingualService<Locale>({
-  locales,
-  defaultLocale,
-  // Both locales are enabled today. Disable one by trimming this array —
-  // its content stays fully intact and editable, it just stops showing up
-  // in the sitemap, hreflang, the language switcher, and the Translation
-  // Dashboard. See MultilingualService's own doc comment. Admin can only
-  // ever reorder/relabel/add-flag among locales registered here (the
-  // language switcher's `locale` field is a dropdown constrained to
-  // `options: [...locales]`, see cms/multilingual/fields.ts) — it cannot
-  // add a locale that isn't registered in this file.
-  enabledLocales: locales,
-});
-
-// Call sites use CMSMultilingual.isLocale/pathnameHasLocalePrefix/
-// stripLocalePrefix/localePath directly — no wrapper functions here. Note
-// for middleware.ts specifically: it imports CMSMultilingual from this file
-// (the single registration source of truth), which also pulls in the full
-// Tina GraphQL client and the React/JSX admin dashboard screens below into
-// its edge Worker bundle — a real bundle-weight cost on a per-request hot
-// path (Cloudflare Workers has a hard bundle-size limit), accepted
-// deliberately in favor of one config file over splitting the registration
-// across multiple files for a bundling optimization.
 
 // --- Collection registration (.claude/plans/01-collection.md). ---
 
@@ -74,9 +40,10 @@ const collectionRegistry = {
     listingPageFilename: "blog",
     draftFieldName: "draft",
     // Not wrapped in React's cache(): this registry is also reachable from
-    // tina/config.ts (via translationDashboardScreen/seoDashboardScreen
-    // below), which Tina's CLI bundles into a plain client-side admin
-    // bundle, not a Next.js RSC context — cache() isn't available there
+    // tina/config.ts (via lib/dashboards.ts's translationDashboardScreen/
+    // seoDashboardScreen, which import CMSCollection from this file), which
+    // Tina's CLI bundles into a plain client-side admin bundle, not a
+    // Next.js RSC context — cache() isn't available there
     // ("cache is not a function" at admin load, confirmed live). Losing the
     // per-request GraphQL dedup this bought (e.g. a detail page's
     // related-entries lookup alongside its own listing fetch) is a minor
@@ -376,60 +343,22 @@ export async function getPageBlockData(
   return { latestPosts, products, uiDictionary };
 }
 
-// Only registered when multilingual is actually on — a single-locale
-// project has nothing to show a translation-coverage dashboard for.
-export const translationDashboardScreen = CMSMultilingual.isEnabled()
-  ? createTranslationDashboardScreen(
-      new TranslationDashboardService(
-        {
-          getRegisteredCollectionNames: () => Object.keys(collectionRegistry) as CollectionKey[],
-          getItemLocaleIndex: CMSCollection.getItemLocaleIndex.bind(CMSCollection),
-        },
-        { locales: CMSMultilingual.getEnabledLocales(), defaultLocale }
-      )
-    )
-  : null;
-
 // --- SEO registration (.claude/plans/04-seo.md). ---
 
-// Every canonical URL, hreflang alternate, and sitemap entry in this app is
-// built from this one value — silently falling back to localhost in
-// production would poison all of them with no warning. Same "fail loud
-// instead of silently wrong" reasoning as tina/config.ts's
-// assertSlugFieldsHaveGuard, and the same category of footgun CLAUDE.md's
-// "Production builds require Tina Cloud" note already documents for
-// NEXT_PUBLIC_TINA_CLIENT_ID/TINA_TOKEN — set this wherever the app
-// builds/runs, in both places on platforms that separate build-time and
-// runtime env vars.
-export const siteUrl = requireInProduction(process.env.NEXT_PUBLIC_SITE_URL, {
-  fallback: "http://localhost:3000",
-  errorMessage:
-    "NEXT_PUBLIC_SITE_URL is not set. Canonical/hreflang/sitemap URLs would all " +
-    "silently resolve to http://localhost:3000 in production otherwise — see " +
-    "lib/cms.ts and CLAUDE.md's \"Production builds require Tina Cloud\" note.",
-});
+// siteUrl itself now lives in cms/seo (it's SeoService's own env-var
+// contract, not project data — see that module's comment). Call sites
+// import it from "@/cms/seo" directly; this file only needs it to
+// instantiate CMSSeo below.
 
 // hreflang only ever advertises enabled locales — a disabled locale's pages
 // still exist and render, they're just not offered as a language-switch
 // target (see CMSMultilingual's own doc comment).
 export const CMSSeo = new SeoService({ siteUrl, defaultLocale, locales: CMSMultilingual.getEnabledLocales() });
 
-// `pages` isn't part of CollectionService's registry (its per-collection
-// `locales`/`listingPageFilename` shape doesn't fit a slug-driven generic
-// collection — see 01-collection.md's Addendum #4), so it's routed to
-// CMSPages.getSeoIndex() instead of CMSCollection.getSeoIndex() — same
-// shape, different service backing it.
-type SeoCollectionKey = CollectionKey | "pages";
-
-const getSeoIndexFor = (collectionName: SeoCollectionKey) =>
-  collectionName === "pages" ? CMSPages.getSeoIndex() : CMSCollection.getSeoIndex(collectionName);
-
-export const seoDashboardScreen = createSeoDashboardScreen(
-  new SeoDashboardService(
-    {
-      getRegisteredCollectionNames: (): SeoCollectionKey[] => [...Object.keys(collectionRegistry), "pages"] as SeoCollectionKey[],
-      getSeoIndex: getSeoIndexFor,
-    },
-    { locales, defaultLocale }
-  )
-);
+// seoDashboardScreen/translationDashboardScreen (Tina admin plugin screens)
+// live in lib/dashboards.ts, not here — admin-only React/JSX code that
+// tina/config.ts's cmsCallback registers, never touched by the public app,
+// kept separate from this file's public-app registration for that reason.
+// (Not a middleware-bundle concern anymore: middleware.ts imports its
+// locale data from lib/locale.ts, with no import edge to this file at all —
+// see lib/locale.ts's own comment.)
