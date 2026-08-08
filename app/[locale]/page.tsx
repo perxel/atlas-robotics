@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, localePath, stripLocalePrefix, CMSDictionary, CMSSeo } from "@/lib/cms";
+import { defaultLocale, CMSDictionary, CMSSeo, CMSMultilingual } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
@@ -17,9 +17,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || localePath(locale, "/");
+  const pathname = headersList.get("x-pathname") || CMSMultilingual.localePath(locale, "/");
   const [result, settings, alternates, uiDictionary] = await Promise.all([
     getPageQuery(locale, "home"),
     getSiteSettings(locale),
@@ -30,7 +30,7 @@ export async function generateMetadata({
 
   return CMSSeo.buildMetadata({
     lang: locale,
-    pathWithoutLocale: stripLocalePrefix(pathname),
+    pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo || settings?.defaultSeo,
     fallbackTitle: page?.title || settings?.title || translateText(uiDictionary, "Lorem ipsum"),
@@ -43,7 +43,7 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const result = await getPageQuery(locale, "home");
 
   if (!result) notFound();

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { getNav, getSiteSettings } from "@/lib/tina-content";
-import { localePath, type Locale, CMSDictionary, getMultilingualSettings } from "@/lib/cms";
+import { type Locale, CMSDictionary, getMultilingualSettings, CMSMultilingual } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default async function Header({ locale }: { locale: Locale }) {
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || localePath(locale, "/");
+  const pathname = headersList.get("x-pathname") || CMSMultilingual.localePath(locale, "/");
   const [nav, settings, alternates, multilingual, uiDictionary] = await Promise.all([
     getNav(locale),
     getSiteSettings(locale),
@@ -22,7 +22,7 @@ export default async function Header({ locale }: { locale: Locale }) {
     <header className="sticky top-0 z-40 border-b border-border bg-surface">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <Link
-          href={localePath(locale, "/")}
+          href={CMSMultilingual.localePath(locale, "/")}
           className="flex items-center gap-2 text-lg font-semibold whitespace-nowrap"
         >
           {settings?.logo && (

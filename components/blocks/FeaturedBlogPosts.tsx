@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
-import { type Locale, collectionPath, type getBlogPosts } from "@/lib/cms";
+import { type Locale, CMSCollection, type getBlogPosts } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 
 export default function FeaturedBlogPosts({
@@ -16,6 +16,7 @@ export default function FeaturedBlogPosts({
   uiDictionary: Record<string, string>;
 }) {
   const t = (text: string) => translateText(uiDictionary, text);
+  const blogPath = (rest = "") => CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest });
   const shown = posts.slice(0, data.postsToShow || 3);
 
   return (
@@ -39,7 +40,7 @@ export default function FeaturedBlogPosts({
           {shown.map((post) => (
             <Link
               key={post.id}
-              href={collectionPath(locale, "blog", `/${post.slug}`)}
+              href={blogPath(`/${post.slug}`)}
               className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
             >
               {post.coverImage && (
@@ -63,7 +64,7 @@ export default function FeaturedBlogPosts({
 
       <div className="mt-8 text-center">
         <Link
-          href={collectionPath(locale, "blog")}
+          href={blogPath()}
           className="text-sm font-medium text-accent hover:opacity-80"
         >
           {t("View all posts")}

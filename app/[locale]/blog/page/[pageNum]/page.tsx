@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { defaultLocale, isLocale, collectionPath } from "@/lib/cms";
+import { defaultLocale, CMSCollection, CMSMultilingual } from "@/lib/cms";
 import { parsePageParam } from "@/cms/pagination";
 import { generateBlogMetadata, BlogListing } from "../../listing";
 
@@ -17,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; pageNum: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return generateBlogMetadata(locale);
 }
 
@@ -27,12 +27,12 @@ export default async function BlogPageByNumber({
   params: Promise<{ locale: string; pageNum: string }>;
 }) {
   const { locale: rawLocale, pageNum } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const page = parsePageParam(pageNum);
 
   if (page === null) notFound();
   // Page 1 already lives at the bare /blog URL — one URL per page.
-  if (page <= 1) redirect(collectionPath(locale, "blog"));
+  if (page <= 1) redirect(CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale }));
 
   return <BlogListing locale={locale} requestedPage={page} />;
 }

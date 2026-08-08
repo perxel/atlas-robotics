@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import { localePath, type Locale, collectionPath, taxonomyArchivePath, siteUrl, type getBlogPosts } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type getBlogPosts, CMSMultilingual } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
@@ -29,6 +29,7 @@ export default function BlogPostView({
   const { data: liveData } = useTina({ query, variables, data });
   const post = liveData.blog;
   const t = (text: string) => translateText(uiDictionary, text);
+  const blogPath = (rest = "") => CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest });
 
   type CategoryItem = NonNullable<NonNullable<typeof post.categories>[number]>;
   const categories = (post.categories ?? []).filter(
@@ -36,8 +37,8 @@ export default function BlogPostView({
   );
 
   const trail: BreadcrumbItem[] = [
-    { label: t("Home"), href: localePath(locale, "/") },
-    { label: t("Blog"), href: collectionPath(locale, "blog") },
+    { label: t("Home"), href: CMSMultilingual.localePath(locale, "/") },
+    { label: t("Blog"), href: blogPath() },
     { label: post.title },
   ];
 
@@ -78,7 +79,14 @@ export default function BlogPostView({
             {categories.map((c) => (
               <Link
                 key={c.term.slug}
-                href={taxonomyArchivePath("blog", "categories", locale, c.term.slug) ?? "#"}
+                href={
+                  CMSTaxonomy.getArchivePath({
+                    collectionName: "blog",
+                    taxonomyName: "categories",
+                    lang: locale,
+                    termSlug: c.term.slug,
+                  }) ?? "#"
+                }
                 data-tina-field={tinaField(c)}
                 className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
               >
@@ -100,7 +108,7 @@ export default function BlogPostView({
             {relatedPosts.map((related) => (
               <Link
                 key={related.id}
-                href={collectionPath(locale, "blog", `/${related.slug}`)}
+                href={blogPath(`/${related.slug}`)}
                 className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
               >
                 {related.coverImage && (
@@ -127,7 +135,7 @@ export default function BlogPostView({
           </div>
           <div className="mt-8 text-center">
             <Link
-              href={collectionPath(locale, "blog")}
+              href={blogPath()}
               className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
             >
               {t("View all posts")}

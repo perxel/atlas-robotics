@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { defaultLocale, pathnameHasLocalePrefix, isLocale, CMSMultilingual } from "@/lib/cms";
+import { defaultLocale, CMSMultilingual } from "@/lib/cms";
 
 // Locale routing strategy: the default locale is served unprefixed at "/"
 // (internally rewritten to the "/<defaultLocale>" route segment), every
@@ -32,13 +32,13 @@ export function middleware(request: NextRequest) {
   // components can build canonical/hreflang links.
   requestHeaders.set("x-pathname", pathname);
 
-  if (pathnameHasLocalePrefix(pathname)) {
+  if (CMSMultilingual.pathnameHasLocalePrefix(pathname)) {
     // A disabled locale's content isn't deleted or unreachable in Tina —
     // only removed from public discovery. Its URL redirects to the default
     // locale's home page rather than 404ing or staying reachable, same
     // "no dangling/dead URL" principle this file already applies above.
     const requestedLocale = pathname.split("/")[1];
-    if (isLocale(requestedLocale) && !CMSMultilingual.isLocaleEnabled(requestedLocale)) {
+    if (CMSMultilingual.isLocale(requestedLocale) && !CMSMultilingual.isLocaleEnabled(requestedLocale)) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url, 307);

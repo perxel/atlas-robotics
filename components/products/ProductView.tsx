@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import { localePath, type Locale, collectionPath, taxonomyArchivePath, siteUrl, type getProducts } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type getProducts, CMSMultilingual } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import { contactSlug } from "@/lib/pages-config";
@@ -30,6 +30,8 @@ export default function ProductView({
   const { data: liveData } = useTina({ query, variables, data });
   const product = liveData.products;
   const t = (text: string) => translateText(uiDictionary, text);
+  const productsPath = (rest = "") =>
+    CMSCollection.getCollectionPath({ collectionName: "products", lang: locale, rest });
 
   type CategoryItem = NonNullable<NonNullable<typeof product.productCategories>[number]>;
   const categories = (product.productCategories ?? []).filter(
@@ -38,8 +40,8 @@ export default function ProductView({
   const highlights = (product.highlights ?? []).filter((h): h is string => !!h);
 
   const trail: BreadcrumbItem[] = [
-    { label: t("Home"), href: localePath(locale, "/") },
-    { label: t("Products"), href: collectionPath(locale, "products") },
+    { label: t("Home"), href: CMSMultilingual.localePath(locale, "/") },
+    { label: t("Products"), href: productsPath() },
     { label: product.title },
   ];
 
@@ -61,7 +63,14 @@ export default function ProductView({
             {categories.map((c) => (
               <Link
                 key={c.term.slug}
-                href={taxonomyArchivePath("products", "productCategories", locale, c.term.slug) ?? "#"}
+                href={
+                  CMSTaxonomy.getArchivePath({
+                    collectionName: "products",
+                    taxonomyName: "productCategories",
+                    lang: locale,
+                    termSlug: c.term.slug,
+                  }) ?? "#"
+                }
                 data-tina-field={tinaField(c)}
                 className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
               >
@@ -112,7 +121,7 @@ export default function ProductView({
 
         <div className="mt-10">
           <Link
-            href={localePath(locale, `/${contactSlug[locale]}`)}
+            href={CMSMultilingual.localePath(locale, `/${contactSlug[locale]}`)}
             className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
           >
             {t("Get started")}
@@ -127,7 +136,7 @@ export default function ProductView({
             {relatedProducts.map((related) => (
               <Link
                 key={related.id}
-                href={collectionPath(locale, "products", `/${related.slug}`)}
+                href={productsPath(`/${related.slug}`)}
                 className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
               >
                 {related.coverImage && (
@@ -149,7 +158,7 @@ export default function ProductView({
           </div>
           <div className="mt-8 text-center">
             <Link
-              href={collectionPath(locale, "products")}
+              href={productsPath()}
               className="inline-block rounded bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90"
             >
               {t("View all products")}

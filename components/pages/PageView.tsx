@@ -4,7 +4,7 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types";
 import { isBlocksEnabled } from "@/lib/pages-config";
-import { localePath, type Locale, siteUrl, type getBlogPosts, type getProducts } from "@/lib/cms";
+import { type Locale, siteUrl, type getBlogPosts, type getProducts, CMSMultilingual } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
@@ -48,7 +48,7 @@ export default function PageView({
   const hasIntro = (page.intro?.children?.length ?? 0) > 0;
   const t = (text: string) => translateText(uiDictionary, text);
   const trail: BreadcrumbItem[] = [
-    { label: t("Home"), href: localePath(locale, "/") },
+    { label: t("Home"), href: CMSMultilingual.localePath(locale, "/") },
     { label: page.title },
   ];
 

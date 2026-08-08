@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, stripLocalePrefix, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, collectionPath, type ProductItem } from "@/lib/cms";
+import { defaultLocale, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type ProductItem, CMSMultilingual } from "@/lib/cms";
 import { getSiteSettings } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
@@ -13,9 +13,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || collectionPath(locale, "products", `/${slug}`);
+  const pathname =
+    headersList.get("x-pathname") ||
+    CMSCollection.getCollectionPath({ collectionName: "products", lang: locale, rest: `/${slug}` });
   const [result, settings, alternates, uiDictionary] = await Promise.all([
     getProductQuery(locale, slug),
     getSiteSettings(locale),
@@ -27,7 +29,7 @@ export async function generateMetadata({
 
   return CMSSeo.buildMetadata({
     lang: locale,
-    pathWithoutLocale: stripLocalePrefix(pathname),
+    pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: product?.seo,
     fallbackTitle: product?.title || `${t("Products")} — ${settings?.title || t("Lorem ipsum")}`,
@@ -42,7 +44,7 @@ export default async function ProductDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale: rawLocale, slug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const [result, relatedProducts, uiDictionary] = await Promise.all([
     getProductQuery(locale, slug),
     CMSTaxonomy.getRelatedEntries<ProductItem>({

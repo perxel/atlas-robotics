@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { defaultLocale, isLocale, collectionPath } from "@/lib/cms";
+import { defaultLocale, CMSCollection, CMSMultilingual } from "@/lib/cms";
 import { parsePageParam } from "@/cms/pagination";
 import { generateBlogArchiveMetadata, BlogArchive } from "../../archive";
 
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string; term: string; pageNum: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale, slug: taxonomySegment, term: termSlug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return generateBlogArchiveMetadata(locale, taxonomySegment, termSlug);
 }
 
@@ -22,12 +22,14 @@ export default async function BlogTaxonomyArchivePageByNumber({
   params: Promise<{ locale: string; slug: string; term: string; pageNum: string }>;
 }) {
   const { locale: rawLocale, slug: taxonomySegment, term: termSlug, pageNum } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const page = parsePageParam(pageNum);
 
   if (page === null) notFound();
   if (page <= 1) {
-    redirect(collectionPath(locale, "blog", `/${taxonomySegment}/${termSlug}`));
+    redirect(
+      CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest: `/${taxonomySegment}/${termSlug}` })
+    );
   }
 
   return (

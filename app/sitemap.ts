@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { CMSMultilingual, collectionPath, resolvePagesDocumentUrl, siteUrl } from "@/lib/cms";
+import { CMSMultilingual, CMSCollection, siteUrl } from "@/lib/cms";
 import { inLocale } from "@/lib/tina-content";
 import { client } from "@/tina/__generated__/client";
 
@@ -23,20 +23,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const doc of inLocale(pagesRes.data.pagesConnection.edges, locale)) {
       const filename = doc._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") ?? "";
       entries.push({
-        url: `${siteUrl}${resolvePagesDocumentUrl(locale, filename, doc.slug)}`,
+        url: `${siteUrl}${CMSCollection.resolvePagesDocumentUrl(locale, filename, doc.slug)}`,
       });
     }
 
     for (const doc of inLocale(blogRes.data.blogConnection.edges, locale)) {
       entries.push({
-        url: `${siteUrl}${collectionPath(locale, "blog", `/${doc.slug}`)}`,
+        url: `${siteUrl}${CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest: `/${doc.slug}` })}`,
         lastModified: doc.publishDate || undefined,
       });
     }
 
     for (const doc of inLocale(productsRes.data.productsConnection.edges, locale)) {
       entries.push({
-        url: `${siteUrl}${collectionPath(locale, "products", `/${doc.slug}`)}`,
+        url: `${siteUrl}${CMSCollection.getCollectionPath({ collectionName: "products", lang: locale, rest: `/${doc.slug}` })}`,
       });
     }
   }

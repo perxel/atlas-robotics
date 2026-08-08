@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { defaultLocale, isLocale } from "@/lib/cms";
+import { defaultLocale, CMSMultilingual } from "@/lib/cms";
 import { generateProductsMetadata, ProductsListing } from "./listing";
 
 // Same pattern as app/[locale]/blog/page.tsx — a `pages` document with the
@@ -14,7 +14,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return generateProductsMetadata(locale);
 }
 
@@ -24,6 +24,6 @@ export default async function ProductsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return <ProductsListing locale={locale} requestedPage={1} />;
 }

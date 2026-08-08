@@ -1,12 +1,4 @@
-import { locales, localePath, stripLocalePrefix, type Locale } from "@/lib/cms";
-import {
-  collectionForSegment,
-  translateCollectionPath,
-  collectionPath,
-  listingPageFilenameFor,
-  getCollectionDocAlternates,
-  CMSTaxonomy,
-} from "@/lib/cms";
+import { locales, CMSMultilingual, CMSCollection, CMSTaxonomy, type Locale } from "@/lib/cms";
 import { getPageQuery, getPageAlternates, getCollectionListingAlternates } from "@/lib/tina-content";
 
 /**
@@ -25,21 +17,22 @@ import { getPageQuery, getPageAlternates, getCollectionListingAlternates } from 
  *   collection-route case since its path shape is a superset of it.
  * - **A collection's listing page** (e.g. "/blog" itself): a real
  *   existence check (`getCollectionListingAlternates`) against the locked
- *   `pages` document named in lib/cms.ts's
- *   `listingPageFilename` — but the resulting URL is built from
- *   `collectionPath`, not that document's own `slug` field, since the
- *   locked document's `slug` never drives its real public URL (see
- *   CLAUDE.md). A locale that hasn't had its listing page created yet is
- *   correctly reported as missing, not guessed.
+ *   `pages` document named by `CMSCollection.getListingPageFilename()` —
+ *   but the resulting URL is built from `CMSCollection.getCollectionPath()`,
+ *   not that document's own `slug` field, since the locked document's
+ *   `slug` never drives its real public URL (see CLAUDE.md). A locale that
+ *   hasn't had its listing page created yet is correctly reported as
+ *   missing, not guessed.
  * - **A collection detail page** (an individual blog post / product, e.g.
- *   "/blog/my-post"): resolved with `getCollectionDocAlternates`, a real
- *   cross-locale document lookup — NOT the pure string transform below.
- *   An untranslated post has no sibling document in that locale, so it's
- *   correctly omitted rather than assumed to exist under the same slug.
+ *   "/blog/my-post"): resolved with `CMSCollection.getCollectionAlternates()`,
+ *   a real cross-locale document lookup — NOT the pure string transform
+ *   below. An untranslated post has no sibling document in that locale, so
+ *   it's correctly omitted rather than assumed to exist under the same slug.
  * - **A taxonomy archive page's own listing shell** or anything else under
  *   a collection route that isn't a detail page: falls back to the pure
- *   string transform (`translateCollectionPath`), since only the
- *   collection's leading segment ("blog" -> "tin-tuc") differs there.
+ *   string transform (`CMSCollection.translateCollectionPath()`), since
+ *   only the collection's leading segment ("blog" -> "tin-tuc") differs
+ *   there.
  * - **Everything else**: treated as a `pages` document's own slug, which
  *   CAN genuinely diverge per locale (e.g. "about" / "ve-chung-toi") with
  *   nothing pairing them but a matching filename — resolved with a real
@@ -53,7 +46,7 @@ export async function resolveLocaleAlternates(
   locale: Locale,
   pathname: string
 ): Promise<Partial<Record<Locale, string>>> {
-  const path = stripLocalePrefix(pathname);
+  const path = CMSMultilingual.stripLocalePrefix(pathname);
 
   if (path === "/") {
     // Home is a `pages` document with the well-known filename "home" — no
@@ -63,24 +56,24 @@ export async function resolveLocaleAlternates(
   }
 
   const firstSegment = path.split("/")[1];
-  const collectionKey = collectionForSegment(firstSegment);
+  const collectionKey = CMSCollection.getCollectionForSegment(firstSegment);
   if (collectionKey) {
     const taxonomyAlternates = await resolveTaxonomyArchiveAlternates(collectionKey, locale, path);
     if (taxonomyAlternates) return taxonomyAlternates;
 
     const rest = path.slice(`/${firstSegment}`.length); // "" (or "/") for the listing page itself
     if (!rest || rest === "/") {
-      return getCollectionListingAlternates(collectionKey, listingPageFilenameFor(collectionKey));
+      return getCollectionListingAlternates(collectionKey, CMSCollection.getListingPageFilename(collectionKey));
     }
 
     const detailSlug = rest.split("/")[1];
     if (detailSlug) {
-      return getCollectionDocAlternates(collectionKey, locale, detailSlug);
+      return CMSCollection.getCollectionAlternates({ collectionName: collectionKey, lang: locale, slug: detailSlug });
     }
 
     const result: Partial<Record<Locale, string>> = {};
     for (const l of locales) {
-      result[l] = localePath(l, translateCollectionPath(path, l));
+      result[l] = CMSMultilingual.localePath(l, CMSCollection.translateCollectionPath(path, l));
     }
     return result;
   }
@@ -105,7 +98,7 @@ export async function resolveLocaleAlternates(
  * alternates exist".
  */
 async function resolveTaxonomyArchiveAlternates(
-  collectionKey: NonNullable<ReturnType<typeof collectionForSegment>>,
+  collectionKey: NonNullable<ReturnType<typeof CMSCollection.getCollectionForSegment>>,
   locale: Locale,
   path: string
 ): Promise<Partial<Record<Locale, string>> | null> {
@@ -135,7 +128,11 @@ async function resolveTaxonomyArchiveAlternates(
       lang: l,
     });
     if (!termSlugForLocale || !urlSegmentForLocale) continue;
-    result[l] = collectionPath(l, collectionKey, `/${urlSegmentForLocale}/${termSlugForLocale}${restPath}`);
+    result[l] = CMSCollection.getCollectionPath({
+      collectionName: collectionKey,
+      lang: l,
+      rest: `/${urlSegmentForLocale}/${termSlugForLocale}${restPath}`,
+    });
   }
   return result;
 }

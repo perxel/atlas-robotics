@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { defaultLocale, isLocale } from "@/lib/cms";
+import { defaultLocale, CMSMultilingual } from "@/lib/cms";
 import { generateProductsArchiveMetadata, ProductsArchive } from "./archive";
 
 // Page 1 of a taxonomy archive (e.g. /products/category/automation);
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string; term: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale, slug: taxonomySegment, term: termSlug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return generateProductsArchiveMetadata(locale, taxonomySegment, termSlug);
 }
 
@@ -22,7 +22,7 @@ export default async function ProductsTaxonomyArchivePage({
   params: Promise<{ locale: string; slug: string; term: string }>;
 }) {
   const { locale: rawLocale, slug: taxonomySegment, term: termSlug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return (
     <ProductsArchive
       locale={locale}

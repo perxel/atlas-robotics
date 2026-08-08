@@ -1,4 +1,4 @@
-import { type Locale, listingPageFilenames } from "@/lib/cms";
+import { type Locale, CMSCollection } from "@/lib/cms";
 
 /**
  * Pages listed here render as a fixed layout (title + intro only), ignoring
@@ -51,7 +51,10 @@ export const reservedSlugs = new Set<string>(["admin", "api"]);
  * mean fighting Tina rather than extending it, so this is a documented
  * convention, not a hard guarantee.
  */
-export const lockedSlugFilenames = new Set<string>(["home", ...listingPageFilenames]);
+export const lockedSlugFilenames = new Set<string>([
+  "home",
+  ...CMSCollection.getRegisteredCollectionNames().map((name) => CMSCollection.getListingPageFilename(name)),
+]);
 
 /**
  * The contact page's slug, per locale — content/pages/<locale>/contact.md

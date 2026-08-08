@@ -4,7 +4,7 @@ import { draftField } from "@/cms/collection";
 import { composeBeforeSubmit } from "@/cms/tina-hooks";
 import { seoField } from "@/cms/seo";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
-import { type Locale, collectionPath } from "@/lib/cms";
+import { type Locale, CMSCollection } from "@/lib/cms";
 
 export const blogCollection: Collection = {
   name: "blog",
@@ -24,13 +24,13 @@ export const blogCollection: Collection = {
     // filename, this link can point at the wrong preview URL — the
     // actual page route is unaffected, since rendering resolves the
     // `slug` field via a GraphQL query (lib/tina-content.ts), not this.
-    // Uses collectionPath (lib/cms.ts), not a literal "/blog"
-    // — this used to hardcode the English segment, which broke the vi
-    // preview link once "blog" got a translated URL ("tin-tuc").
+    // Uses CMSCollection.getCollectionPath (lib/cms.ts), not a literal
+    // "/blog" — this used to hardcode the English segment, which broke the
+    // vi preview link once "blog" got a translated URL ("tin-tuc").
     router: ({ document }) => {
       const locale = document._sys.breadcrumbs[0] as Locale;
       const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
-      return collectionPath(locale, "blog", `/${filename}`);
+      return CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest: `/${filename}` });
     },
     beforeSubmit: composeBeforeSubmit([slugLifecycleGuard("blog")]),
   },

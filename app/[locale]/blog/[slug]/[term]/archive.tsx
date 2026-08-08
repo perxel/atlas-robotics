@@ -8,14 +8,12 @@ import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 import {
-  defaultLocale,
-  isLocale,
-  stripLocalePrefix,
   type Locale,
-  collectionPath,
+  CMSCollection,
   CMSTaxonomy,
   CMSDictionary,
   CMSSeo,
+  CMSMultilingual,
   type BlogPostItem,
 } from "@/lib/cms";
 
@@ -66,7 +64,7 @@ export async function generateBlogArchiveMetadata(
   const headersList = await headers();
   const pathname =
     headersList.get("x-pathname") ||
-    collectionPath(locale, "blog", `/${taxonomySegment}/${termSlug}`);
+    CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest: `/${taxonomySegment}/${termSlug}` });
   const [archive, settings, alternates, uiDictionary] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
@@ -77,7 +75,7 @@ export async function generateBlogArchiveMetadata(
 
   return CMSSeo.buildMetadata({
     lang: locale,
-    pathWithoutLocale: stripLocalePrefix(pathname),
+    pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     fallbackTitle: archive
       ? `${archive.term.title} — ${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`
@@ -104,14 +102,21 @@ export async function BlogArchive({
 
   if (!archive) notFound();
 
-  const basePath = collectionPath(locale, "blog", `/${taxonomySegment}/${termSlug}`);
+  const basePath = CMSCollection.getCollectionPath({
+    collectionName: "blog",
+    lang: locale,
+    rest: `/${taxonomySegment}/${termSlug}`,
+  });
   const { items: shown, currentPage, totalPages } = paginateItems(archive.posts, requestedPage);
   redirectIfPageMismatch(requestedPage, currentPage, basePath);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
-        <Link href={collectionPath(locale, "blog")} className="hover:text-accent">
+        <Link
+          href={CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale })}
+          className="hover:text-accent"
+        >
           {t("Blog")}
         </Link>
       </p>
@@ -121,7 +126,7 @@ export async function BlogArchive({
         {shown.map((post) => (
           <Link
             key={post.id}
-            href={collectionPath(locale, "blog", `/${post.slug}`)}
+            href={CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest: `/${post.slug}` })}
             className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             {post.coverImage && (

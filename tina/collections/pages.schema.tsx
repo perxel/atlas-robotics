@@ -12,7 +12,7 @@ import { featuredBlogPostsTemplate } from "@/components/blocks/FeaturedBlogPosts
 import { contactFormTemplate } from "@/components/blocks/ContactFormBlock.template";
 import { blogListingTemplate } from "@/components/blocks/BlogListingBlock.template";
 import { productListingTemplate } from "@/components/blocks/ProductListingBlock.template";
-import { type Locale, resolvePagesDocumentUrl } from "@/lib/cms";
+import { type Locale, CMSCollection } from "@/lib/cms";
 import { reservedSlugs, lockedSlugFilenames } from "@/lib/pages-config";
 
 // Block set for the `pages` collection's block-based editing.
@@ -50,7 +50,7 @@ export const pagesCollection: Collection = {
     // filename (_sys.breadcrumbs), not the `slug` field — `document` in
     // this callback only reliably carries `_sys` (confirmed live: reading
     // `document.slug` here produced a broken preview URL). Delegates to
-    // resolvePagesDocumentUrl (lib/cms.ts), passing `filename`
+    // CMSCollection.resolvePagesDocumentUrl (lib/cms.ts), passing `filename`
     // as a stand-in for `slug` since the real field isn't available here —
     // only correct when filename === slug, same limitation as before; that
     // helper's `home`/listing-page special cases don't depend on it, only
@@ -58,7 +58,7 @@ export const pagesCollection: Collection = {
     router: ({ document }) => {
       const locale = document._sys.breadcrumbs[0] as Locale;
       const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
-      return resolvePagesDocumentUrl(locale, filename, filename);
+      return CMSCollection.resolvePagesDocumentUrl(locale, filename, filename);
     },
   },
   fields: [

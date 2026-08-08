@@ -3,7 +3,7 @@ import { ViewTransition } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import "../globals.css";
-import { locales, defaultLocale, isLocale, localePath, stripLocalePrefix, CMSDictionary, CMSSeo, siteUrl } from "@/lib/cms";
+import { locales, defaultLocale, CMSDictionary, CMSSeo, siteUrl, CMSMultilingual } from "@/lib/cms";
 import { getSiteSettings } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
 import Header from "@/components/Header";
@@ -29,10 +29,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || localePath(locale, "/");
-  const pathWithoutLocale = stripLocalePrefix(pathname);
+  const pathname = headersList.get("x-pathname") || CMSMultilingual.localePath(locale, "/");
+  const pathWithoutLocale = CMSMultilingual.stripLocalePrefix(pathname);
   const [settings, uiDictionary] = await Promise.all([getSiteSettings(locale), CMSDictionary.loadMap(locale)]);
 
   return {
@@ -55,7 +55,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
 
   return (
     <html

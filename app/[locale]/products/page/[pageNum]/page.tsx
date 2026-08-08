@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { defaultLocale, isLocale, collectionPath } from "@/lib/cms";
+import { defaultLocale, CMSCollection, CMSMultilingual } from "@/lib/cms";
 import { parsePageParam } from "@/cms/pagination";
 import { generateProductsMetadata, ProductsListing } from "../../listing";
 
@@ -20,7 +20,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; pageNum: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return generateProductsMetadata(locale);
 }
 
@@ -30,12 +30,12 @@ export default async function ProductsPageByNumber({
   params: Promise<{ locale: string; pageNum: string }>;
 }) {
   const { locale: rawLocale, pageNum } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const page = parsePageParam(pageNum);
 
   if (page === null) notFound();
   // Page 1 already lives at the bare /products URL — one URL per page.
-  if (page <= 1) redirect(collectionPath(locale, "products"));
+  if (page <= 1) redirect(CMSCollection.getCollectionPath({ collectionName: "products", lang: locale }));
 
   return <ProductsListing locale={locale} requestedPage={page} />;
 }

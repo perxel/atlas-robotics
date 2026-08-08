@@ -9,7 +9,7 @@ const ELLIPSIS = "…" as const;
  * ProductListingBlock's "all" mode, and the blog/products taxonomy archive
  * routes — anything that paginates over an already-fetched array with
  * cms/pagination's paginateItems(). `basePath` is the listing/archive page's
- * own URL (e.g. collectionPath(locale, "blog")); links go through
+ * own URL (e.g. CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale })); links go through
  * canonicalPageHref so the URL shape (`basePath` for page 1, `basePath/page/N`
  * otherwise) only has to be spelled out in one place.
  *

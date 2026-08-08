@@ -8,14 +8,12 @@ import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 import {
-  defaultLocale,
-  isLocale,
-  stripLocalePrefix,
   type Locale,
-  collectionPath,
+  CMSCollection,
   CMSTaxonomy,
   CMSDictionary,
   CMSSeo,
+  CMSMultilingual,
   type ProductItem,
 } from "@/lib/cms";
 
@@ -57,7 +55,11 @@ export async function generateProductsArchiveMetadata(
   const headersList = await headers();
   const pathname =
     headersList.get("x-pathname") ||
-    collectionPath(locale, "products", `/${taxonomySegment}/${termSlug}`);
+    CMSCollection.getCollectionPath({
+      collectionName: "products",
+      lang: locale,
+      rest: `/${taxonomySegment}/${termSlug}`,
+    });
   const [archive, settings, alternates, uiDictionary] = await Promise.all([
     loadArchive(locale, taxonomySegment, termSlug),
     getSiteSettings(locale),
@@ -68,7 +70,7 @@ export async function generateProductsArchiveMetadata(
 
   return CMSSeo.buildMetadata({
     lang: locale,
-    pathWithoutLocale: stripLocalePrefix(pathname),
+    pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     fallbackTitle: archive
       ? `${archive.term.title} — ${t("Products")} — ${settings?.title || t("Lorem ipsum")}`
@@ -95,14 +97,21 @@ export async function ProductsArchive({
 
   if (!archive) notFound();
 
-  const basePath = collectionPath(locale, "products", `/${taxonomySegment}/${termSlug}`);
+  const basePath = CMSCollection.getCollectionPath({
+    collectionName: "products",
+    lang: locale,
+    rest: `/${taxonomySegment}/${termSlug}`,
+  });
   const { items: shown, currentPage, totalPages } = paginateItems(archive.products, requestedPage);
   redirectIfPageMismatch(requestedPage, currentPage, basePath);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <p className="text-sm text-muted-foreground">
-        <Link href={collectionPath(locale, "products")} className="hover:text-accent">
+        <Link
+          href={CMSCollection.getCollectionPath({ collectionName: "products", lang: locale })}
+          className="hover:text-accent"
+        >
           {t("Products")}
         </Link>
       </p>
@@ -112,7 +121,11 @@ export async function ProductsArchive({
         {shown.map((product) => (
           <Link
             key={product.id}
-            href={collectionPath(locale, "products", `/${product.slug}`)}
+            href={CMSCollection.getCollectionPath({
+              collectionName: "products",
+              lang: locale,
+              rest: `/${product.slug}`,
+            })}
             className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             {product.coverImage && (

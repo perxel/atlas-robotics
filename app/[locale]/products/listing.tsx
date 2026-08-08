@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { stripLocalePrefix, type Locale, collectionPath, CMSDictionary, CMSSeo } from "@/lib/cms";
+import { CMSMultilingual, type Locale, CMSCollection, CMSDictionary, CMSSeo } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
@@ -17,7 +17,8 @@ import PageView from "@/components/pages/PageView";
  */
 export async function generateProductsMetadata(locale: Locale): Promise<Metadata> {
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || collectionPath(locale, "products");
+  const pathname =
+    headersList.get("x-pathname") || CMSCollection.getCollectionPath({ collectionName: "products", lang: locale });
   const [result, settings, alternates, uiDictionary] = await Promise.all([
     getPageQuery(locale, "products"),
     getSiteSettings(locale),
@@ -29,7 +30,7 @@ export async function generateProductsMetadata(locale: Locale): Promise<Metadata
 
   return CMSSeo.buildMetadata({
     lang: locale,
-    pathWithoutLocale: stripLocalePrefix(pathname),
+    pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
     fallbackTitle: page?.title || `${t("Products")} — ${settings?.title || t("Lorem ipsum")}`,
@@ -55,7 +56,11 @@ export async function ProductsListing({
   // page number (e.g. /page/99 with only 2 actual pages) redirect to the
   // canonical URL instead of silently duplicating page 2's content.
   const { currentPage } = paginateItems(products, requestedPage);
-  redirectIfPageMismatch(requestedPage, currentPage, collectionPath(locale, "products"));
+  redirectIfPageMismatch(
+    requestedPage,
+    currentPage,
+    CMSCollection.getCollectionPath({ collectionName: "products", lang: locale })
+  );
 
   return (
     <PageView

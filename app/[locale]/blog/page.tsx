@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { defaultLocale, isLocale } from "@/lib/cms";
+import { defaultLocale, CMSMultilingual } from "@/lib/cms";
 import { generateBlogMetadata, BlogListing } from "./listing";
 
 // The blog listing is a `pages` document too (fixed filename "blog", same
@@ -19,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return generateBlogMetadata(locale);
 }
 
@@ -29,6 +29,6 @@ export default async function BlogPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: rawLocale } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   return <BlogListing locale={locale} requestedPage={1} />;
 }

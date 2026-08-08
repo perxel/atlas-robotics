@@ -4,7 +4,7 @@ import { draftField } from "@/cms/collection";
 import { composeBeforeSubmit } from "@/cms/tina-hooks";
 import { seoField } from "@/cms/seo";
 import { taxonomyField } from "./shared-fields/taxonomy.schema";
-import { type Locale, collectionPath } from "@/lib/cms";
+import { type Locale, CMSCollection } from "@/lib/cms";
 
 export const productsCollection: Collection = {
   name: "products",
@@ -15,11 +15,12 @@ export const productsCollection: Collection = {
     // Same reasoning as blog's router (tina/collections/blog.schema.tsx):
     // derived from the filename (_sys.breadcrumbs), not the `slug` field —
     // `document` here only reliably carries `_sys` at runtime, matching
-    // its TypeScript type. Uses collectionPath, not a literal "/products".
+    // its TypeScript type. Uses CMSCollection.getCollectionPath, not a
+    // literal "/products".
     router: ({ document }) => {
       const locale = document._sys.breadcrumbs[0] as Locale;
       const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
-      return collectionPath(locale, "products", `/${filename}`);
+      return CMSCollection.getCollectionPath({ collectionName: "products", lang: locale, rest: `/${filename}` });
     },
     beforeSubmit: composeBeforeSubmit([slugLifecycleGuard("products")]),
   },

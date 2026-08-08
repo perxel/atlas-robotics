@@ -149,6 +149,12 @@ export class CollectionService<TCollectionName extends string, TLocale extends s
     return Object.keys(this.#registry) as TCollectionName[];
   }
 
+  /** The `pages` document (matched by filename) backing this collection's
+   * listing page — see this class's registry shape. */
+  getListingPageFilename(collectionName: TCollectionName): string {
+    return this.#registry[collectionName].listingPageFilename;
+  }
+
   /** Lightweight per-collection locale index — reuses fetchEdges(), reading
    * only `_sys.relativePath`/`_sys.breadcrumbs` instead of full content.
    * Always sees every item, drafts included — dashboard tooling needs the

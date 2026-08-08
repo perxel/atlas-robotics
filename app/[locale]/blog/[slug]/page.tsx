@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, isLocale, stripLocalePrefix, getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, collectionPath, type BlogPostItem } from "@/lib/cms";
+import { defaultLocale, getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type BlogPostItem, CMSMultilingual } from "@/lib/cms";
 import { getSiteSettings } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
@@ -13,9 +13,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || collectionPath(locale, "blog", `/${slug}`);
+  const pathname =
+    headersList.get("x-pathname") ||
+    CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest: `/${slug}` });
   const [result, settings, alternates, uiDictionary] = await Promise.all([
     getBlogPostQuery(locale, slug),
     getSiteSettings(locale),
@@ -27,7 +29,7 @@ export async function generateMetadata({
 
   return CMSSeo.buildMetadata({
     lang: locale,
-    pathWithoutLocale: stripLocalePrefix(pathname),
+    pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: post?.seo,
     fallbackTitle: post?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,
@@ -42,7 +44,7 @@ export default async function BlogDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale: rawLocale, slug } = await params;
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = CMSMultilingual.isLocale(rawLocale) ? rawLocale : defaultLocale;
   const [result, relatedPosts, uiDictionary] = await Promise.all([
     getBlogPostQuery(locale, slug),
     CMSTaxonomy.getRelatedEntries<BlogPostItem>({

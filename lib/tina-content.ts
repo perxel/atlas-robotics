@@ -1,6 +1,15 @@
 import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
-import { locales, localePath, type Locale, collectionPath, getBlogPosts, getProducts, CMSDictionary, type CollectionKey } from "@/lib/cms";
+import {
+  locales,
+  type Locale,
+  CMSMultilingual,
+  CMSCollection,
+  getBlogPosts,
+  getProducts,
+  CMSDictionary,
+  type CollectionKey,
+} from "@/lib/cms";
 
 /** Directory-based localization: content/<collection>/<locale>/<file>. Exported for app/sitemap.ts. */
 export function inLocale<T extends { _sys: { breadcrumbs: string[] } }>(
@@ -43,22 +52,23 @@ export async function getFooter(locale: Locale) {
 
 /**
  * Cross-locale existence check for a collection's listing page (e.g. the
- * `pages` document named by lib/cms.ts's `listingPageFilenames` for
- * "blog"), returning the collection's REAL translated URL (`collectionPath`)
- * per locale — NOT `getPageAlternates`, which would build the URL from that
- * document's own `slug` field. That field is locked and doesn't drive the
- * public URL for a listing page (see CLAUDE.md's "Collection-backed listing
- * pages" section: the real URL is owned by the collection registry in
- * lib/cms.ts, this document's `slug` is never read for routing) — reusing
- * getPageAlternates here would silently produce the wrong hreflang/switcher
- * URL (e.g. "/vi/blog" instead of "/vi/tin-tuc"). Still a real existence
- * check, though: a locale whose listing page document hasn't been created
- * yet is correctly omitted.
+ * `pages` document named by `CMSCollection.getListingPageFilename()` for
+ * "blog"), returning the collection's REAL translated URL
+ * (`CMSCollection.getCollectionPath()`) per locale — NOT `getPageAlternates`,
+ * which would build the URL from that document's own `slug` field. That
+ * field is locked and doesn't drive the public URL for a listing page (see
+ * CLAUDE.md's "Collection-backed listing pages" section: the real URL is
+ * owned by the collection registry in lib/cms.ts, this document's `slug` is
+ * never read for routing) — reusing getPageAlternates here would silently
+ * produce the wrong hreflang/switcher URL (e.g. "/vi/blog" instead of
+ * "/vi/tin-tuc"). Still a real existence check, though: a locale whose
+ * listing page document hasn't been created yet is correctly omitted.
  *
  * This is a `pages`-collection concern (parallel to getPageAlternates
  * below), not a `blog`/`products` document lookup — CollectionService's own
- * cross-locale alternates (lib/cms.ts's getCollectionDocAlternates) covers
- * an individual post's/product's own detail page instead; see that file.
+ * cross-locale alternates (`CMSCollection.getCollectionAlternates()`)
+ * covers an individual post's/product's own detail page instead; see that
+ * file.
  */
 export const getCollectionListingAlternates = cache(
   async (collection: CollectionKey, filename: string): Promise<Partial<Record<Locale, string>>> => {
@@ -69,7 +79,7 @@ export const getCollectionListingAlternates = cache(
         const doc = inLocale(res.data.pagesConnection.edges, l).find(
           (d) => d._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") === filename
         );
-        if (doc) result[l] = collectionPath(l, collection);
+        if (doc) result[l] = CMSCollection.getCollectionPath({ collectionName: collection, lang: l });
       }
       return result;
     } catch {
@@ -145,7 +155,8 @@ export const getPageAlternates = cache(
           (d) => d._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") === filename
         );
         if (doc) {
-          result[l] = doc.slug === "home" ? localePath(l, "/") : localePath(l, `/${doc.slug}`);
+          result[l] =
+            doc.slug === "home" ? CMSMultilingual.localePath(l, "/") : CMSMultilingual.localePath(l, `/${doc.slug}`);
         }
       }
       return result;

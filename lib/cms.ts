@@ -50,35 +50,15 @@ export const CMSMultilingual = new MultilingualService<Locale>({
   enabledLocales: locales,
 });
 
-export function isLocale(value: string): value is Locale {
-  return CMSMultilingual.isLocale(value);
-}
-
-/** True if `pathname` starts with an explicit /<locale> prefix. */
-export function pathnameHasLocalePrefix(pathname: string): boolean {
-  return CMSMultilingual.pathnameHasLocalePrefix(pathname);
-}
-
-/** Strips a leading /<locale> segment off a pathname, if present. */
-export function stripLocalePrefix(pathname: string): string {
-  return CMSMultilingual.stripLocalePrefix(pathname);
-}
-
-/**
- * Builds the URL path for `locale` given a locale-free path (e.g. "/catalog").
- * The default locale is left unprefixed; others get a "/<locale>" prefix.
- *
- * Note for middleware.ts specifically: it imports these locale primitives
- * from this file (the single registration source of truth), which also
- * pulls in the full Tina GraphQL client and the React/JSX admin dashboard
- * screens below into its edge Worker bundle — a real bundle-weight cost on
- * a per-request hot path (Cloudflare Workers has a hard bundle-size limit),
- * accepted deliberately in favor of one config file over splitting the
- * registration across multiple files for a bundling optimization.
- */
-export function localePath(locale: Locale, pathWithoutLocale: string): string {
-  return CMSMultilingual.localePath(locale, pathWithoutLocale);
-}
+// Call sites use CMSMultilingual.isLocale/pathnameHasLocalePrefix/
+// stripLocalePrefix/localePath directly — no wrapper functions here. Note
+// for middleware.ts specifically: it imports CMSMultilingual from this file
+// (the single registration source of truth), which also pulls in the full
+// Tina GraphQL client and the React/JSX admin dashboard screens below into
+// its edge Worker bundle — a real bundle-weight cost on a per-request hot
+// path (Cloudflare Workers has a hard bundle-size limit), accepted
+// deliberately in favor of one config file over splitting the registration
+// across multiple files for a bundling optimization.
 
 // --- Collection registration (.claude/plans/01-collection.md). ---
 
@@ -117,29 +97,9 @@ export type CollectionKey = keyof typeof collectionRegistry;
 
 export const CMSCollection = new CollectionService(collectionRegistry, { defaultLocale, locales });
 
-/** Derived from the same registry `lib/pages-config.ts`'s locked-slug list
- * builds from — one source of truth, no hand-duplicated filenames. */
-export const listingPageFilenames = Object.values(collectionRegistry).map((c) => c.listingPageFilename);
-
-export const listingPageFilenameFor = (collectionName: CollectionKey): string =>
-  collectionRegistry[collectionName].listingPageFilename;
-
-// --- Thin project-level facades over CMSCollection, preserving the exact
-// call shape the pre-refactor lib/collection-slugs.ts / lib/tina-content.ts
-// used to export, so existing call sites only needed their import path
-// updated. ---
-
-export const collectionPath = (locale: Locale, collectionName: CollectionKey, rest = ""): string =>
-  CMSCollection.getCollectionPath({ collectionName, lang: locale, rest });
-
-export const collectionForSegment = (segment: string): CollectionKey | null =>
-  CMSCollection.getCollectionForSegment(segment);
-
-export const translateCollectionPath = (pathWithoutLocale: string, locale: Locale): string =>
-  CMSCollection.translateCollectionPath(pathWithoutLocale, locale);
-
-export const resolvePagesDocumentUrl = (locale: Locale, filename: string, slug: string): string =>
-  CMSCollection.resolvePagesDocumentUrl(locale, filename, slug);
+// Call sites use CMSCollection.getCollectionPath/getCollectionForSegment/
+// translateCollectionPath/resolvePagesDocumentUrl/getListingPageFilename
+// directly — no wrapper functions here.
 
 export const getBlogPosts = (locale: Locale): Promise<BlogPostItem[]> =>
   CMSCollection.getCollectionItems<BlogPostItem>({
@@ -167,13 +127,6 @@ export const getBlogPostQuery = (locale: Locale, slug: string) =>
 
 export const getProductQuery = (locale: Locale, slug: string) =>
   CMSCollection.getCollectionItem<ProductDocQuery>({ collectionName: "products", lang: locale, slug });
-
-export const getCollectionDocAlternates = (
-  collection: CollectionKey,
-  locale: Locale,
-  slug: string
-): Promise<Partial<Record<Locale, string>>> =>
-  CMSCollection.getCollectionAlternates({ collectionName: collection, lang: locale, slug });
 
 // --- Taxonomy registration (.claude/plans/02-taxonomy.md) — depends on
 // CMSCollection via "Option A" injection: TaxonomyService is handed the
@@ -216,12 +169,7 @@ export const getCategories = (locale: Locale) => CMSTaxonomy.getTerms({ taxonomy
 export const getProductCategories = (locale: Locale) =>
   CMSTaxonomy.getTerms({ taxonomyName: "productCategories", lang: locale });
 
-export const taxonomyArchivePath = (
-  collectionName: CollectionKey,
-  taxonomyName: TaxonomyKey,
-  locale: Locale,
-  termSlug: string
-): string | null => CMSTaxonomy.getArchivePath({ collectionName, taxonomyName, lang: locale, termSlug });
+// Call sites use CMSTaxonomy.getArchivePath directly — no wrapper here.
 
 // --- Multilingual dictionary + dashboard registration
 // (.claude/plans/03-multilingual.md). ---

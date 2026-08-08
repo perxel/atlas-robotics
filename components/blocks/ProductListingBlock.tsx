@@ -2,7 +2,7 @@ import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
 import { translateText } from "@/cms/multilingual";
-import { type Locale, collectionPath, taxonomyArchivePath, type CollectionKey, type getProducts } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, type CollectionKey, type getProducts } from "@/lib/cms";
 import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
@@ -66,6 +66,7 @@ export default function ProductListingBlock({
   uiDictionary: Record<string, string>;
 }) {
   const t = (text: string) => translateText(uiDictionary, text);
+  const productPath = (rest = "") => CMSCollection.getCollectionPath({ collectionName: COLLECTION, lang: locale, rest });
   const { shown, pagination } = resolveShownProducts(data, products, currentPage);
 
   return (
@@ -85,7 +86,7 @@ export default function ProductListingBlock({
             key={product.id}
             className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
-            <Link href={collectionPath(locale, COLLECTION, `/${product.slug}`)}>
+            <Link href={productPath(`/${product.slug}`)}>
               {product.coverImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -103,7 +104,12 @@ export default function ProductListingBlock({
                       <Link
                         key={c.term.slug}
                         href={
-                          taxonomyArchivePath(COLLECTION, "productCategories", locale, c.term.slug) ?? "#"
+                          CMSTaxonomy.getArchivePath({
+                            collectionName: COLLECTION,
+                            taxonomyName: "productCategories",
+                            lang: locale,
+                            termSlug: c.term.slug,
+                          }) ?? "#"
                         }
                         className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
                       >
@@ -114,7 +120,7 @@ export default function ProductListingBlock({
                 </div>
               )}
               <h3 className="font-semibold">
-                <Link href={collectionPath(locale, COLLECTION, `/${product.slug}`)}>
+                <Link href={productPath(`/${product.slug}`)}>
                   {product.title}
                 </Link>
               </h3>
@@ -124,7 +130,7 @@ export default function ProductListingBlock({
               <div className="mt-4 flex flex-1 items-end justify-between gap-3">
                 {product.price && <span className="text-sm font-semibold">{product.price}</span>}
                 <Link
-                  href={collectionPath(locale, COLLECTION, `/${product.slug}`)}
+                  href={productPath(`/${product.slug}`)}
                   className="text-sm font-medium text-accent hover:opacity-80"
                 >
                   {t("View details")}
@@ -142,7 +148,7 @@ export default function ProductListingBlock({
       {data.mode !== "all" && (
         <div className="mt-8 text-center">
           <Link
-            href={collectionPath(locale, COLLECTION)}
+            href={productPath()}
             className="text-sm font-medium text-accent hover:opacity-80"
           >
             {t("View all products")}
@@ -154,7 +160,7 @@ export default function ProductListingBlock({
         <Pagination
           currentPage={pagination.currentPage}
           totalPages={pagination.totalPages}
-          basePath={collectionPath(locale, COLLECTION)}
+          basePath={productPath()}
           uiDictionary={uiDictionary}
         />
       )}

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksBlogListing } from "@/tina/__generated__/types";
 import { translateText } from "@/cms/multilingual";
-import { type Locale, collectionPath, taxonomyArchivePath, type CollectionKey, type getBlogPosts } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, type CollectionKey, type getBlogPosts } from "@/lib/cms";
 import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
@@ -22,6 +22,7 @@ export default function BlogListingBlock({
   uiDictionary: Record<string, string>;
 }) {
   const t = (text: string) => translateText(uiDictionary, text);
+  const blogPath = (rest = "") => CMSCollection.getCollectionPath({ collectionName: COLLECTION, lang: locale, rest });
   const { items: shown, currentPage: resolvedPage, totalPages } = paginateItems(
     posts,
     currentPage,
@@ -45,7 +46,7 @@ export default function BlogListingBlock({
             key={post.id}
             className="overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
-            <Link href={collectionPath(locale, COLLECTION, `/${post.slug}`)}>
+            <Link href={blogPath(`/${post.slug}`)}>
               {post.coverImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -62,7 +63,14 @@ export default function BlogListingBlock({
                     c?.term ? (
                       <Link
                         key={c.term.slug}
-                        href={taxonomyArchivePath(COLLECTION, "categories", locale, c.term.slug) ?? "#"}
+                        href={
+                          CMSTaxonomy.getArchivePath({
+                            collectionName: COLLECTION,
+                            taxonomyName: "categories",
+                            lang: locale,
+                            termSlug: c.term.slug,
+                          }) ?? "#"
+                        }
                         className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
                       >
                         {c.term.title}
@@ -72,7 +80,7 @@ export default function BlogListingBlock({
                 </div>
               )}
               <h2 className="font-semibold">
-                <Link href={collectionPath(locale, COLLECTION, `/${post.slug}`)}>
+                <Link href={blogPath(`/${post.slug}`)}>
                   {post.title}
                 </Link>
               </h2>
@@ -95,7 +103,7 @@ export default function BlogListingBlock({
       <Pagination
         currentPage={resolvedPage}
         totalPages={totalPages}
-        basePath={collectionPath(locale, COLLECTION)}
+        basePath={blogPath()}
         uiDictionary={uiDictionary}
       />
     </section>

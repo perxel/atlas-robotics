@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { stripLocalePrefix, type Locale, collectionPath, CMSDictionary, CMSSeo } from "@/lib/cms";
+import { CMSMultilingual, type Locale, CMSCollection, CMSDictionary, CMSSeo } from "@/lib/cms";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { translateText } from "@/cms/multilingual";
@@ -17,7 +17,8 @@ import PageView from "@/components/pages/PageView";
  */
 export async function generateBlogMetadata(locale: Locale): Promise<Metadata> {
   const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || collectionPath(locale, "blog");
+  const pathname =
+    headersList.get("x-pathname") || CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale });
   const [result, settings, alternates, uiDictionary] = await Promise.all([
     getPageQuery(locale, "blog"),
     getSiteSettings(locale),
@@ -29,7 +30,7 @@ export async function generateBlogMetadata(locale: Locale): Promise<Metadata> {
 
   return CMSSeo.buildMetadata({
     lang: locale,
-    pathWithoutLocale: stripLocalePrefix(pathname),
+    pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
     fallbackTitle: page?.title || `${t("Blog")} — ${settings?.title || t("Lorem ipsum")}`,
@@ -53,7 +54,11 @@ export async function BlogListing({
   // `latestPosts` array — checking here too lets an out-of-range page
   // number redirect to the canonical URL instead of duplicating content.
   const { currentPage } = paginateItems(latestPosts, requestedPage);
-  redirectIfPageMismatch(requestedPage, currentPage, collectionPath(locale, "blog"));
+  redirectIfPageMismatch(
+    requestedPage,
+    currentPage,
+    CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale })
+  );
 
   return (
     <PageView
