@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type getProducts, CMSMultilingual } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type ProductItem, CMSMultilingual } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
@@ -22,10 +22,10 @@ export default function ProductView({
   variables: ProductsQueryVariables;
   data: ProductsQuery;
   locale: Locale;
-  relatedProducts: Awaited<ReturnType<typeof getProducts>>;
+  relatedProducts: ProductItem[];
   uiDictionary: Record<string, string>;
   /** Real URL of the contact page in this locale, resolved from its actual
-   * content (see getPageAlternates) — omitted (not a hardcoded fallback)
+   * content (see CMSPages.getAlternates) — omitted (not a hardcoded fallback)
    * when that page doesn't exist in this locale, so the CTA just doesn't render. */
   contactHref?: string;
 }) {

@@ -2,6 +2,22 @@ import type { Paginated } from "@/cms/pagination";
 
 export type Edge<T> = { node?: T | null } | null;
 
+/**
+ * Extracts the real item type from a Tina `*Connection` query's `edges`
+ * field, e.g. `ConnectionItem<ProductsConnectionQuery["productsConnection"]["edges"]>`.
+ * Tina's codegen never emits a standalone name for "one connection item" —
+ * the `node` type is inlined anonymously inside each `*ConnectionQuery`
+ * type, scoped to exactly the fields that query selected (a separately
+ * named type like `Products` also exists, but it's the *full* schema type,
+ * including fields the connection query never fetched — aliasing to it
+ * would compile but lie about what's actually on the object at runtime).
+ * The double unwrap mirrors two independently-nullable layers a GraphQL
+ * cursor connection allows for: the edge itself, and that edge's `node`.
+ */
+export type ConnectionItem<
+  TEdges extends readonly ({ node?: unknown } | null)[] | null | undefined,
+> = NonNullable<NonNullable<NonNullable<TEdges>[number]>["node"]>;
+
 export type SortDirection = "asc" | "desc";
 
 /** Either a declarative field-based sort (works for any field name/shape a

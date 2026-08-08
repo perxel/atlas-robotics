@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { defaultLocale, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type ProductItem, CMSMultilingual, getSiteSettings, getPageAlternates, resolveLocaleAlternates } from "@/lib/cms";
+import { defaultLocale, getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, CMSPages, type ProductItem, CMSMultilingual, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import ProductView from "@/components/products/ProductView";
 
@@ -53,7 +53,7 @@ export default async function ProductDetailPage({
       limit: 3,
     }),
     CMSDictionary.loadMap(locale),
-    getPageAlternates("contact"),
+    CMSPages.getAlternates("contact"),
   ]);
 
   // getProductQuery resolves the slug via a draft-filtered query, so a

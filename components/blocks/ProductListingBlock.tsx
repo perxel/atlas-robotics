@@ -2,13 +2,13 @@ import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
 import { translateText } from "@/cms/multilingual";
-import { type Locale, CMSCollection, CMSTaxonomy, type CollectionKey, type getProducts } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, type CollectionKey, type ProductItem } from "@/lib/cms";
 import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
 const COLLECTION: CollectionKey = "products";
 
-type Product = Awaited<ReturnType<typeof getProducts>>[number];
+type Product = ProductItem;
 
 // Derived from PagesQuery itself, not the generated `PagesBlocksProductListing`
 // type — Tina's codegen types a `reference` field's resolved value against
@@ -19,8 +19,8 @@ type Product = Awaited<ReturnType<typeof getProducts>>[number];
 // `_values`. The two are meant to be the same shape and aren't quite,
 // which fails a strict assignment. Deriving straight from `PagesQuery`
 // sidesteps the mismatch by using the type that matches what's actually on
-// the wire, and happens to match `getProducts()`'s own (connection-query)
-// item shape for the same reason.
+// the wire, and happens to match `ProductItem`'s own (connection-query)
+// shape for the same reason.
 type Blocks = NonNullable<PagesQuery["pages"]["blocks"]>;
 type ProductListingData = Extract<
   NonNullable<Blocks[number]>,

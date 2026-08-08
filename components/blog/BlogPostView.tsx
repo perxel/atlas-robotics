@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
-import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type getBlogPosts, CMSMultilingual } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, siteUrl, type BlogPostItem, CMSMultilingual } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
@@ -21,7 +21,7 @@ export default function BlogPostView({
   variables: BlogQueryVariables;
   data: BlogQuery;
   locale: Locale;
-  relatedPosts: Awaited<ReturnType<typeof getBlogPosts>>;
+  relatedPosts: BlogPostItem[];
   uiDictionary: Record<string, string>;
 }) {
   // No-op outside Tina's admin preview iframe — returns `data` unchanged,

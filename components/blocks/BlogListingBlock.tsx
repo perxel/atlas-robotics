@@ -2,7 +2,7 @@ import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksBlogListing } from "@/tina/__generated__/types";
 import { translateText } from "@/cms/multilingual";
-import { type Locale, CMSCollection, CMSTaxonomy, type CollectionKey, type getBlogPosts } from "@/lib/cms";
+import { type Locale, CMSCollection, CMSTaxonomy, type CollectionKey, type BlogPostItem } from "@/lib/cms";
 import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
@@ -16,7 +16,7 @@ export default function BlogListingBlock({
   uiDictionary,
 }: {
   data: PagesBlocksBlogListing;
-  posts: Awaited<ReturnType<typeof getBlogPosts>>;
+  posts: BlogPostItem[];
   locale: Locale;
   currentPage?: number;
   uiDictionary: Record<string, string>;

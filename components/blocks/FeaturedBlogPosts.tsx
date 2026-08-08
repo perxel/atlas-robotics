@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
-import { type Locale, CMSCollection, type getBlogPosts } from "@/lib/cms";
+import { type Locale, CMSCollection, type BlogPostItem } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 
 export default function FeaturedBlogPosts({
@@ -11,7 +11,7 @@ export default function FeaturedBlogPosts({
   uiDictionary,
 }: {
   data: PagesBlocksFeaturedBlogPosts;
-  posts: Awaited<ReturnType<typeof getBlogPosts>>;
+  posts: BlogPostItem[];
   locale: Locale;
   uiDictionary: Record<string, string>;
 }) {

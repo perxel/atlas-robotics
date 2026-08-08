@@ -1,6 +1,6 @@
 import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
-import { type Locale, type getBlogPosts, type getProducts } from "@/lib/cms";
+import { type Locale, type BlogPostItem, type ProductItem } from "@/lib/cms";
 import Hero from "./Hero";
 import RichTextBlock from "./RichTextBlock";
 import Cta from "./Cta";
@@ -56,8 +56,8 @@ export default function BlocksRenderer({
 }: {
   blocks: Blocks;
   locale: Locale;
-  latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
-  products: Awaited<ReturnType<typeof getProducts>>;
+  latestPosts: BlogPostItem[];
+  products: ProductItem[];
   currentPage?: number;
   uiDictionary: Record<string, string>;
 }) {

@@ -1,6 +1,6 @@
 import { client } from "@/tina/__generated__/client";
 import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
-import { CollectionService } from "@/cms/collection";
+import { CollectionService, type ConnectionItem } from "@/cms/collection";
 import { TaxonomyService } from "@/cms/taxonomy";
 import {
   MultilingualService,
@@ -8,7 +8,7 @@ import {
   createTranslationDashboardScreen,
   TranslationDashboardService,
 } from "@/cms/multilingual";
-import { SeoService, SeoDashboardService, createSeoDashboardScreen } from "@/cms/seo";
+import { SeoService, SeoDashboardService, createSeoDashboardScreen, requireInProduction } from "@/cms/seo";
 import { SingletonService } from "@/cms/singleton";
 import { PagesService } from "@/cms/pages";
 import { LocaleAlternatesService } from "@/cms/locale-alternates";
@@ -65,11 +65,8 @@ export const CMSMultilingual = new MultilingualService<Locale>({
 
 // --- Collection registration (.claude/plans/01-collection.md). ---
 
-type BlogEdge = NonNullable<BlogConnectionQuery["blogConnection"]["edges"]>[number];
-export type BlogPostItem = NonNullable<NonNullable<BlogEdge>["node"]>;
-
-type ProductEdge = NonNullable<ProductsConnectionQuery["productsConnection"]["edges"]>[number];
-export type ProductItem = NonNullable<NonNullable<ProductEdge>["node"]>;
+export type BlogPostItem = ConnectionItem<BlogConnectionQuery["blogConnection"]["edges"]>;
+export type ProductItem = ConnectionItem<ProductsConnectionQuery["productsConnection"]["edges"]>;
 
 const collectionRegistry = {
   blog: {
@@ -103,18 +100,6 @@ export const CMSCollection = new CollectionService(collectionRegistry, { default
 // Call sites use CMSCollection.getCollectionPath/getCollectionForSegment/
 // translateCollectionPath/resolvePagesDocumentUrl/getListingPageFilename
 // directly — no wrapper functions here.
-
-export const getBlogPosts = (locale: Locale): Promise<BlogPostItem[]> =>
-  CMSCollection.getCollectionItems<BlogPostItem>({
-    collectionName: "blog",
-    lang: locale,
-    sort: { field: "publishDate", direction: "desc", type: "date" },
-  }).then((r) => r.items);
-
-export const getProducts = (locale: Locale): Promise<ProductItem[]> =>
-  CMSCollection.getCollectionItems<ProductItem>({ collectionName: "products", lang: locale }).then(
-    (r) => r.items
-  );
 
 type BlogDocQuery = Awaited<ReturnType<typeof client.queries.blog>>;
 type ProductDocQuery = Awaited<ReturnType<typeof client.queries.products>>;
@@ -187,27 +172,9 @@ type PagesDocQuery = Awaited<ReturnType<typeof client.queries.pages>>;
 /** Same two-step slug resolution as getBlogPostQuery — see its comment. */
 export const getPageQuery = (locale: Locale, slug: string) => CMSPages.getBySlug<PagesDocQuery>({ lang: locale, slug });
 
-/**
- * Cross-locale sibling lookup for `pages` documents, keyed by filename —
- * e.g. getPageAlternates("about") finds en/about.md AND vi/about.md (even
- * though the vi one's `slug` field is "ve-chung-toi", a different word),
- * and returns each locale's real public URL built from that document's own
- * `slug`. Used by lib/locale-alternates.ts for both hreflang and the
- * language switcher.
- */
-export const getPageAlternates = (filename: string) => CMSPages.getAlternates(filename);
-
-/**
- * Cross-locale existence check for a collection's listing page (e.g. the
- * `pages` document named by `CMSCollection.getListingPageFilename()` for
- * "blog"), returning the collection's REAL translated URL
- * (`CMSCollection.getCollectionPath()`) per locale — NOT `getPageAlternates`,
- * which would build the URL from that document's own `slug` field. That
- * field is locked and doesn't drive the public URL for a listing page (see
- * CLAUDE.md's "Collection-backed listing pages" section).
- */
-export const getCollectionListingAlternates = (collection: CollectionKey, filename: string) =>
-  CMSPages.getListingAlternates({ collectionName: collection, filename });
+// Call sites use CMSPages.getAlternates/getListingAlternates directly — no
+// wrapper functions here (see each method's own doc comment in
+// cms/pages/PagesService.ts for what they resolve and why).
 
 /**
  * Pages listed here render as a fixed layout (title + intro only), ignoring
@@ -219,10 +186,6 @@ export const getCollectionListingAlternates = (collection: CollectionKey, filena
 export const blocksDisabledSlugs = new Set<string>([
   // "home",
 ]);
-
-export function isBlocksEnabled(slug: string): boolean {
-  return !blocksDisabledSlugs.has(slug);
-}
 
 /**
  * The `pages` collection resolves at the root of each locale (e.g. `/about`,
@@ -301,12 +264,7 @@ export const CMSTaxonomy = new TaxonomyService(
   { defaultLocale, locales }
 );
 
-export const getCategories = (locale: Locale) => CMSTaxonomy.getTerms({ taxonomyName: "categories", lang: locale });
-
-export const getProductCategories = (locale: Locale) =>
-  CMSTaxonomy.getTerms({ taxonomyName: "productCategories", lang: locale });
-
-// Call sites use CMSTaxonomy.getArchivePath directly — no wrapper here.
+// Call sites use CMSTaxonomy.getTerms/getArchivePath directly — no wrapper here.
 
 // --- Locale-alternates registration — depends on CMSMultilingual/
 // CMSCollection/CMSTaxonomy/CMSPages via "Option A" injection, same pattern
@@ -329,8 +287,9 @@ export const CMSLocaleAlternates = new LocaleAlternatesService<CollectionKey, Ta
       const relativePath = result?.data.pages?._sys.relativePath;
       return relativePath ? (relativePath.split("/").pop()?.replace(/\.md$/, "") ?? null) : null;
     },
-    getPageAlternates,
-    getListingAlternates: (args) => getCollectionListingAlternates(args.collectionName, args.filename),
+    getPageAlternates: CMSPages.getAlternates.bind(CMSPages),
+    getListingAlternates: (args) =>
+      CMSPages.getListingAlternates({ collectionName: args.collectionName, filename: args.filename }),
   },
   { locales }
 );
@@ -399,8 +358,18 @@ export async function getPageBlockData(
   // translated UI-chrome string, and it's one cheap single-document fetch
   // rather than worth conditioning on block typenames too.
   const [latestPosts, products, uiDictionary] = await Promise.all([
-    needsPosts ? getBlogPosts(locale) : Promise.resolve([]),
-    needsProducts ? getProducts(locale) : Promise.resolve([]),
+    needsPosts
+      ? CMSCollection.getCollectionItems<BlogPostItem>({
+          collectionName: "blog",
+          lang: locale,
+          sort: { field: "publishDate", direction: "desc", type: "date" },
+        }).then((r) => r.items)
+      : Promise.resolve([]),
+    needsProducts
+      ? CMSCollection.getCollectionItems<ProductItem>({ collectionName: "products", lang: locale }).then(
+          (r) => r.items
+        )
+      : Promise.resolve([]),
     CMSDictionary.loadMap(locale),
   ]);
 
@@ -432,18 +401,13 @@ export const translationDashboardScreen = CMSMultilingual.isEnabled()
 // NEXT_PUBLIC_TINA_CLIENT_ID/TINA_TOKEN — set this wherever the app
 // builds/runs, in both places on platforms that separate build-time and
 // runtime env vars.
-export const siteUrl = (() => {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return configured;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "NEXT_PUBLIC_SITE_URL is not set. Canonical/hreflang/sitemap URLs would all " +
-        "silently resolve to http://localhost:3000 in production otherwise — see " +
-        "lib/cms.ts and CLAUDE.md's \"Production builds require Tina Cloud\" note."
-    );
-  }
-  return "http://localhost:3000";
-})();
+export const siteUrl = requireInProduction(process.env.NEXT_PUBLIC_SITE_URL, {
+  fallback: "http://localhost:3000",
+  errorMessage:
+    "NEXT_PUBLIC_SITE_URL is not set. Canonical/hreflang/sitemap URLs would all " +
+    "silently resolve to http://localhost:3000 in production otherwise — see " +
+    "lib/cms.ts and CLAUDE.md's \"Production builds require Tina Cloud\" note.",
+});
 
 // hreflang only ever advertises enabled locales — a disabled locale's pages
 // still exist and render, they're just not offered as a language-switch
@@ -452,26 +416,13 @@ export const CMSSeo = new SeoService({ siteUrl, defaultLocale, locales: CMSMulti
 
 // `pages` isn't part of CollectionService's registry (its per-collection
 // `locales`/`listingPageFilename` shape doesn't fit a slug-driven generic
-// collection — see 01-collection.md's Addendum #4), so the SEO dashboard's
-// index is assembled by hand for it here instead of forcing a registry
-// entry that wouldn't mean anything for a route this collection doesn't own.
+// collection — see 01-collection.md's Addendum #4), so it's routed to
+// CMSPages.getSeoIndex() instead of CMSCollection.getSeoIndex() — same
+// shape, different service backing it.
 type SeoCollectionKey = CollectionKey | "pages";
 
-async function getSeoIndexFor(collectionName: SeoCollectionKey) {
-  if (collectionName === "pages") {
-    const res = await client.queries.pagesConnection();
-    return (res.data.pagesConnection.edges ?? [])
-      .map((edge) => edge?.node)
-      .filter((node): node is NonNullable<typeof node> => !!node)
-      .map((node) => ({
-        filename: node._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") ?? node._sys.relativePath,
-        locale: node._sys.breadcrumbs[0] as Locale,
-        slug: node.slug,
-        seo: node.seo,
-      }));
-  }
-  return CMSCollection.getSeoIndex(collectionName);
-}
+const getSeoIndexFor = (collectionName: SeoCollectionKey) =>
+  collectionName === "pages" ? CMSPages.getSeoIndex() : CMSCollection.getSeoIndex(collectionName);
 
 export const seoDashboardScreen = createSeoDashboardScreen(
   new SeoDashboardService(

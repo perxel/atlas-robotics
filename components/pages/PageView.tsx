@@ -3,7 +3,7 @@
 import { useTina, tinaField } from "tinacms/dist/react";
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import type { PagesQuery, PagesQueryVariables } from "@/tina/__generated__/types";
-import { type Locale, siteUrl, type getBlogPosts, type getProducts, CMSMultilingual, isBlocksEnabled } from "@/lib/cms";
+import { type Locale, siteUrl, type BlogPostItem, type ProductItem, CMSMultilingual, blocksDisabledSlugs } from "@/lib/cms";
 import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import BlocksRenderer from "@/components/blocks/BlocksRenderer";
@@ -23,8 +23,8 @@ export default function PageView({
   variables: PagesQueryVariables;
   data: PagesQuery;
   locale: Locale;
-  latestPosts: Awaited<ReturnType<typeof getBlogPosts>>;
-  products: Awaited<ReturnType<typeof getProducts>>;
+  latestPosts: BlogPostItem[];
+  products: ProductItem[];
   /** Which page of a paginated block ("all" mode ProductListingBlock, BlogListingBlock) is showing — only meaningful on the /blog and /products listing routes. */
   currentPage?: number;
   /** Resolved `{sourceText: translation}` snapshot for this locale — see
@@ -38,7 +38,7 @@ export default function PageView({
   // so this renders identically for normal visitors and the production build.
   const { data: liveData } = useTina({ query, variables, data });
   const page = liveData.pages;
-  const blocksEnabled = isBlocksEnabled(page.slug);
+  const blocksEnabled = !blocksDisabledSlugs.has(page.slug);
   const titleEnabled = !page.hideTitle;
   // Tina's rich-text resolver returns `{ type: "root", children: [] }` for
   // an empty/absent field, never `null` — so `page.intro` alone is always
