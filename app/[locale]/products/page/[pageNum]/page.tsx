@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { collectionPath } from "@/lib/collection-slugs";
-import { parsePageParam } from "@/lib/pagination";
+import { parsePageParam } from "@/cms/pagination";
 import { generateProductsMetadata, ProductsListing } from "../../listing";
 
 // URL: /products/page/2. This folder is literally named "page" (a URL

@@ -7,7 +7,7 @@ import { collectionPath } from "@/lib/collection-slugs";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
-import { paginate, redirectIfPageMismatch } from "@/lib/pagination";
+import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";
 
 /**
@@ -53,7 +53,7 @@ export async function BlogListing({
   // The BlogListingBlock on this locked document paginates the same
   // `latestPosts` array — checking here too lets an out-of-range page
   // number redirect to the canonical URL instead of duplicating content.
-  const { currentPage } = paginate(latestPosts, requestedPage);
+  const { currentPage } = paginateItems(latestPosts, requestedPage);
   redirectIfPageMismatch(requestedPage, currentPage, collectionPath(locale, "blog"));
 
   return (

@@ -7,7 +7,7 @@ import { collectionPath } from "@/lib/collection-slugs";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
 import { getPageQuery, getPageBlockData, getSiteSettings } from "@/lib/tina-content";
 import { getDictionary } from "@/lib/dictionary";
-import { paginate, redirectIfPageMismatch } from "@/lib/pagination";
+import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";
 
 /**
@@ -56,7 +56,7 @@ export async function ProductsListing({
   // the same `products` array — checking here too lets an out-of-range
   // page number (e.g. /page/99 with only 2 actual pages) redirect to the
   // canonical URL instead of silently duplicating page 2's content.
-  const { currentPage } = paginate(products, requestedPage);
+  const { currentPage } = paginateItems(products, requestedPage);
   redirectIfPageMismatch(requestedPage, currentPage, collectionPath(locale, "products"));
 
   return (

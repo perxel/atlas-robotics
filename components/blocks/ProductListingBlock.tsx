@@ -6,7 +6,7 @@ import { taxonomyArchivePath } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
 import type { Locale } from "@/lib/i18n";
 import type { getProducts } from "@/lib/tina-content";
-import { paginate, DEFAULT_PAGE_SIZE } from "@/lib/pagination";
+import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
 const COLLECTION: CollectionKey = "products";
@@ -44,7 +44,7 @@ function resolveShownProducts(
   }
 
   if (data.mode === "all") {
-    const { items, currentPage: resolvedPage, totalPages } = paginate(
+    const { items, currentPage: resolvedPage, totalPages } = paginateItems(
       products,
       currentPage,
       DEFAULT_PAGE_SIZE

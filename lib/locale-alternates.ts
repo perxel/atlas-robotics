@@ -104,7 +104,7 @@ export async function resolveLocaleAlternates(
 
 /**
  * `path` is locale-free, e.g. "/blog/category/news" or, paginated,
- * "/blog/category/news/page/2" (see lib/pagination.ts's canonicalPageHref
+ * "/blog/category/news/page/2" (see cms/pagination's canonicalPageHref
  * for that URL shape). Returns null (not `{}`) when `path` isn't a
  * taxonomy archive route at all, so the caller falls through to the plain
  * collection-route transform instead of treating "no term matched" as "no

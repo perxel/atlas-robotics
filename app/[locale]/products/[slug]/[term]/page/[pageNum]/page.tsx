@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { collectionPath } from "@/lib/collection-slugs";
-import { parsePageParam } from "@/lib/pagination";
+import { parsePageParam } from "@/cms/pagination";
 import { generateProductsArchiveMetadata, ProductsArchive } from "../../archive";
 
 // URL: /products/category/<term-slug>/page/2. This "page" folder sits one

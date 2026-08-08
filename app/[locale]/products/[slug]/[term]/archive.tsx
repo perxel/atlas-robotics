@@ -14,7 +14,7 @@ import { getTaxonomyRegistryEntry } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
 import { collectionPath } from "@/lib/collection-slugs";
 import { resolveLocaleAlternates } from "@/lib/locale-alternates";
-import { paginate, redirectIfPageMismatch } from "@/lib/pagination";
+import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 import type { Locale } from "@/lib/i18n";
 
@@ -89,7 +89,7 @@ export async function ProductsArchive({
   if (!archive) notFound();
 
   const basePath = collectionPath(locale, "products", `/${taxonomySegment}/${termSlug}`);
-  const { items: shown, currentPage, totalPages } = paginate(archive.products, requestedPage);
+  const { items: shown, currentPage, totalPages } = paginateItems(archive.products, requestedPage);
   redirectIfPageMismatch(requestedPage, currentPage, basePath);
 
   return (

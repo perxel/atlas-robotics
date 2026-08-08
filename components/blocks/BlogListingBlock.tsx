@@ -6,7 +6,7 @@ import { taxonomyArchivePath } from "@/lib/taxonomies";
 import { getDictionary } from "@/lib/dictionary";
 import type { Locale } from "@/lib/i18n";
 import type { getBlogPosts } from "@/lib/tina-content";
-import { paginate, DEFAULT_PAGE_SIZE } from "@/lib/pagination";
+import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
 const COLLECTION: CollectionKey = "blog";
@@ -23,7 +23,7 @@ export default function BlogListingBlock({
   currentPage?: number;
 }) {
   const dict = getDictionary(locale);
-  const { items: shown, currentPage: resolvedPage, totalPages } = paginate(
+  const { items: shown, currentPage: resolvedPage, totalPages } = paginateItems(
     posts,
     currentPage,
     DEFAULT_PAGE_SIZE
