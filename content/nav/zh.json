@@ -1,0 +1,8 @@
+{
+  "links": [
+    { "label": "关于我们", "url": "/about", "openInNewTab": false },
+    { "label": "产品", "url": "/products", "openInNewTab": false },
+    { "label": "博客", "url": "/blog", "openInNewTab": false },
+    { "label": "联系我们", "url": "/contact", "openInNewTab": false }
+  ]
+}

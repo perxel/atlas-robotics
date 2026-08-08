@@ -8,7 +8,7 @@ import { MultilingualService } from "@/cms/multilingual/MultilingualService";
 // .claude/docs/00-overview.md for the full reasoning (esbuild-verified).
 // lib/cms.ts re-exports everything here for every other consumer.
 
-export const locales = ["vi", "en"] as const;
+export const locales = ["vi", "en", "zh"] as const;
 export type Locale = (typeof locales)[number];
 
 // Default locale is served unprefixed at "/"; others under "/<locale>".
@@ -17,6 +17,7 @@ export const defaultLocale: Locale = "en";
 export const localeLabels: Record<Locale, string> = {
   en: "English",
   vi: "Tiếng Việt",
+  zh: "简体中文",
 };
 
 // Disable a locale by trimming enabledLocales — its content stays intact,
