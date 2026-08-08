@@ -565,6 +565,38 @@ slug changes without a rebuild, defeating the point.
   cause, both specific to that one build environment. Neither reproduced
   locally. If a fresh project's build hangs or OOMs somewhere a local build
   doesn't, try these two independently before assuming an app-code bug.
+- **Cloudflare deploy ran the entire Tina+Next build twice** if
+  `wrangler.jsonc`/`open-next.config.ts` aren't committed — this repo now
+  commits them (plus `public/_headers` and the `deploy`/`preview`/`upload`
+  scripts in `package.json`), but re-check this on a fresh clone of the
+  boilerplate before assuming a slow build is one of the causes above.
+  Root cause, confirmed against an actual Cloudflare Workers Builds log: the
+  dashboard had **Build command** = `npm run build` and **Deploy command** =
+  `npx wrangler deploy`, configured as two independent steps. The build
+  command's `.next` output is never consumed by the deploy step — Cloudflare
+  Workers needs a `.open-next/worker.js` bundle, not a plain `.next` folder.
+  With no `wrangler.jsonc` on disk, `wrangler deploy` detected an
+  unconfigured Next.js project and auto-ran `@opennextjs/cloudflare migrate`,
+  which reinstalled ~223 packages (wrangler, `@opennextjs/cloudflare`, and
+  their deps — uncached, since nothing pinning them was ever committed) and
+  then reran `npm run build` **from scratch** to produce the bundle it
+  actually needed. Net effect on the observed run: Tina Cloud indexing
+  (~70-90s) and `next build --webpack` (~45-55s) each ran twice, plus a
+  ~20-35s uncached dependency install in between — roughly 4 of the total
+  9.5 minutes spent, doing nothing the first pass hadn't already done.
+  **The fix:** commit the adapter config once (`npx @opennextjs/cloudflare
+  migrate --forceInstall` from the repo root — `--forceInstall` is needed
+  because of the same React 19 peer-dependency warnings TinaCMS always
+  prints, see `npm install` output), verify `.dev.vars` has no secrets
+  before checking whether to commit it (this repo's only has
+  `NEXTJS_ENV=development`; real secrets belong in Cloudflare env vars per
+  "Production builds require Tina Cloud" above, not in this file even if
+  gitignored), then in the Cloudflare dashboard set **Build command** to
+  empty and **Deploy command** to `npm run deploy` (`opennextjs-cloudflare
+  build && opennextjs-cloudflare deploy` — one pass, build then bundle then
+  deploy). Re-run the migrate command after any Next.js/`wrangler`/
+  `@opennextjs/cloudflare` major-version bump, since it regenerates
+  `compatibility_date` and the adapter's generated defaults.
 - **Tina CLI telemetry can hang the build**: `tinacms build`/`dev` phones
   home to PostHog on exit by default; in an environment with restricted
   outbound network access, that flush retries for ~30s and can prevent the
