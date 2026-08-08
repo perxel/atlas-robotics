@@ -2,6 +2,7 @@
 title: 'Ipsum Approvals'
 slug: ipsum-approvals
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Multi-step approvals without the email chase — reminders go out automatically until someone acts.'
 coverImage: /uploads/product-ipsum-insights.jpg
 coverImageAlt: 'Abstract multi-step approval visual for Ipsum Approvals'

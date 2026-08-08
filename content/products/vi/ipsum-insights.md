@@ -2,6 +2,7 @@
 title: 'Ipsum Insights'
 slug: ipsum-insights
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Bảng điều khiển thời gian thực tổng hợp dữ liệu từ mọi công cụ nhóm bạn đang dùng — không còn cảnh xuất bảng tính vào cuối tuần.'
 coverImage: /uploads/product-ipsum-insights.jpg
 coverImageAlt: 'Hình minh họa bảng điều khiển phân tích cho Ipsum Insights'

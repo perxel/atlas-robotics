@@ -1,6 +1,6 @@
 /**
  * Pure array filter for a taxonomy field attached via `taxonomyField()`
- * (see cms/collection's registry / tina/collections/shared-fields/taxonomy.schema.tsx).
+ * (see cms/collection's registry / cms/taxonomy/taxonomy.field.ts).
  * `fieldName`'s shape is always `{ term: { slug, ... } }[]` because
  * `taxonomyField` defaults to `multiple: true`, which wraps each term
  * reference in a repeatable object (a bare `reference` field can't be

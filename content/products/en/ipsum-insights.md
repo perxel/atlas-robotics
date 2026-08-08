@@ -2,6 +2,7 @@
 title: 'Ipsum Insights'
 slug: ipsum-insights
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Real-time dashboards that pull from every tool your team already uses — no more end-of-week spreadsheet exports.'
 coverImage: /uploads/product-ipsum-insights.jpg
 coverImageAlt: 'Abstract analytics dashboard visual for Ipsum Insights'

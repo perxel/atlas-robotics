@@ -2,6 +2,7 @@
 title: 'Ipsum Alerts'
 slug: ipsum-alerts
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Know the moment something needs attention, with custom thresholds delivered to Slack, email, or SMS.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Abstract alert-threshold visual for Ipsum Alerts'

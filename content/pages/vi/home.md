@@ -2,6 +2,7 @@
 title: 'Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn'
 slug: home
 draft: false
+publishDate: '2026-08-06T00:00:00.000Z'
 hideTitle: true
 intro: ''
 blocks:

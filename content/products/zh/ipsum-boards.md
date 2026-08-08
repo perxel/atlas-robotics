@@ -2,6 +2,7 @@
 title: 'Ipsum Boards'
 slug: ipsum-boards
 draft: false
+publishDate: '2026-08-08T00:00:00.000Z'
 excerpt: '看板能自动触发下一步——移动一张卡片即可启动一条 Ipsum Flow 自动化流程。'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: '象征 Ipsum Boards 看板的抽象插图'

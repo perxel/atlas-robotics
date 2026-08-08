@@ -107,7 +107,11 @@ export async function BlogArchive({
     lang: locale,
     rest: `/${taxonomySegment}/${termSlug}`,
   });
-  const { items: shown, currentPage, totalPages } = paginateItems(archive.posts, requestedPage);
+  const { items: shown, currentPage, totalPages } = paginateItems(
+    archive.posts,
+    requestedPage,
+    CMSCollection.getPageSize("blog")
+  );
   redirectIfPageMismatch(requestedPage, currentPage, basePath);
 
   return (

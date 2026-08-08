@@ -2,6 +2,7 @@
 title: 'Ipsum Flow'
 slug: ipsum-flow
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Biến các quy trình nhiều bước thành một quy tắc bạn chỉ cần thiết lập một lần — phê duyệt, bàn giao và các tác vụ lặp lại từng chiếm cả buổi chiều của bạn.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Hình minh họa tự động hóa quy trình cho Ipsum Flow'

@@ -2,6 +2,7 @@
 title: 'Ipsum Approvals'
 slug: ipsum-approvals
 draft: false
+publishDate: '2026-08-08T00:00:00.000Z'
 excerpt: '多步骤审批无需再靠邮件催促——提醒会自动发送，直到有人处理为止。'
 coverImage: /uploads/product-ipsum-insights.jpg
 coverImageAlt: '象征 Ipsum Approvals 多步骤审批的抽象插图'

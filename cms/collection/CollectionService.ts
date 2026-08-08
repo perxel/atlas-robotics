@@ -70,7 +70,7 @@ export class CollectionService<TCollectionName extends string, TLocale extends s
     if (args.page === undefined) {
       return { items, currentPage: 1, totalPages: 1 };
     }
-    return paginateItems(items, args.page, args.pageSize ?? DEFAULT_PAGE_SIZE);
+    return paginateItems(items, args.page, args.pageSize ?? entry.pageSize ?? DEFAULT_PAGE_SIZE);
   }
 
   /** Resolves by slug, returns null on any failure (not found, or a fetch
@@ -153,6 +153,13 @@ export class CollectionService<TCollectionName extends string, TLocale extends s
    * listing page — see this class's registry shape. */
   getListingPageFilename(collectionName: TCollectionName): string {
     return this.#registry[collectionName].listingPageFilename;
+  }
+
+  /** Items per page on this collection's listing/archive routes — falls
+   * back to `cms/pagination`'s `DEFAULT_PAGE_SIZE` when the registry entry
+   * doesn't set its own. */
+  getPageSize(collectionName: TCollectionName): number {
+    return this.#registry[collectionName].pageSize ?? DEFAULT_PAGE_SIZE;
   }
 
   /** Lightweight per-collection locale index — reuses fetchEdges(), reading

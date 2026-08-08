@@ -2,6 +2,7 @@
 title: 'Ipsum Boards'
 slug: ipsum-boards
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Bảng kanban tự động kích hoạt bước tiếp theo — di chuyển một thẻ có thể chạy một quy trình Ipsum Flow.'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: 'Hình minh họa bảng kanban cho Ipsum Boards'

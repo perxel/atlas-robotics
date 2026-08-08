@@ -2,6 +2,7 @@
 title: 'Ipsum Chat'
 slug: ipsum-chat
 draft: false
+publishDate: '2026-08-08T00:00:00.000Z'
 excerpt: '团队聊天始终与实际工作保持关联，而不是活在一个没人查看的独立应用里。'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: '象征 Ipsum Chat 团队聊天的抽象插图'

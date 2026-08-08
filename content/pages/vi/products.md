@@ -2,6 +2,7 @@
 title: Sản Phẩm
 slug: products
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 intro: Toàn bộ sản phẩm của Lorem ipsum, tại một nơi.
 blocks:
   - heading: Tất Cả Sản Phẩm

@@ -2,6 +2,7 @@
 title: 'Ipsum Sync'
 slug: ipsum-sync
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'One shared workspace for your team and every tool you connect — fewer tabs, fewer status-update meetings.'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: 'Abstract team collaboration visual for Ipsum Sync'

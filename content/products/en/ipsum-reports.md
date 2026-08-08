@@ -2,6 +2,7 @@
 title: 'Ipsum Reports'
 slug: ipsum-reports
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Scheduled reports that build and send themselves — no more pulling the same numbers by hand every Monday.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Abstract scheduled-report visual for Ipsum Reports'

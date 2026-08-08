@@ -63,7 +63,7 @@ export async function ProductsListing({
   // the same `products` array — checking here too lets an out-of-range
   // page number (e.g. /page/99 with only 2 actual pages) redirect to the
   // canonical URL instead of silently duplicating page 2's content.
-  const { currentPage } = paginateItems(products, requestedPage);
+  const { currentPage } = paginateItems(products, requestedPage, CMSCollection.getPageSize("products"));
   redirectIfPageMismatch(
     requestedPage,
     currentPage,

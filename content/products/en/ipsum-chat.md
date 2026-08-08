@@ -2,6 +2,7 @@
 title: 'Ipsum Chat'
 slug: ipsum-chat
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Team chat that stays connected to your actual work, instead of living in a separate app nobody checks.'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: 'Abstract team chat visual for Ipsum Chat'

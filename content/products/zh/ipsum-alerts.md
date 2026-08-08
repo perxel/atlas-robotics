@@ -2,6 +2,7 @@
 title: 'Ipsum Alerts'
 slug: ipsum-alerts
 draft: false
+publishDate: '2026-08-08T00:00:00.000Z'
 excerpt: '第一时间知道需要关注的问题，自定义阈值可发送至 Slack、邮箱或短信。'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: '象征 Ipsum Alerts 阈值告警的抽象插图'

@@ -2,6 +2,7 @@
 title: 'Ipsum Chat'
 slug: ipsum-chat
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Trò chuyện nhóm luôn gắn liền với công việc thực tế, thay vì nằm trong một ứng dụng riêng chẳng ai mở lên xem.'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: 'Hình minh họa trò chuyện nhóm cho Ipsum Chat'

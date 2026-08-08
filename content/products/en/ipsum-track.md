@@ -2,6 +2,7 @@
 title: 'Ipsum Track'
 slug: ipsum-track
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Watch every automated step happen in real time, with alerts the moment a workflow stalls or fails.'
 coverImage: /uploads/product-ipsum-insights.jpg
 coverImageAlt: 'Abstract live event-stream visual for Ipsum Track'

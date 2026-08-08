@@ -2,6 +2,7 @@
 title: 'Ipsum Approvals'
 slug: ipsum-approvals
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Phê duyệt nhiều bước mà không cần đuổi theo email — nhắc nhở được gửi tự động cho đến khi có người xử lý.'
 coverImage: /uploads/product-ipsum-insights.jpg
 coverImageAlt: 'Hình minh họa phê duyệt nhiều bước cho Ipsum Approvals'

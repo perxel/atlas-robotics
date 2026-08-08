@@ -61,7 +61,7 @@ export async function BlogListing({
   // The BlogListingBlock on this locked document paginates the same
   // `latestPosts` array — checking here too lets an out-of-range page
   // number redirect to the canonical URL instead of duplicating content.
-  const { currentPage } = paginateItems(latestPosts, requestedPage);
+  const { currentPage } = paginateItems(latestPosts, requestedPage, CMSCollection.getPageSize("blog"));
   redirectIfPageMismatch(
     requestedPage,
     currentPage,

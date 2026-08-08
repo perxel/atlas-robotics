@@ -2,6 +2,7 @@
 title: 'Ipsum Alerts'
 slug: ipsum-alerts
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Biết ngay khi có điều cần chú ý, với ngưỡng cảnh báo tùy chỉnh gửi qua Slack, email hoặc SMS.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Hình minh họa ngưỡng cảnh báo cho Ipsum Alerts'

@@ -2,6 +2,7 @@
 title: 'Ipsum Forms'
 slug: ipsum-forms
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Biến bất kỳ biểu mẫu nào thành yếu tố kích hoạt quy trình — mỗi lượt gửi sẽ chạy một quy trình Ipsum Flow thay vì chỉ nằm im trong hộp thư.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Hình minh họa xây dựng biểu mẫu cho Ipsum Forms'

@@ -2,6 +2,7 @@
 title: 'Lorem ipsum — 自动化、洞察并同步您团队的工作'
 slug: home
 draft: false
+publishDate: '2026-08-08T00:00:00.000Z'
 hideTitle: true
 blocks:
   - slides:

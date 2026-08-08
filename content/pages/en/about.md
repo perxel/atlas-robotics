@@ -2,6 +2,7 @@
 title: About Lorem ipsum
 slug: about
 draft: false
+publishDate: '2026-08-06T00:00:00.000Z'
 intro: >-
   Lorem ipsum started with a simple observation: most teams don't need more
   software, they need the software they already have to talk to each other.

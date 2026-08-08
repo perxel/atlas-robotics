@@ -2,6 +2,7 @@
 title: Giới Thiệu Về Lorem ipsum
 slug: ve-chung-toi
 draft: false
+publishDate: '2026-08-06T00:00:00.000Z'
 intro: >-
   Lorem ipsum bắt đầu từ một nhận định đơn giản: hầu hết các nhóm không cần
   thêm phần mềm, họ cần những phần mềm đang có nói chuyện được với nhau. Chúng

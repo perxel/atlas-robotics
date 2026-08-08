@@ -2,6 +2,7 @@
 title: 'Ipsum Boards'
 slug: ipsum-boards
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Kanban boards that trigger the next step automatically — moving a card can kick off an Ipsum Flow automation.'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: 'Abstract kanban board visual for Ipsum Boards'

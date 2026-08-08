@@ -4,7 +4,7 @@ import type { PagesQuery } from "@/tina/__generated__/types";
 import { translateText } from "@/cms/multilingual";
 import type { Locale, CollectionKey, ProductItem } from "@/lib/cms-server";
 import { CMSCollection, CMSTaxonomy } from "@/lib/registry";
-import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
+import { paginateItems } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
 const COLLECTION: CollectionKey = "products";
@@ -45,7 +45,7 @@ function resolveShownProducts(
     const { items, currentPage: resolvedPage, totalPages } = paginateItems(
       products,
       currentPage,
-      DEFAULT_PAGE_SIZE
+      CMSCollection.getPageSize(COLLECTION)
     );
     return { shown: items, pagination: { currentPage: resolvedPage, totalPages } };
   }

@@ -102,7 +102,11 @@ export async function ProductsArchive({
     lang: locale,
     rest: `/${taxonomySegment}/${termSlug}`,
   });
-  const { items: shown, currentPage, totalPages } = paginateItems(archive.products, requestedPage);
+  const { items: shown, currentPage, totalPages } = paginateItems(
+    archive.products,
+    requestedPage,
+    CMSCollection.getPageSize("products")
+  );
   redirectIfPageMismatch(requestedPage, currentPage, basePath);
 
   return (

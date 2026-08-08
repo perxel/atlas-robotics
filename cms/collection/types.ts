@@ -38,6 +38,8 @@ export type CollectionRegistryEntry<TLocale extends string> = {
   locales: Record<TLocale, string>;
   /** The `pages` document (matched by filename) backing this collection's listing page. */
   listingPageFilename: string;
+  /** Items per page on this collection's listing/archive routes. Omit to use `cms/pagination`'s `DEFAULT_PAGE_SIZE`. */
+  pageSize?: number;
   /** Returns every item, drafts included — CollectionService applies the draft filter itself. */
   fetchEdges: () => Promise<Array<Edge<unknown>> | null | undefined>;
   /** Single-document fetch by relativePath — the raw `{data, query, variables}` shape `useTina()` needs. */

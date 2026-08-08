@@ -2,6 +2,7 @@
 title: 关于 Lorem ipsum
 slug: about
 draft: false
+publishDate: '2026-08-08T00:00:00.000Z'
 intro: >-
   Lorem ipsum 源于一个简单的观察：大多数团队并不需要更多软件，而是需要让已有的软件真正互相沟通。我们打造小而专注的产品——Ipsum
   Flow、Ipsum Insights 和 Ipsum Sync——它们能接入您日常使用的工具，悄悄替您卸下那些琐碎的工作负担。

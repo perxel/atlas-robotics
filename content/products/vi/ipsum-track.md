@@ -2,6 +2,7 @@
 title: 'Ipsum Track'
 slug: ipsum-track
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Theo dõi từng bước tự động hóa theo thời gian thực, với cảnh báo ngay khi một quy trình bị kẹt hoặc lỗi.'
 coverImage: /uploads/product-ipsum-insights.jpg
 coverImageAlt: 'Hình minh họa luồng sự kiện trực tiếp cho Ipsum Track'

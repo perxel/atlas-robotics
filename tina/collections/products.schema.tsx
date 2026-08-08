@@ -1,33 +1,12 @@
 import type {Collection} from "tinacms";
-import {slugField, slugLifecycleGuard} from "@/cms/slug";
-import {draftField} from "@/cms/collection";
-import {composeBeforeSubmit} from "@/cms/tina-hooks";
-import {seoField} from "@/cms/seo";
-import {taxonomyField} from "./shared-fields/taxonomy.schema";
-import {CMSCollection, type Locale} from "@/lib/cms-server";
+import {defineContentCollection} from "@/cms/define-content-collection";
+import {taxonomyField} from "@/cms/taxonomy";
+import {collectionPathConfig, defaultLocale, type Locale} from "@/lib/registry";
 
-export const productsCollection: Collection = {
+export const productsCollection: Collection = defineContentCollection<Locale>({
     name: "products",
     label: "Products",
-    path: "content/products",
-    format: "md",
-    ui: {
-        // Same reasoning as blog's router (tina/collections/blog.schema.tsx):
-        // derived from the filename (_sys.breadcrumbs), not the `slug` field —
-        // `document` here only reliably carries `_sys` at runtime, matching
-        // its TypeScript type. Uses CMSCollection.getCollectionPath, not a
-        // literal "/products".
-        router: ({document}) => {
-            const locale = document._sys.breadcrumbs[0] as Locale;
-            const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
-            return CMSCollection.getCollectionPath({collectionName: "products", lang: locale, rest: `/${filename}`});
-        },
-        beforeSubmit: composeBeforeSubmit([slugLifecycleGuard("products")]),
-    },
-    fields: [
-        {type: "string", name: "title", label: "Title", required: true},
-        slugField(),
-        draftField(),
+    extraFields: [
         {
             type: "string",
             name: "excerpt",
@@ -54,16 +33,15 @@ export const productsCollection: Collection = {
             list: true,
             description: "Short feature bullets shown on the product card and detail page.",
         },
-        // See tina/collections/shared-fields/taxonomy.schema.tsx: `multiple`
-        // defaults to true, so a product can carry several categories at once
-        // — `product.productCategories` resolves as `{ term: ProductCategory }[]`.
-        taxonomyField({taxonomy: "productCategories", label: "Categories"}),
-        {
-            type: "rich-text",
-            name: "body",
-            label: "Body",
-            isBody: true,
-        },
-        seoField(),
     ],
-};
+    // See cms/taxonomy/taxonomy.field.ts: `multiple`
+    // defaults to true, so a product can carry several categories at once
+    // — `product.productCategories` resolves as `{ term: ProductCategory }[]`.
+    taxonomyFields: [taxonomyField({taxonomy: "productCategories", label: "Categories"})],
+    body: {kind: "richtext"},
+    // Same locale-segment data as lib/cms-server.ts's collectionRegistry.products
+    // (both come from lib/registry.ts's collectionPathConfig) — see blog's
+    // schema file for why this isn't a literal "/products".
+    locales: collectionPathConfig.products.locales,
+    defaultLocale,
+});

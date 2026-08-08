@@ -1,9 +1,7 @@
-import type { MetadataRoute } from "next";
-import { CMSCollection } from "@/lib/cms-server";
-import { CMSMultilingual } from "@/lib/registry";
-import { siteUrl } from "@/cms/seo";
-import { inLocale } from "@/cms/collection";
-import { client } from "@/tina/__generated__/client";
+import type {MetadataRoute} from "next";
+import {CMSCollection, CMSPages} from "@/lib/cms-server";
+import {CMSMultilingual} from "@/lib/registry";
+import {siteUrl} from "@/cms/seo";
 
 // Reflects current CMS content on every request, not a snapshot from the
 // last build — same reasoning CLAUDE.md's "Production builds require Tina
@@ -12,34 +10,49 @@ import { client } from "@/tina/__generated__/client";
 // up here immediately, with no rebuild/redeploy in between.
 export const dynamic = "force-dynamic";
 
+// publishDate is a required field on every content collection (see
+// defineContentCollection() / cms/collection/publish-date.field.ts), so
+// every entry below gets a real lastModified — no per-collection special
+// case for "this one doesn't have a date".
+type SitemapCollectionItem = { slug: string; publishDate?: string | null };
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
+    const enabledLocales = CMSMultilingual.getEnabledLocales();
 
-  const [pagesRes, blogRes, productsRes] = await Promise.all([
-    client.queries.pagesConnection({ filter: { draft: { eq: false } } }),
-    client.queries.blogConnection({ filter: { draft: { eq: false } } }),
-    client.queries.productsConnection({ filter: { draft: { eq: false } } }),
-  ]);
-
-  for (const locale of CMSMultilingual.getEnabledLocales()) {
-    for (const doc of inLocale(pagesRes.data.pagesConnection.edges, locale)) {
-      const filename = doc._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") ?? "";
-      entries.push({
-        url: `${siteUrl}${CMSCollection.resolvePagesDocumentUrl(locale, filename, doc.slug)}`,
-      });
+    // Same non-draft, all-locales index the SEO dashboard reads — reused
+    // here instead of a raw pagesConnection query, so this file (like every
+    // other route) never imports the generated Tina client directly.
+    const pagesIndex = await CMSPages.getSeoIndex();
+    for (const page of pagesIndex) {
+        if (!enabledLocales.includes(page.locale)) continue;
+        entries.push({
+            url: `${siteUrl}${CMSCollection.resolvePagesDocumentUrl(page.locale, page.filename, page.slug)}`,
+            lastModified: page.publishDate || undefined,
+        });
     }
 
-    for (const doc of inLocale(blogRes.data.blogConnection.edges, locale)) {
-      entries.push({
-        url: `${siteUrl}${CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale, rest: `/${doc.slug}` })}`,
-        lastModified: doc.publishDate || undefined,
-      });
-    }
+    // Loops every registered collection (lib/registry.ts's collectionPathConfig)
+    // instead of a hardcoded blog/products block — adding a collection needs
+    // no change here, same "one array, no per-collection call site" registry
+    // pattern CMSCollection already uses everywhere else.
+    for (const collectionName of CMSCollection.getRegisteredCollectionNames()) {
+        for (const locale of enabledLocales) {
+            const {items} = await CMSCollection.getCollectionItems<SitemapCollectionItem>({
+                collectionName,
+                lang: locale,
+            });
 
-    for (const doc of inLocale(productsRes.data.productsConnection.edges, locale)) {
-      entries.push({
-        url: `${siteUrl}${CMSCollection.getCollectionPath({ collectionName: "products", lang: locale, rest: `/${doc.slug}` })}`,
-      });
+            for (const item of items) {
+                entries.push({
+                    url: `${siteUrl}${CMSCollection.getCollectionPath({
+                        collectionName,
+                        lang: locale,
+                        rest: `/${item.slug}`
+                    })}`,
+                    lastModified: item.publishDate || undefined,
+                });
+            }
     }
   }
 

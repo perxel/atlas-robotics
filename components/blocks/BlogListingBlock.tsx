@@ -4,7 +4,7 @@ import type { PagesBlocksBlogListing } from "@/tina/__generated__/types";
 import { translateText } from "@/cms/multilingual";
 import type { Locale, CollectionKey, BlogPostItem } from "@/lib/cms-server";
 import { CMSCollection, CMSTaxonomy } from "@/lib/registry";
-import { paginateItems, DEFAULT_PAGE_SIZE } from "@/cms/pagination";
+import { paginateItems } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
 
 const COLLECTION: CollectionKey = "blog";
@@ -27,7 +27,7 @@ export default function BlogListingBlock({
   const { items: shown, currentPage: resolvedPage, totalPages } = paginateItems(
     posts,
     currentPage,
-    DEFAULT_PAGE_SIZE
+    CMSCollection.getPageSize(COLLECTION)
   );
 
   return (

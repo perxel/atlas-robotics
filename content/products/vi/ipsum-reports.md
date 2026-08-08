@@ -2,6 +2,7 @@
 title: 'Ipsum Reports'
 slug: ipsum-reports
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Báo cáo theo lịch tự xây dựng và tự gửi — không còn phải kéo lại cùng những con số bằng tay mỗi sáng thứ Hai.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Hình minh họa báo cáo theo lịch cho Ipsum Reports'

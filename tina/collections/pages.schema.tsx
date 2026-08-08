@@ -1,19 +1,16 @@
-import type { Collection, Template } from "tinacms";
-import { slugField, slugLifecycleGuard } from "@/cms/slug";
-import { draftField } from "@/cms/collection";
-import { composeBeforeSubmit } from "@/cms/tina-hooks";
-import { seoField } from "@/cms/seo";
-import { heroTemplate } from "@/components/blocks/Hero.template";
-import { richTextTemplate } from "@/components/blocks/RichTextBlock.template";
-import { ctaTemplate } from "@/components/blocks/Cta.template";
-import { featureGridTemplate } from "@/components/blocks/FeatureGrid.template";
-import { newsletterTemplate } from "@/components/blocks/Newsletter.template";
-import { featuredBlogPostsTemplate } from "@/components/blocks/FeaturedBlogPosts.template";
-import { contactFormTemplate } from "@/components/blocks/ContactFormBlock.template";
-import { blogListingTemplate } from "@/components/blocks/BlogListingBlock.template";
-import { productListingTemplate } from "@/components/blocks/ProductListingBlock.template";
-import { CMSCollection } from "@/lib/cms-server";
-import { type Locale, reservedSlugs, lockedSlugFilenames } from "@/lib/registry";
+import type {Collection, Template} from "tinacms";
+import {defineContentCollection} from "@/cms/define-content-collection";
+import {heroTemplate} from "@/components/blocks/Hero.template";
+import {richTextTemplate} from "@/components/blocks/RichTextBlock.template";
+import {ctaTemplate} from "@/components/blocks/Cta.template";
+import {featureGridTemplate} from "@/components/blocks/FeatureGrid.template";
+import {newsletterTemplate} from "@/components/blocks/Newsletter.template";
+import {featuredBlogPostsTemplate} from "@/components/blocks/FeaturedBlogPosts.template";
+import {contactFormTemplate} from "@/components/blocks/ContactFormBlock.template";
+import {blogListingTemplate} from "@/components/blocks/BlogListingBlock.template";
+import {productListingTemplate} from "@/components/blocks/ProductListingBlock.template";
+import {CMSCollection} from "@/lib/cms-server";
+import {type Locale, lockedSlugFilenames, reservedSlugs} from "@/lib/registry";
 
 // Block set for the `pages` collection's block-based editing.
 // https://tina.io/docs/editing/blocks
@@ -32,39 +29,17 @@ export const pageBlocks: Template[] = [
   productListingTemplate,
 ];
 
-export const pagesCollection: Collection = {
+export const pagesCollection: Collection = defineContentCollection<Locale>({
   name: "pages",
   label: "Pages",
-  path: "content/pages",
-  format: "md",
-  ui: {
+    reserved: reservedSlugs,
+    lockedFilenames: lockedSlugFilenames,
     allowedActions: {
-      // Set to false for clients who should only edit existing pages,
-      // not create new ones.
-      create: true,
+        // Set to false for clients who should only edit existing pages, not
+        // create new ones.
+        create: true,
     },
-    beforeSubmit: composeBeforeSubmit([
-      slugLifecycleGuard("pages", { lockedFilenames: lockedSlugFilenames }),
-    ]),
-    // Same reasoning as blog's router (see its comment): derived from the
-    // filename (_sys.breadcrumbs), not the `slug` field — `document` in
-    // this callback only reliably carries `_sys` (confirmed live: reading
-    // `document.slug` here produced a broken preview URL). Delegates to
-    // CMSCollection.resolvePagesDocumentUrl (lib/cms-server.ts), passing `filename`
-    // as a stand-in for `slug` since the real field isn't available here —
-    // only correct when filename === slug, same limitation as before; that
-    // helper's `home`/listing-page special cases don't depend on it, only
-    // its fallback branch does.
-    router: ({ document }) => {
-      const locale = document._sys.breadcrumbs[0] as Locale;
-      const filename = document._sys.breadcrumbs[document._sys.breadcrumbs.length - 1];
-      return CMSCollection.resolvePagesDocumentUrl(locale, filename, filename);
-    },
-  },
-  fields: [
-    { type: "string", name: "title", label: "Title", required: true },
-    slugField({ reserved: reservedSlugs }),
-    draftField(),
+    extraFields: [
     {
       type: "boolean",
       name: "hideTitle",
@@ -77,15 +52,14 @@ export const pagesCollection: Collection = {
       name: "intro",
       label: "Intro Copy",
       description:
-        "Shown above the sections below. Also the only content rendered when block editing is disabled for this page in code (see lib/pages-config.ts).",
+          "Shown above the sections below. Also the only content rendered when block editing is disabled for this page in code (see lib/registry.ts's blocksDisabledSlugs).",
     },
-    {
-      type: "object",
-      name: "blocks",
-      label: "Sections",
-      list: true,
-      templates: pageBlocks,
-    },
-    seoField(),
   ],
-};
+    body: {kind: "blocks", templates: pageBlocks},
+    // Same reasoning as blog's/product's getUrl (see their schema files):
+    // `filename` stands in for `slug` since the real field isn't available
+    // in this callback — only correct when filename === slug, same
+    // limitation as before; resolvePagesDocumentUrl's `home`/listing-page
+    // special cases don't depend on it, only its fallback branch does.
+    getUrl: ({lang, filename}) => CMSCollection.resolvePagesDocumentUrl(lang, filename, filename),
+});

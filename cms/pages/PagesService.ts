@@ -103,14 +103,25 @@ export class PagesService<TLocale extends string> {
    * shared code) because `pages` isn't a CollectionService registry entry:
    * its root-URL, individually-slugged shape doesn't fit that registry's
    * one-fixed-prefix-per-collection assumption (see CLAUDE.md's
-   * "Pages collection & block-based editing" section). */
-  async getSeoIndex(): Promise<{ filename: string; locale: TLocale; slug: string; seo: unknown }[]> {
+   * "Pages collection & block-based editing" section). `publishDate` is
+   * tacked on (optional — not every project's `pages` collection has it)
+   * because it's the same freshness signal every other consumer of this
+   * index would want (e.g. app/sitemap.ts's `lastModified`), not worth a
+   * second near-identical method just to omit one field. */
+  async getSeoIndex(): Promise<
+    { filename: string; locale: TLocale; slug: string; seo: unknown; publishDate?: string | null }[]
+  > {
     const edges = await this.#deps.fetchConnection();
     return (edges || [])
       .map(
         (edge) =>
           edge?.node as
-            | { slug?: string; seo?: unknown; _sys?: { relativePath: string; breadcrumbs: string[] } }
+            | {
+                slug?: string;
+                seo?: unknown;
+                publishDate?: string | null;
+                _sys?: { relativePath: string; breadcrumbs: string[] };
+              }
             | undefined
       )
       .filter((node): node is NonNullable<typeof node> & { _sys: { relativePath: string; breadcrumbs: string[] } } =>
@@ -121,6 +132,7 @@ export class PagesService<TLocale extends string> {
         locale: node._sys.breadcrumbs[0] as TLocale,
         slug: node.slug ?? "",
         seo: node.seo,
+        publishDate: node.publishDate,
       }));
   }
 }

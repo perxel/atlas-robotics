@@ -2,6 +2,7 @@
 title: 'Ipsum Sync'
 slug: ipsum-sync
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Một không gian làm việc chung cho cả nhóm và mọi công cụ bạn kết nối — ít tab hơn, ít cuộc họp cập nhật tình trạng hơn.'
 coverImage: /uploads/product-ipsum-sync.jpg
 coverImageAlt: 'Hình minh họa cộng tác nhóm cho Ipsum Sync'

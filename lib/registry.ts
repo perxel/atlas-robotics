@@ -1,6 +1,6 @@
-import { CollectionService, type CollectionRegistryEntry } from "@/cms/collection";
-import { TaxonomyService, type TaxonomyRegistryEntry } from "@/cms/taxonomy";
-import { MultilingualService } from "@/cms/multilingual/MultilingualService";
+import {type CollectionRegistryEntry, CollectionService} from "@/cms/collection";
+import {type TaxonomyRegistryEntry, TaxonomyService} from "@/cms/taxonomy";
+import {MultilingualService} from "@/cms/multilingual/MultilingualService";
 
 // Universal config: zero Tina/Node imports, safe in edge middleware AND
 // browser bundles ("use client" components and everything they render).
@@ -47,7 +47,7 @@ export const CMSMultilingual = new MultilingualService<Locale>({
 // Add a collection by adding a row here, then a matching row to
 // lib/cms-server.ts's collectionRegistry (draftFieldName/fetchEdges/fetchBySlug).
 
-type CollectionPathEntry = Pick<CollectionRegistryEntry<Locale>, "locales" | "listingPageFilename">;
+type CollectionPathEntry = Pick<CollectionRegistryEntry<Locale>, "locales" | "listingPageFilename" | "pageSize">;
 
 export const collectionPathConfig = {
   blog: {

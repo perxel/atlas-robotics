@@ -2,6 +2,7 @@
 title: 'Ipsum Flow'
 slug: ipsum-flow
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Turn multi-step busywork into a rule you set once — approvals, handoffs, and repetitive tasks that used to eat your afternoons.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Abstract workflow automation visual for Ipsum Flow'

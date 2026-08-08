@@ -2,6 +2,7 @@
 title: 'Ipsum Forms'
 slug: ipsum-forms
 draft: false
+publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Turn any form into a workflow trigger — submissions kick off an Ipsum Flow automation instead of landing in an inbox.'
 coverImage: /uploads/product-ipsum-flow.jpg
 coverImageAlt: 'Abstract form-building visual for Ipsum Forms'
