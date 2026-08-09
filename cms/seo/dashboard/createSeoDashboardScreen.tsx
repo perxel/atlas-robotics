@@ -43,6 +43,36 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
 
   const locales = (coverage.length > 0 ? Object.keys(coverage[0].countsByLocale) : []) as TLocale[];
 
+  // Per-locale aggregate across every row (content collection, "pages", and
+  // taxonomy) — weighted by document count, not an average of percentages,
+  // so a large collection's gaps aren't diluted by a small one's 100%.
+  const overallByLocale = Object.fromEntries(
+    locales.map((locale) => {
+      const complete = coverage.reduce((sum, row) => sum + row.completeByLocale[locale], 0);
+      const total = coverage.reduce((sum, row) => sum + row.countsByLocale[locale], 0);
+      return [locale, total === 0 ? 100 : Math.round((complete / total) * 100)];
+    })
+  ) as Record<TLocale, number>;
+
+  const coverageColor = (percent: number) => (percent === 100 ? "#1a7f37" : "#b42318");
+
+  const typeBadge = (type: "content" | "taxonomy") => (
+    <span
+      style={{
+        display: "inline-block",
+        marginLeft: 8,
+        padding: "1px 6px",
+        borderRadius: 4,
+        fontSize: 11,
+        fontWeight: 500,
+        color: type === "taxonomy" ? "#7c3aed" : "#475569",
+        backgroundColor: type === "taxonomy" ? "#f3ecfd" : "#f1f5f9",
+      }}
+    >
+      {type === "taxonomy" ? "Taxonomy" : "Content"}
+    </span>
+  );
+
   return (
     <div style={{ padding: 24 }}>
       <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16 }}>SEO coverage</h1>
@@ -52,7 +82,10 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
             <th style={{ textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2" }}>Collection</th>
             {locales.map((locale) => (
               <th key={locale} style={{ textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2" }}>
-                {locale}
+                <span>{locale}</span>{" "}
+                <span style={{ color: coverageColor(overallByLocale[locale]), fontWeight: 600 }}>
+                  {overallByLocale[locale]}%
+                </span>
               </th>
             ))}
           </tr>
@@ -61,13 +94,24 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
           {coverage.map((row) => (
             <tr key={row.collectionName}>
               <td style={{ padding: 8, borderBottom: "1px solid #f0f0f0", fontWeight: 500 }}>
-                {row.collectionName}
+                {row.label}
+                {typeBadge(row.type)}
               </td>
-              {locales.map((locale) => (
-                <td key={locale} style={{ padding: 8, borderBottom: "1px solid #f0f0f0" }}>
-                  {row.completeByLocale[locale]}/{row.countsByLocale[locale]} ({row.completionPercentByLocale[locale]}%)
-                </td>
-              ))}
+              {locales.map((locale) => {
+                const percent = row.completionPercentByLocale[locale];
+                return (
+                  <td
+                    key={locale}
+                    style={{
+                      padding: 8,
+                      borderBottom: "1px solid #f0f0f0",
+                      color: coverageColor(percent),
+                    }}
+                  >
+                    {row.completeByLocale[locale]}/{row.countsByLocale[locale]} ({percent}%)
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -89,7 +133,10 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
           <tbody>
             {audit.map((row, i) => (
               <tr key={i}>
-                <td style={{ padding: 8, borderBottom: "1px solid #f0f0f0" }}>{row.collectionName}</td>
+                <td style={{ padding: 8, borderBottom: "1px solid #f0f0f0" }}>
+                  {row.label}
+                  {typeBadge(row.type)}
+                </td>
                 <td style={{ padding: 8, borderBottom: "1px solid #f0f0f0" }}>{row.locale}</td>
                 <td style={{ padding: 8, borderBottom: "1px solid #f0f0f0" }}>{row.slug}</td>
                 <td style={{ padding: 8, borderBottom: "1px solid #f0f0f0" }}>{row.missingFields.join(", ")}</td>

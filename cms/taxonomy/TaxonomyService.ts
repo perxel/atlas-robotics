@@ -54,6 +54,36 @@ export class TaxonomyService<
     this.#locales = options.locales;
   }
 
+  getRegisteredTaxonomyNames(): TTaxonomyName[] {
+    return Object.keys(this.#registry) as TTaxonomyName[];
+  }
+
+  /** English source label, e.g. "Product Categories" — same contract as
+   * CollectionService.getLabel. */
+  getLabel(taxonomyName: TTaxonomyName): string {
+    return this.#registry[taxonomyName].label;
+  }
+
+  /** Per-term SEO index — same `{filename, locale, slug, seo}` shape as
+   * CollectionService.getSeoIndex/PagesService.getSeoIndex, so the SEO
+   * dashboard can dispatch to whichever of the three produced it without
+   * caring which. Always sees every term (there's no draft concept for a
+   * taxonomy term), unlike CollectionService's registered collections. */
+  async getSeoIndex(
+    taxonomyName: TTaxonomyName
+  ): Promise<{ filename: string; locale: TLocale; slug: string; seo: unknown }[]> {
+    const edges = await this.#registry[taxonomyName].fetchTerms();
+    return (edges || [])
+      .map((edge) => edge?.node)
+      .filter((node): node is TermDoc => !!node?._sys)
+      .map((node) => ({
+        filename: node._sys.relativePath.split("/").pop()?.replace(/\.md$/, "") ?? node._sys.relativePath,
+        locale: node._sys.breadcrumbs[0] as TLocale,
+        slug: node.slug,
+        seo: node.seo,
+      }));
+  }
+
   async getTerms(args: { taxonomyName: TTaxonomyName; lang?: TLocale }): Promise<TermDoc[]> {
     const locale = args.lang ?? this.#defaultLocale;
     const edges = await this.#registry[args.taxonomyName].fetchTerms();

@@ -11,7 +11,7 @@ import {
   resolveLocaleAlternates,
   getPageBlockData,
 } from "@/lib/cms-server";
-import { CMSMultilingual } from "@/lib/registry";
+import { CMSMultilingual, buildItemTitle } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";
@@ -41,7 +41,13 @@ export async function generateBlogMetadata(locale: Locale): Promise<Metadata> {
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
-    fallbackTitle: page?.title || `${t(CMSCollection.getLabel("blog"))} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackTitle: buildItemTitle({
+      collectionName: "blog",
+      pageTitle: page?.title,
+      label: t(CMSCollection.getLabel("blog")),
+      siteTitle: settings?.title || t("Lorem ipsum"),
+      t,
+    }),
     fallbackDescription: t("Playbooks, product news, and stories from the Lorem ipsum team."),
   });
 }

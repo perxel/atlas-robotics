@@ -15,7 +15,7 @@ import {
   getSiteSettings,
   resolveLocaleAlternates,
 } from "@/lib/cms-server";
-import { CMSMultilingual } from "@/lib/registry";
+import { CMSMultilingual, buildArchiveTitle } from "@/lib/registry";
 
 /**
  * Generic archive route for any taxonomy attached to `products` — same
@@ -44,7 +44,7 @@ async function loadArchive(locale: Locale, taxonomySegment: string, termSlug: st
     lang: locale,
   });
 
-  return { term, products };
+  return { term, products, taxonomyName };
 }
 
 export async function generateProductsArchiveMetadata(
@@ -72,8 +72,15 @@ export async function generateProductsArchiveMetadata(
     lang: locale,
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
+    seo: archive?.term.seo,
     fallbackTitle: archive
-      ? `${archive.term.title} — ${t(CMSCollection.getLabel("products"))} — ${settings?.title || t("Lorem ipsum")}`
+      ? buildArchiveTitle({
+          taxonomyName: archive.taxonomyName,
+          termTitle: archive.term.title,
+          label: t(CMSCollection.getLabel("products")),
+          siteTitle: settings?.title || t("Lorem ipsum"),
+          t,
+        })
       : t(CMSCollection.getLabel("products")),
     fallbackDescription: archive ? `${t(CMSCollection.getLabel("products"))}: ${archive.term.title}` : undefined,
   });

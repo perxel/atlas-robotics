@@ -89,6 +89,14 @@ export function createCmsProject<
   singletonRegistry: Record<TSingletonName, SingletonRegistryEntry<TLocale>>;
   pagesConfig: PagesDeps;
   dictionaryConfig: { fetchEntries: () => Promise<DictionaryEntry[]> };
+  // NoInfer: without it, this union-of-both-generics array is itself a
+  // candidate inference site for TCollectionName/TTaxonomyName, and TS
+  // conflates the two (each element could satisfy either branch), widening
+  // both to include the other's keys — confirmed live: it made
+  // collectionRegistry appear to require taxonomy keys and vice versa.
+  // NoInfer forces TCollectionName/TTaxonomyName to be inferred only from
+  // collectionRegistry/taxonomyRegistry above, as intended.
+  seoDashboardOrder?: readonly NoInfer<ContentCollection<TCollectionName> | TTaxonomyName>[];
 }) {
   const CMSCollection = new CollectionService<TCollectionName, TLocale>(config.collectionRegistry, {
     defaultLocale: config.defaultLocale,
@@ -170,6 +178,7 @@ export function createCmsProject<
     CMSMultilingual: config.CMSMultilingual,
     locales: config.locales,
     defaultLocale: config.defaultLocale,
+    seoDashboardOrder: config.seoDashboardOrder,
   });
 
   return {

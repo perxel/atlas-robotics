@@ -11,7 +11,7 @@ import {
   resolveLocaleAlternates,
   getPageBlockData,
 } from "@/lib/cms-server";
-import { CMSMultilingual } from "@/lib/registry";
+import { CMSMultilingual, buildItemTitle } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import PageView from "@/components/pages/PageView";
@@ -41,7 +41,13 @@ export async function generateProductsMetadata(locale: Locale): Promise<Metadata
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: page?.seo,
-    fallbackTitle: page?.title || `${t(CMSCollection.getLabel("products"))} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackTitle: buildItemTitle({
+      collectionName: "products",
+      pageTitle: page?.title,
+      label: t(CMSCollection.getLabel("products")),
+      siteTitle: settings?.title || t("Lorem ipsum"),
+      t,
+    }),
     fallbackDescription: t("Everything Lorem ipsum ships, in one place."),
   });
 }

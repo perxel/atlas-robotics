@@ -1,4 +1,4 @@
-import type { SeoAuditRow, SeoCoverage, SeoFields } from "../types";
+import type { SeoAuditRow, SeoCoverage, SeoFields, SeoSourceType } from "../types";
 
 type SeoIndexEntry<TLocale extends string> = {
   filename: string;
@@ -18,24 +18,43 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
   #deps: {
     getRegisteredCollectionNames: () => TCollectionName[];
     getSeoIndex: (collectionName: TCollectionName) => Promise<SeoIndexEntry<TLocale>[]>;
+    getLabel: (collectionName: TCollectionName) => string;
+    getType: (collectionName: TCollectionName) => SeoSourceType;
   };
   #locales: readonly TLocale[];
   #requiredFields: Array<keyof NonNullable<SeoFields>>;
+  #order?: readonly TCollectionName[];
 
   constructor(
     deps: {
       getRegisteredCollectionNames: () => TCollectionName[];
       getSeoIndex: (collectionName: TCollectionName) => Promise<SeoIndexEntry<TLocale>[]>;
+      getLabel: (collectionName: TCollectionName) => string;
+      getType: (collectionName: TCollectionName) => SeoSourceType;
     },
     options: {
       locales: readonly TLocale[];
       defaultLocale: TLocale;
       requiredFields?: Array<keyof NonNullable<SeoFields>>;
+      /** Display order for rows — names not listed sort after every listed
+       * name, in their original relative order. Omit to use whatever order
+       * `getRegisteredCollectionNames` returns. */
+      order?: readonly TCollectionName[];
     }
   ) {
     this.#deps = deps;
     this.#locales = options.locales;
     this.#requiredFields = options.requiredFields ?? DEFAULT_REQUIRED_FIELDS;
+    this.#order = options.order;
+  }
+
+  /** Registered names sorted per `options.order`, when given — a stable
+   * sort, so unlisted names keep their original relative order at the end. */
+  #sortedNames(): TCollectionName[] {
+    const names = this.#deps.getRegisteredCollectionNames();
+    if (!this.#order) return names;
+    const rank = new Map(this.#order.map((name, i) => [name, i]));
+    return [...names].sort((a, b) => (rank.get(a) ?? Infinity) - (rank.get(b) ?? Infinity));
   }
 
   #isComplete(seo: SeoFields): boolean {
@@ -47,7 +66,7 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
   }
 
   async getCoverage(): Promise<SeoCoverage<TCollectionName, TLocale>[]> {
-    const names = this.#deps.getRegisteredCollectionNames();
+    const names = this.#sortedNames();
 
     return Promise.all(
       names.map(async (collectionName) => {
@@ -65,7 +84,14 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
           completionPercentByLocale[locale] = docs.length === 0 ? 100 : Math.round((complete / docs.length) * 100);
         }
 
-        return { collectionName, countsByLocale, completeByLocale, completionPercentByLocale };
+        return {
+          collectionName,
+          label: this.#deps.getLabel(collectionName),
+          type: this.#deps.getType(collectionName),
+          countsByLocale,
+          completeByLocale,
+          completionPercentByLocale,
+        };
       })
     );
   }
@@ -74,7 +100,7 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     collectionName?: TCollectionName;
     onlyMissing?: boolean;
   }): Promise<SeoAuditRow<TCollectionName, TLocale>[]> {
-    const names = args?.collectionName ? [args.collectionName] : this.#deps.getRegisteredCollectionNames();
+    const names = args?.collectionName ? [args.collectionName] : this.#sortedNames();
 
     const rows: SeoAuditRow<TCollectionName, TLocale>[] = [];
     for (const collectionName of names) {
@@ -84,6 +110,8 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
         const missingFields = this.#missingFields(seo);
         rows.push({
           collectionName,
+          label: this.#deps.getLabel(collectionName),
+          type: this.#deps.getType(collectionName),
           locale: entry.locale,
           slug: entry.slug,
           filename: entry.filename,

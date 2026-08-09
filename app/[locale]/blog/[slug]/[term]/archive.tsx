@@ -15,7 +15,7 @@ import {
   getSiteSettings,
   resolveLocaleAlternates,
 } from "@/lib/cms-server";
-import { CMSMultilingual } from "@/lib/registry";
+import { CMSMultilingual, buildArchiveTitle } from "@/lib/registry";
 
 /**
  * Generic archive route for any taxonomy attached to `blog` (see
@@ -53,7 +53,7 @@ async function loadArchive(locale: Locale, taxonomySegment: string, termSlug: st
     lang: locale,
   });
 
-  return { term, posts };
+  return { term, posts, taxonomyName };
 }
 
 export async function generateBlogArchiveMetadata(
@@ -77,8 +77,15 @@ export async function generateBlogArchiveMetadata(
     lang: locale,
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
+    seo: archive?.term.seo,
     fallbackTitle: archive
-      ? `${archive.term.title} — ${t(CMSCollection.getLabel("blog"))} — ${settings?.title || t("Lorem ipsum")}`
+      ? buildArchiveTitle({
+          taxonomyName: archive.taxonomyName,
+          termTitle: archive.term.title,
+          label: t(CMSCollection.getLabel("blog")),
+          siteTitle: settings?.title || t("Lorem ipsum"),
+          t,
+        })
       : t(CMSCollection.getLabel("blog")),
     fallbackDescription: archive ? `${t(CMSCollection.getLabel("blog"))}: ${archive.term.title}` : undefined,
   });

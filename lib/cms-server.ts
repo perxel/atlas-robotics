@@ -3,7 +3,15 @@ import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__gene
 import type { ConnectionItem } from "@/cms/collection";
 import { createCmsProject } from "@/cms/create-project";
 import { siteUrl } from "@/cms/seo";
-import { collectionPathConfig, taxonomyPathConfig, CMSMultilingual, defaultLocale, locales, type Locale } from "./registry";
+import {
+  collectionPathConfig,
+  taxonomyPathConfig,
+  seoDashboardOrder,
+  CMSMultilingual,
+  defaultLocale,
+  locales,
+  type Locale,
+} from "./registry";
 
 export type { Locale };
 
@@ -100,6 +108,7 @@ export const {
           ) as { key: string; values: Record<string, string | null | undefined> }[]
       ),
   },
+  seoDashboardOrder,
 });
 
 // --- Typed query helpers (project-specific generics on top of generic CMS methods) ---

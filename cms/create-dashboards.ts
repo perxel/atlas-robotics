@@ -2,7 +2,9 @@ import { createTranslationDashboardScreen, TranslationDashboardService } from ".
 import { SeoDashboardService, createSeoDashboardScreen } from "./seo";
 import type { CollectionService } from "./collection";
 import type { PagesService } from "./pages";
+import type { TaxonomyService } from "./taxonomy";
 import type { MultilingualService } from "./multilingual/MultilingualService";
+import type { ContentCollection } from "./create-project";
 
 /**
  * Wires the two admin dashboard screens (SEO coverage, translation
@@ -16,44 +18,80 @@ import type { MultilingualService } from "./multilingual/MultilingualService";
  * generated-Tina-client-in-a-browser-bundle problem that motivated
  * splitting lib/registry.ts out doesn't apply here.
  *
- * `"pages"` is folded into `SeoCollectionKey` because `pages` documents
- * are individually publishable content with their own SEO fields, but
- * `PagesService` isn't a `CollectionService` registry entry (see
- * .claude/docs/01-collection.md) — this distinction is structural to
- * cms/pages, not a per-project choice, so it belongs here rather than
- * being re-derived per project.
+ * Imports the `ContentCollection` *type* back from create-project.ts even
+ * though create-project.ts calls this file — a type-only import, erased
+ * at compile time, so it isn't a real runtime circular dependency.
  */
-export function createCmsDashboards<TCollectionName extends string, TLocale extends string>(config: {
-  CMSCollection: CollectionService<TCollectionName, TLocale>;
-  CMSPages: PagesService<TLocale>;
-  CMSMultilingual: MultilingualService<TLocale>;
-  locales: readonly TLocale[];
-  defaultLocale: TLocale;
-}) {
-  type SeoCollectionKey = TCollectionName | "pages";
+export function createCmsDashboards<TCollectionName extends string, TTaxonomyName extends string, TLocale extends string>(
+  config: {
+    CMSCollection: CollectionService<TCollectionName, TLocale>;
+    CMSPages: PagesService<TLocale>;
+    CMSTaxonomy: TaxonomyService<TTaxonomyName, TCollectionName, TLocale>;
+    CMSMultilingual: MultilingualService<TLocale>;
+    locales: readonly TLocale[];
+    defaultLocale: TLocale;
+    /** Display order for the SEO dashboard's rows — see
+     * lib/registry.ts's `seoDashboardOrder` for the concrete list this
+     * project passes in, and why it exists (mirrors tina/config.ts's
+     * `collections` declaration order). Names omitted here sort to the end. */
+    seoDashboardOrder?: readonly (ContentCollection<TCollectionName> | TTaxonomyName)[];
+  }
+) {
+  /**
+   * The SEO dashboard's source set — deliberately *not* the same type as
+   * `ContentCollection`, even though it's a superset of it: taxonomies
+   * (`categories`, `productCategories`) have their own SEO fields (a
+   * term's archive page, e.g. `/blog/category/news`, is a real visited
+   * URL) without being individually-publishable content themselves. "Has
+   * SEO" and "is a ContentCollection" are different, overlapping traits.
+   */
+  type SeoSource = ContentCollection<TCollectionName> | TTaxonomyName;
+
+  const taxonomyNames = new Set<TTaxonomyName>(config.CMSTaxonomy.getRegisteredTaxonomyNames());
+  const isTaxonomyName = (name: SeoSource): name is TTaxonomyName => taxonomyNames.has(name as TTaxonomyName);
+
+  const getLabel = (name: SeoSource): string =>
+    name === "pages"
+      ? "Pages"
+      : isTaxonomyName(name)
+        ? config.CMSTaxonomy.getLabel(name)
+        : config.CMSCollection.getLabel(name as TCollectionName);
+
+  const getType = (name: SeoSource): "content" | "taxonomy" => (isTaxonomyName(name) ? "taxonomy" : "content");
 
   const seoDashboardScreen = createSeoDashboardScreen(
-    new SeoDashboardService<SeoCollectionKey, TLocale>(
+    new SeoDashboardService<SeoSource, TLocale>(
       {
-        getRegisteredCollectionNames: (): SeoCollectionKey[] => [
+        getRegisteredCollectionNames: (): SeoSource[] => [
           ...config.CMSCollection.getRegisteredCollectionNames(),
           "pages",
+          ...config.CMSTaxonomy.getRegisteredTaxonomyNames(),
         ],
         getSeoIndex: (collectionName) =>
           collectionName === "pages"
             ? config.CMSPages.getSeoIndex()
-            : config.CMSCollection.getSeoIndex(collectionName as TCollectionName),
+            : isTaxonomyName(collectionName)
+              ? config.CMSTaxonomy.getSeoIndex(collectionName)
+              : config.CMSCollection.getSeoIndex(collectionName as TCollectionName),
+        getLabel,
+        getType,
       },
-      { locales: config.locales, defaultLocale: config.defaultLocale }
+      { locales: config.locales, defaultLocale: config.defaultLocale, order: config.seoDashboardOrder }
     )
   );
 
   const translationDashboardScreen = config.CMSMultilingual.isEnabled()
     ? createTranslationDashboardScreen(
-        new TranslationDashboardService<TCollectionName, TLocale>(
+        new TranslationDashboardService<ContentCollection<TCollectionName>, TLocale>(
           {
-            getRegisteredCollectionNames: config.CMSCollection.getRegisteredCollectionNames.bind(config.CMSCollection),
-            getItemLocaleIndex: config.CMSCollection.getItemLocaleIndex.bind(config.CMSCollection),
+            getRegisteredCollectionNames: (): ContentCollection<TCollectionName>[] => [
+              ...config.CMSCollection.getRegisteredCollectionNames(),
+              "pages",
+            ],
+            getItemLocaleIndex: (collectionName) =>
+              collectionName === "pages"
+                ? config.CMSPages.getSeoIndex()
+                : config.CMSCollection.getItemLocaleIndex(collectionName as TCollectionName),
           },
           { locales: config.CMSMultilingual.getEnabledLocales(), defaultLocale: config.defaultLocale }
         )

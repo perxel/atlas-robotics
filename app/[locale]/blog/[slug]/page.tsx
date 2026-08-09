@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { getBlogPostQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, type BlogPostItem, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms-server";
-import { defaultLocale, CMSMultilingual } from "@/lib/registry";
+import { defaultLocale, CMSMultilingual, buildItemTitle } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import BlogPostView from "@/components/blog/BlogPostView";
 
@@ -31,7 +31,13 @@ export async function generateMetadata({
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: post?.seo,
-    fallbackTitle: post?.title || `${t(CMSCollection.getLabel("blog"))} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackTitle: buildItemTitle({
+      collectionName: "blog",
+      pageTitle: post?.title,
+      label: t(CMSCollection.getLabel("blog")),
+      siteTitle: settings?.title || t("Lorem ipsum"),
+      t,
+    }),
     fallbackDescription: post?.excerpt,
   });
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { getProductQuery, CMSTaxonomy, CMSDictionary, CMSSeo, CMSCollection, CMSPages, type ProductItem, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms-server";
-import { defaultLocale, CMSMultilingual } from "@/lib/registry";
+import { defaultLocale, CMSMultilingual, buildItemTitle } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
 import ProductView from "@/components/products/ProductView";
 
@@ -31,7 +31,13 @@ export async function generateMetadata({
     pathWithoutLocale: CMSMultilingual.stripLocalePrefix(pathname),
     alternates,
     seo: product?.seo,
-    fallbackTitle: product?.title || `${t(CMSCollection.getLabel("products"))} — ${settings?.title || t("Lorem ipsum")}`,
+    fallbackTitle: buildItemTitle({
+      collectionName: "products",
+      pageTitle: product?.title,
+      label: t(CMSCollection.getLabel("products")),
+      siteTitle: settings?.title || t("Lorem ipsum"),
+      t,
+    }),
     fallbackDescription: product?.excerpt,
   });
 }
