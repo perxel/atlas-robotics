@@ -176,6 +176,7 @@ export function createCmsProject<
     CMSPages,
     CMSTaxonomy,
     CMSMultilingual: config.CMSMultilingual,
+    CMSSeo,
     locales: config.locales,
     defaultLocale: config.defaultLocale,
     seoDashboardOrder: config.seoDashboardOrder,

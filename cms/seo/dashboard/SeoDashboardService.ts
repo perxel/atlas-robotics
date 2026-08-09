@@ -1,4 +1,5 @@
-import type { SeoAuditRow, SeoCoverage, SeoCoverageMode, SeoFields, SeoSourceType } from "../types";
+import type { SeoService } from "../SeoService";
+import type { ResolvedSeoValue, SeoAuditRow, SeoCoverage, SeoFieldScore, SeoFields, SeoSourceType } from "../types";
 
 type SeoIndexEntry<TLocale extends string> = {
   filename: string;
@@ -12,12 +13,19 @@ type SeoIndexEntry<TLocale extends string> = {
   fallback?: { metaTitle?: string | null; metaDescription?: string | null };
 };
 
-const DEFAULT_REQUIRED_FIELDS: Array<keyof NonNullable<SeoFields>> = ["metaTitle", "metaDescription"];
-
 /**
  * Coverage summary + a detail audit table for the Tina admin SEO Dashboard
  * — same construction as the Translation Dashboard (cms/multilingual).
  * See .claude/plans/04-seo.md.
+ *
+ * Scores each document 0–100 across four rule-based checks (title length,
+ * description length, social image, image alt text) rather than a binary
+ * "has the field or not" — see `#scoreEntry`'s doc comment for the rubric.
+ * Every check resolves its value through `SeoService`'s
+ * `getMetaTitle`/`getMetaDescription`/`getOgImage`/`getOgImageAlt` — the same
+ * resolution page rendering uses (`SeoService.buildMetadata`) — so the score
+ * always reflects what actually renders live, fallback included, and never
+ * drifts from it.
  */
 export class SeoDashboardService<TCollectionName extends string, TLocale extends string> {
   #deps: {
@@ -25,9 +33,9 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     getSeoIndex: (collectionName: TCollectionName) => Promise<SeoIndexEntry<TLocale>[]>;
     getLabel: (collectionName: TCollectionName) => string;
     getType: (collectionName: TCollectionName) => SeoSourceType;
+    seoService: SeoService<TLocale>;
   };
   #locales: readonly TLocale[];
-  #requiredFields: Array<keyof NonNullable<SeoFields>>;
   #order?: readonly TCollectionName[];
 
   constructor(
@@ -36,11 +44,11 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
       getSeoIndex: (collectionName: TCollectionName) => Promise<SeoIndexEntry<TLocale>[]>;
       getLabel: (collectionName: TCollectionName) => string;
       getType: (collectionName: TCollectionName) => SeoSourceType;
+      seoService: SeoService<TLocale>;
     },
     options: {
       locales: readonly TLocale[];
       defaultLocale: TLocale;
-      requiredFields?: Array<keyof NonNullable<SeoFields>>;
       /** Display order for rows — names not listed sort after every listed
        * name, in their original relative order. Omit to use whatever order
        * `getRegisteredCollectionNames` returns. */
@@ -53,7 +61,6 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     // and the dashboard screen reading Object.keys() off it) uses as column
     // order, so reordering once here is enough to fix both.
     this.#locales = [options.defaultLocale, ...options.locales.filter((l) => l !== options.defaultLocale)];
-    this.#requiredFields = options.requiredFields ?? DEFAULT_REQUIRED_FIELDS;
     this.#order = options.order;
   }
 
@@ -66,51 +73,107 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     return [...names].sort((a, b) => (rank.get(a) ?? Infinity) - (rank.get(b) ?? Infinity));
   }
 
-  /** A field is satisfied if the editor set it explicitly, or — in
-   * "lenient" mode only — the document's own render route has a working
-   * fallback for it. "strict" mode ignores fallback entirely: only an
-   * explicit value counts. */
-  #isSatisfied(
-    seo: SeoFields,
-    fallback: SeoIndexEntry<TLocale>["fallback"],
-    mode: SeoCoverageMode,
-    field: keyof NonNullable<SeoFields>
-  ): boolean {
-    if (!!(seo as Record<string, unknown> | null | undefined)?.[field]) return true;
-    return mode === "lenient" && !!(fallback as Record<string, unknown> | undefined)?.[field];
+  /** Scores a resolved title/description against an ideal character range:
+   * missing scores 0, present-but-outside-range scores half credit, present
+   * and within range scores full credit. The ranges themselves track
+   * Google's SERP truncation points — ~60 chars for a title, ~160 for a
+   * description — not an arbitrary "non-empty" bar. */
+  #scoreTextField(
+    field: "metaTitle" | "metaDescription",
+    resolved: ResolvedSeoValue<string | undefined>,
+    min: number,
+    max: number,
+    maxPoints: number
+  ): SeoFieldScore {
+    const { value, isFallback } = resolved;
+    if (!value) {
+      return { field, points: 0, maxPoints, reason: "Missing", isFallback: false, value: undefined };
+    }
+    const len = value.length;
+    const ideal = len >= min && len <= max;
+    const source = isFallback ? " (using fallback)" : "";
+    const verdict = ideal ? "Good length" : len < min ? "Too short" : "Too long";
+    return {
+      field,
+      points: ideal ? maxPoints : Math.round(maxPoints * 0.5),
+      maxPoints,
+      reason: `${verdict} — ${len} chars, ideal ${min}–${max}${source}`,
+      isFallback,
+      value,
+    };
   }
 
-  #isComplete(seo: SeoFields, fallback: SeoIndexEntry<TLocale>["fallback"], mode: SeoCoverageMode): boolean {
-    return this.#requiredFields.every((field) => this.#isSatisfied(seo, fallback, mode, field));
+  #scoreOgImage(resolved: ResolvedSeoValue<string | undefined>): SeoFieldScore {
+    const maxPoints = 25;
+    if (!resolved.value) {
+      return { field: "ogImage", points: 0, maxPoints, reason: "Missing", isFallback: false, value: undefined };
+    }
+    return {
+      field: "ogImage",
+      points: maxPoints,
+      maxPoints,
+      reason: resolved.isFallback ? "Set (using fallback)" : "Set",
+      isFallback: resolved.isFallback,
+      value: resolved.value,
+    };
   }
 
-  #missingFields(
-    seo: SeoFields,
-    fallback: SeoIndexEntry<TLocale>["fallback"],
-    mode: SeoCoverageMode
-  ): Array<keyof NonNullable<SeoFields>> {
-    return this.#requiredFields.filter((field) => !this.#isSatisfied(seo, fallback, mode, field));
+  /** Alt text only matters when there's actually an image to describe — no
+   * image at all auto-passes rather than penalizing a document twice for
+   * one missing image. */
+  #scoreOgImageAlt(seo: SeoFields, ogImageScore: SeoFieldScore): SeoFieldScore {
+    const maxPoints = 15;
+    if (ogImageScore.points === 0) {
+      return {
+        field: "ogImageAlt",
+        points: maxPoints,
+        maxPoints,
+        reason: "N/A — no image set",
+        isFallback: false,
+        value: undefined,
+      };
+    }
+    const alt = this.#deps.seoService.getOgImageAlt(seo).value;
+    return alt
+      ? { field: "ogImageAlt", points: maxPoints, maxPoints, reason: "Alt text set", isFallback: false, value: alt }
+      : {
+          field: "ogImageAlt",
+          points: 0,
+          maxPoints,
+          reason: "Image has no alt text",
+          isFallback: false,
+          value: undefined,
+        };
   }
 
-  /** Required fields with no explicit value but a working fallback —
-   * computed independent of `mode`, so a "strict" audit row can still show
-   * "missing, but the live page falls back to X" instead of reading like a
-   * blank page. */
-  #fallbackCoveredFields(
-    seo: SeoFields,
-    fallback: SeoIndexEntry<TLocale>["fallback"]
-  ): Array<keyof NonNullable<SeoFields>> {
-    return this.#requiredFields.filter(
-      (field) =>
-        !(seo as Record<string, unknown> | null | undefined)?.[field] &&
-        !!(fallback as Record<string, unknown> | undefined)?.[field]
-    );
+  /**
+   * The scoring rubric, 100 points total:
+   *  - metaTitle (30): 30–60 chars ideal
+   *  - metaDescription (30): 70–160 chars ideal
+   *  - ogImage (25): present
+   *  - ogImageAlt (15): present when ogImage is set, else N/A
+   *
+   * Every value is resolved via `SeoService` (explicit value, or its
+   * route's own fallback) — see the class doc comment for why that matters.
+   * `fallback` here never carries an image (see `SeoIndexEntry`'s doc
+   * comment), matching every real route today: none of them pass
+   * `fallbackOgImage` to `buildMetadata`.
+   */
+  #scoreEntry(seo: SeoFields, fallback: SeoIndexEntry<TLocale>["fallback"]): { scores: SeoFieldScore[]; total: number } {
+    const titleResolved = this.#deps.seoService.getMetaTitle(seo, fallback?.metaTitle ?? "");
+    const descriptionResolved = this.#deps.seoService.getMetaDescription(seo, fallback?.metaDescription);
+    const ogImageResolved = this.#deps.seoService.getOgImage(seo, undefined);
+
+    const titleScore = this.#scoreTextField("metaTitle", titleResolved, 30, 60, 30);
+    const descriptionScore = this.#scoreTextField("metaDescription", descriptionResolved, 70, 160, 30);
+    const ogImageScore = this.#scoreOgImage(ogImageResolved);
+    const ogImageAltScore = this.#scoreOgImageAlt(seo, ogImageScore);
+
+    const scores = [titleScore, descriptionScore, ogImageScore, ogImageAltScore];
+    return { scores, total: scores.reduce((sum, s) => sum + s.points, 0) };
   }
 
-  /** @param mode "lenient" (default) counts a route's own fallback as
-   * covering a field; "strict" only counts an explicit editor value. See
-   * `SeoCoverageMode`'s doc comment. */
-  async getCoverage(mode: SeoCoverageMode = "lenient"): Promise<SeoCoverage<TCollectionName, TLocale>[]> {
+  async getCoverage(): Promise<SeoCoverage<TCollectionName, TLocale>[]> {
     const names = this.#sortedNames();
 
     return Promise.all(
@@ -118,23 +181,23 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
         const index = await this.#deps.getSeoIndex(collectionName);
 
         const countsByLocale = {} as Record<TLocale, number>;
-        const completeByLocale = {} as Record<TLocale, number>;
-        const completionPercentByLocale = {} as Record<TLocale, number>;
+        const totalScoreByLocale = {} as Record<TLocale, number>;
+        const avgScoreByLocale = {} as Record<TLocale, number>;
 
-        // % is always "of the documents that actually exist in this locale"
+        // Averaged over "the documents that actually exist in this locale"
         // — NOT the default locale's doc count. A locale missing a
         // translation entirely is a translation gap (TranslationDashboardService
         // already tracks that); it isn't an SEO-metadata gap, and denominating
         // by the default locale's count here previously conflated the two —
-        // a locale with 4 of 10 documents translated, all 4 with complete SEO,
+        // a locale with 4 of 10 documents translated, all 4 scoring 100,
         // read as "40%", which looked like an SEO problem when it was really
-        // a 100%-complete metadata story on a partially-translated locale.
+        // a perfect-metadata story on a partially-translated locale.
         for (const locale of this.#locales) {
           const docs = index.filter((entry) => entry.locale === locale);
-          const complete = docs.filter((entry) => this.#isComplete(entry.seo as SeoFields, entry.fallback, mode)).length;
+          const totalScore = docs.reduce((sum, entry) => sum + this.#scoreEntry(entry.seo as SeoFields, entry.fallback).total, 0);
           countsByLocale[locale] = docs.length;
-          completeByLocale[locale] = complete;
-          completionPercentByLocale[locale] = docs.length === 0 ? 100 : Math.round((complete / docs.length) * 100);
+          totalScoreByLocale[locale] = totalScore;
+          avgScoreByLocale[locale] = docs.length === 0 ? 100 : Math.round(totalScore / docs.length);
         }
 
         return {
@@ -142,29 +205,29 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
           label: this.#deps.getLabel(collectionName),
           type: this.#deps.getType(collectionName),
           countsByLocale,
-          completeByLocale,
-          completionPercentByLocale,
+          totalScoreByLocale,
+          avgScoreByLocale,
         };
       })
     );
   }
 
-  /** @param args.mode See `getCoverage`'s doc comment — defaults to
-   * "lenient", same as `getCoverage`, so the two tables agree unless the
-   * caller explicitly asks for the strict view. */
+  /** Rows are always sorted worst-first (`totalScore` ascending) so the
+   * documents needing the most attention surface at the top regardless of
+   * collection order. */
   async getAudit(args?: {
     collectionName?: TCollectionName;
-    onlyMissing?: boolean;
-    mode?: SeoCoverageMode;
+    /** Drop any row that already scores a perfect 100. */
+    onlyImperfect?: boolean;
   }): Promise<SeoAuditRow<TCollectionName, TLocale>[]> {
     const names = args?.collectionName ? [args.collectionName] : this.#sortedNames();
-    const mode = args?.mode ?? "lenient";
 
     const rows: SeoAuditRow<TCollectionName, TLocale>[] = [];
     for (const collectionName of names) {
       const index = await this.#deps.getSeoIndex(collectionName);
       for (const entry of index) {
         const seo = entry.seo as SeoFields;
+        const { scores, total } = this.#scoreEntry(seo, entry.fallback);
         rows.push({
           collectionName,
           label: this.#deps.getLabel(collectionName),
@@ -173,15 +236,13 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
           slug: entry.slug,
           filename: entry.filename,
           seo,
-          missingFields: this.#missingFields(seo, entry.fallback, mode),
-          // Independent of `mode` — even a "strict" row that counts as
-          // missing can still say "but the live page falls back to X",
-          // rather than reading like the page renders blank.
-          usingFallback: this.#fallbackCoveredFields(seo, entry.fallback),
+          scores,
+          totalScore: total,
         });
       }
     }
 
-    return args?.onlyMissing ? rows.filter((row) => row.missingFields.length > 0) : rows;
+    const filtered = args?.onlyImperfect ? rows.filter((row) => row.totalScore < 100) : rows;
+    return filtered.sort((a, b) => a.totalScore - b.totalScore);
   }
 }

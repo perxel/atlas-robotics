@@ -4,6 +4,7 @@ import type { CollectionService } from "./collection";
 import type { PagesService } from "./pages";
 import type { TaxonomyService } from "./taxonomy";
 import type { MultilingualService } from "./multilingual/MultilingualService";
+import type { SeoService } from "./seo/SeoService";
 import type { ContentCollection } from "./create-project";
 
 /**
@@ -28,6 +29,7 @@ export function createCmsDashboards<TCollectionName extends string, TTaxonomyNam
     CMSPages: PagesService<TLocale>;
     CMSTaxonomy: TaxonomyService<TTaxonomyName, TCollectionName, TLocale>;
     CMSMultilingual: MultilingualService<TLocale>;
+    CMSSeo: SeoService<TLocale>;
     locales: readonly TLocale[];
     defaultLocale: TLocale;
     /** Optional display order for the SEO dashboard's rows — omit to use
@@ -74,6 +76,7 @@ export function createCmsDashboards<TCollectionName extends string, TTaxonomyNam
               : config.CMSCollection.getSeoIndex(collectionName as TCollectionName),
         getLabel,
         getType,
+        seoService: config.CMSSeo,
       },
       { locales: config.locales, defaultLocale: config.defaultLocale, order: config.seoDashboardOrder }
     )

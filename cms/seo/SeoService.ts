@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { SeoFields } from "./types";
+import type { ResolvedSeoValue, SeoFields } from "./types";
 
 /**
  * `buildMetadata`/`buildAlternates`, ported from the project's old
@@ -56,6 +56,15 @@ export class SeoService<TLocale extends string> {
     };
   }
 
+  /** Resolves a document's title: its own `seo.metaTitle` if set, else
+   * `fallbackTitle`. Named methods (not inlined in `buildMetadata`) so both
+   * page rendering and the SEO dashboard's scoring resolve every field the
+   * same way — see `ResolvedSeoValue`'s doc comment. */
+  getMetaTitle(seo: SeoFields | undefined, fallbackTitle: string): ResolvedSeoValue<string> {
+    if (seo?.metaTitle) return { value: seo.metaTitle, isFallback: false };
+    return { value: fallbackTitle, isFallback: true };
+  }
+
   /** Resolves a document's meta description: its own `seo.metaDescription`
    * if set, else `fallback`, else `undefined`. Its own method (not just
    * inline in `buildMetadata`) so a route building a fallback from
@@ -63,8 +72,29 @@ export class SeoService<TLocale extends string> {
    * page deriving one from the term's title, say — has one obvious,
    * named place to reach for instead of reinventing the
    * `seo?.x || fallback || undefined` pattern at each call site. */
-  getMetaDescription(seo: SeoFields | undefined, fallback?: string | null): string | undefined {
-    return seo?.metaDescription || fallback || undefined;
+  getMetaDescription(seo: SeoFields | undefined, fallback?: string | null): ResolvedSeoValue<string | undefined> {
+    if (seo?.metaDescription) return { value: seo.metaDescription, isFallback: false };
+    if (fallback) return { value: fallback, isFallback: true };
+    return { value: undefined, isFallback: false };
+  }
+
+  /** Resolves a document's social-share image: its own `seo.ogImage` if
+   * set, else `fallbackOgImage`, else `undefined`. No route currently
+   * passes `fallbackOgImage` — every real page renders on the explicit
+   * value alone — but the fallback path is still resolved generically here
+   * in case one does. */
+  getOgImage(seo: SeoFields | undefined, fallbackOgImage?: string | null): ResolvedSeoValue<string | undefined> {
+    if (seo?.ogImage) return { value: seo.ogImage, isFallback: false };
+    if (fallbackOgImage) return { value: fallbackOgImage, isFallback: true };
+    return { value: undefined, isFallback: false };
+  }
+
+  /** Alt text only means anything paired with an explicit `seo.ogImage` —
+   * there's no fallback alt text for a fallback image, so `isFallback` is
+   * always `false` here; kept on the return shape only so all four
+   * resolvers share one calling pattern. */
+  getOgImageAlt(seo: SeoFields | undefined): ResolvedSeoValue<string | undefined> {
+    return { value: seo?.ogImage ? seo?.ogImageAlt || undefined : undefined, isFallback: false };
   }
 
   buildMetadata(args: {
@@ -83,10 +113,10 @@ export class SeoService<TLocale extends string> {
     const { lang, pathWithoutLocale, alternates = {}, seo, fallbackTitle, fallbackDescription, fallbackOgImage } =
       args;
 
-    const title = seo?.metaTitle || fallbackTitle;
-    const description = this.getMetaDescription(seo, fallbackDescription);
-    const ogImage = seo?.ogImage || fallbackOgImage || undefined;
-    const ogImageAlt = seo?.ogImage ? seo?.ogImageAlt || undefined : undefined;
+    const title = this.getMetaTitle(seo, fallbackTitle).value;
+    const description = this.getMetaDescription(seo, fallbackDescription).value;
+    const ogImage = this.getOgImage(seo, fallbackOgImage).value;
+    const ogImageAlt = this.getOgImageAlt(seo).value;
 
     return {
       title,

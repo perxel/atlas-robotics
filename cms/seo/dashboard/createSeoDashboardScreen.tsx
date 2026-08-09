@@ -1,17 +1,6 @@
 import * as React from "react";
 import type {SeoDashboardService} from "./SeoDashboardService";
-import type {SeoAuditRow, SeoCoverage, SeoCoverageMode} from "../types";
-
-/** Persisted so an editor's choice (usually left on "lenient" — see below)
- * survives reopening the dashboard, instead of resetting to the default
- * every time. Scoped to this one screen; not shared with any other
- * dashboard preference. */
-const MODE_STORAGE_KEY = "tinacms-seo-dashboard-mode";
-
-function readStoredMode(): SeoCoverageMode {
-    if (typeof window === "undefined") return "lenient";
-    return window.localStorage.getItem(MODE_STORAGE_KEY) === "strict" ? "strict" : "lenient";
-}
+import type {SeoAuditRow, SeoCoverage, SeoFieldScore, SeoScoredField} from "../types";
 
 /** Same reasoning as cms/multilingual/dashboard/createTranslationDashboardScreen.tsx:
  * Tina's `createScreen`/`ScreenPlugin` aren't part of the `tinacms` package's
@@ -25,6 +14,18 @@ type ScreenPlugin = {
     layout: "fullscreen" | "popup";
     navCategory?: "Account" | "Site" | "Dashboard";
 };
+
+/** The rubric — displayed as-is in the dashboard's legend panel, and the
+ * literal weights/ranges `SeoDashboardService`'s `#scoreEntry` implements.
+ * Keeping this list next to the UI that renders it (rather than importing a
+ * constant from the service) is deliberate: this is display copy, not
+ * scoring logic — the service is the source of truth for the actual points. */
+const RUBRIC: Array<{ field: SeoScoredField; label: string; points: number; rule: string }> = [
+    {field: "metaTitle", label: "Title", points: 30, rule: "30–60 characters"},
+    {field: "metaDescription", label: "Description", points: 30, rule: "70–160 characters"},
+    {field: "ogImage", label: "OG image", points: 25, rule: "present"},
+    {field: "ogImageAlt", label: "OG image alt", points: 15, rule: "present when an image is set"},
+];
 
 function SeoIcon() {
     return (
@@ -42,17 +43,11 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
 }) {
     const [coverage, setCoverage] = React.useState<SeoCoverage<TCollectionName, TLocale>[]>();
     const [audit, setAudit] = React.useState<SeoAuditRow<TCollectionName, TLocale>[]>();
-    const [mode, setMode] = React.useState<SeoCoverageMode>(readStoredMode);
 
     React.useEffect(() => {
-        dashboard.getCoverage(mode).then(setCoverage);
-        dashboard.getAudit({onlyMissing: true, mode}).then(setAudit);
-    }, [dashboard, mode]);
-
-    const changeMode = (next: SeoCoverageMode) => {
-        setMode(next);
-        window.localStorage.setItem(MODE_STORAGE_KEY, next);
-    };
+        dashboard.getCoverage().then(setCoverage);
+        dashboard.getAudit({onlyImperfect: true}).then(setAudit);
+    }, [dashboard]);
 
     if (!coverage || !audit) {
         return <div style={{padding: 24}}>Loading…</div>;
@@ -61,33 +56,44 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
     const locales = (coverage.length > 0 ? Object.keys(coverage[0].countsByLocale) : []) as TLocale[];
 
     // Per-locale aggregate across every row (content collection, "pages", and
-    // taxonomy) — weighted by document count, not an average of percentages,
-    // so a large collection's gaps aren't diluted by a small one's 100%.
+    // taxonomy) — sum-then-divide over raw totals, not an average of
+    // already-rounded per-row percentages, so a large collection's gaps
+    // aren't diluted (or a small one's rounding error compounded) by the
+    // aggregation step.
     const overallByLocale = Object.fromEntries(
         locales.map((locale) => {
-            const complete = coverage.reduce((sum, row) => sum + row.completeByLocale[locale], 0);
-            const total = coverage.reduce((sum, row) => sum + row.countsByLocale[locale], 0);
-            return [locale, total === 0 ? 100 : Math.round((complete / total) * 100)];
+            const total = coverage.reduce((sum, row) => sum + row.totalScoreByLocale[locale], 0);
+            const count = coverage.reduce((sum, row) => sum + row.countsByLocale[locale], 0);
+            return [locale, count === 0 ? 100 : Math.round(total / count)];
         })
     ) as Record<TLocale, number>;
 
     // Single site-wide number — every locale's docs pooled together, same
-    // weighted-by-doc-count reasoning as overallByLocale, just not split by
+    // sum-then-divide reasoning as overallByLocale, just not split by
     // column. This is the headline "how are we doing overall" figure.
-    const { overallComplete, overallTotal } = coverage.reduce(
+    const {overallTotal, overallCount} = coverage.reduce(
         (sums, row) => {
             for (const locale of locales) {
-                sums.overallComplete += row.completeByLocale[locale];
-                sums.overallTotal += row.countsByLocale[locale];
+                sums.overallTotal += row.totalScoreByLocale[locale];
+                sums.overallCount += row.countsByLocale[locale];
             }
             return sums;
         },
-        { overallComplete: 0, overallTotal: 0 }
+        {overallTotal: 0, overallCount: 0}
     );
-    const overallScore = overallTotal === 0 ? 100 : Math.round((overallComplete / overallTotal) * 100);
-    const missingDocsCount = audit.length;
+    const overallScore = overallCount === 0 ? 100 : Math.round(overallTotal / overallCount);
+    const imperfectDocsCount = audit.length;
 
-    const coverageColor = (percent: number) => (percent === 100 ? "#1a7f37" : "#b42318");
+    // Three tiers, not the old all-or-nothing "100 or red" — a graded score
+    // deserves a graded read: red for real gaps, amber for "works but could
+    // be tightened," green for solid.
+    const scoreColor = (score: number) => (score >= 90 ? "#1a7f37" : score >= 60 ? "#b54708" : "#b42318");
+    const scoreCardStyle = (score: number) =>
+        score >= 90
+            ? {backgroundColor: "#f0faf3", borderColor: "#b7e4c7"}
+            : score >= 60
+                ? {backgroundColor: "#fffaf0", borderColor: "#fadfa0"}
+                : {backgroundColor: "#fdf3f2", borderColor: "#f3c6c1"};
 
     const typeBadge = (type: "content" | "taxonomy") => (
         <span
@@ -106,73 +112,126 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
     </span>
     );
 
-    const modeButton = (value: SeoCoverageMode, label: string) => (
-        <button
-            type="button"
-            onClick={() => changeMode(value)}
-            style={{
-                padding: "6px 12px",
-                fontSize: 13,
-                fontWeight: 500,
-                border: "1px solid #d0d5dd",
-                borderRadius: 6,
-                cursor: "pointer",
-                color: mode === value ? "#fff" : "#344054",
-                backgroundColor: mode === value ? "#344054" : "#fff",
-            }}
-        >
-            {label}
-        </button>
-    );
-
     const panelStyle: React.CSSProperties = {
         border: "1px solid #e2e2e2",
         borderRadius: 10,
         padding: "16px 20px",
     };
 
+    // Same URL shape Tina's own "Edit in CMS" links use
+    // (`getDocumentEditUrl` in tinacms/dist/index.js): `~/<breadcrumbs>`,
+    // where breadcrumbs for every locale-directory collection here is just
+    // `<locale>/<filename>` (confirmed against CollectionService/
+    // PagesService/TaxonomyService's getSeoIndex — all three derive
+    // `filename`/`locale` from `_sys.relativePath`/`_sys.breadcrumbs[0]`
+    // the same way). Hash-relative, not a full `/admin/index.html#...` URL,
+    // because this screen is already mounted inside that same admin SPA —
+    // Tina's router picks up the hash change without a full page reload.
+    const editHref = (row: {collectionName: TCollectionName; locale: TLocale; filename: string}) =>
+        `#/collections/edit/${row.collectionName}/~/${row.locale}/${row.filename}`;
+
+    const truncate = (value: string, max = 60) => (value.length > max ? `${value.slice(0, max)}…` : value);
+
+    const scoreCell = (score: SeoFieldScore) => (
+        <td style={{padding: 8, borderBottom: "1px solid #f0f0f0", verticalAlign: "top", maxWidth: 200}}>
+            <div style={{fontWeight: 600, color: scoreColor(Math.round((score.points / score.maxPoints) * 100))}}>
+                {score.points}/{score.maxPoints}
+            </div>
+            <div style={{fontSize: 11, color: "#888", marginTop: 2}}>{score.reason}</div>
+            {score.value && (
+                <div style={{fontSize: 11, color: "#475569", fontStyle: "italic", marginTop: 2}} title={score.value}>
+                    {`"${truncate(score.value)}"`}
+                </div>
+            )}
+        </td>
+    );
+
+    const typeLabel = (type: "content" | "taxonomy") => (type === "taxonomy" ? "Taxonomy" : "Content");
+
+    // Collection + locale + slug collapsed into one column: a muted
+    // locale/type subtitle on top, and a collection-label > slug breadcrumb
+    // underneath, where the slug itself is the edit link — reads like a
+    // file path instead of three separate columns repeating "Pages" and
+    // "Content" down every row.
+    const itemCell = (row: {
+        collectionName: TCollectionName;
+        label: string;
+        type: "content" | "taxonomy";
+        locale: TLocale;
+        slug: string;
+        filename: string;
+    }) => (
+        <td style={{padding: 8, borderBottom: "1px solid #f0f0f0", verticalAlign: "top"}}>
+            <div style={{fontSize: 11, color: "#888"}}>
+                {row.locale} · {typeLabel(row.type)}
+            </div>
+            <div style={{marginTop: 2}}>
+                <span style={{fontWeight: 500}}>{row.label}</span>
+                <span style={{color: "#94a3b8", margin: "0 4px"}}>›</span>
+                <a
+                    href={editHref(row)}
+                    target="_blank"
+                    rel="noopener"
+                    style={{color: "#2563eb", textDecoration: "none"}}
+                >
+                    {row.slug || row.filename} ↗
+                </a>
+            </div>
+        </td>
+    );
+
     return (
         <div style={{padding: 24}}>
             <h1 style={{fontSize: 20, fontWeight: 600, marginBottom: 12}}>SEO coverage</h1>
             <div style={{display: "flex", alignItems: "stretch", gap: 16, marginTop: 8, marginBottom: 24}}>
 
-                {/*left — overall coverage score*/}
+                {/*left — overall score*/}
                 <div
                     style={{
                         ...panelStyle,
+                        ...scoreCardStyle(overallScore),
                         flex: "0 0 220px",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
                         textAlign: "center",
-                        backgroundColor: overallScore === 100 ? "#f0faf3" : "#fdf3f2",
-                        borderColor: overallScore === 100 ? "#b7e4c7" : "#f3c6c1",
                     }}
                 >
-                    <div style={{fontSize: 40, fontWeight: 700, lineHeight: 1, color: coverageColor(overallScore)}}>
-                        {overallScore}%
+                    <div style={{fontSize: 40, fontWeight: 700, lineHeight: 1, color: scoreColor(overallScore)}}>
+                        {overallScore}
                     </div>
                     <div style={{fontSize: 12, fontWeight: 500, color: "#666", marginTop: 6}}>
-                        overall coverage
+                        average score / 100
                     </div>
                     <div style={{fontSize: 12, color: "#666", marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.08)", width: "100%"}}>
-                        {missingDocsCount === 0
-                            ? "No metadata is missing"
-                            : `${missingDocsCount} document${missingDocsCount === 1 ? "" : "s"} missing required fields`}
+                        {imperfectDocsCount === 0
+                            ? "Every document scores a perfect 100"
+                            : `${imperfectDocsCount} document${imperfectDocsCount === 1 ? "" : "s"} below a perfect score`}
                     </div>
                 </div>
 
-                {/*right — mode switcher + explanation*/}
-                <div>
-                    <div style={{display: "flex", gap: 8}}>
-                        {modeButton("lenient", "With fallback")}
-                        {modeButton("strict", "Explicit only")}
+                {/*right — rubric legend*/}
+                <div style={panelStyle}>
+                    <div style={{fontSize: 13, fontWeight: 600, color: "#344054", marginBottom: 8}}>
+                        How this is scored (100 points total)
                     </div>
-                    <p style={{fontSize: 13, color: "#666", marginTop: 12, marginBottom: 0, maxWidth: 640}}>
-                        {mode === "lenient"
-                            ? "“With fallback” counts a field as covered if either an editor set it, or the page's own automatic fallback (its title/excerpt) fills it in live — so a low number here means a page could actually render without a title or description, not just that no one has customized it yet."
-                            : "“Explicit only” counts just what an editor has entered — this is the backlog of documents that would benefit from hand-written SEO copy, even though most of them still render fine live via a fallback (see “using fallback” below)."}
+                    <table style={{borderCollapse: "collapse", fontSize: 13}}>
+                        <tbody>
+                        {RUBRIC.map((r) => (
+                            <tr key={r.field}>
+                                <td style={{padding: "2px 12px 2px 0", fontWeight: 500, color: "#344054"}}>{r.label}</td>
+                                <td style={{padding: "2px 12px 2px 0", color: "#666"}}>{r.points} pts</td>
+                                <td style={{padding: "2px 0", color: "#666"}}>{r.rule}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    <p style={{fontSize: 12, color: "#888", marginTop: 10, marginBottom: 0, maxWidth: 640}}>
+                        Scored on whatever actually renders live — an editor&rsquo;s explicit value, or the page&rsquo;s own
+                        automatic fallback (its title/excerpt) when nothing&rsquo;s set. A field using a fallback scores the
+                        same as an explicit one but is flagged &ldquo;(using fallback)&rdquo; below, since it may still be worth
+                        hand-writing.
                     </p>
                 </div>
 
@@ -184,8 +243,8 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
                     {locales.map((locale) => (
                         <th key={locale} style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>
                             <span>{locale}</span>{" "}
-                            <span style={{color: coverageColor(overallByLocale[locale]), fontWeight: 600}}>
-                  {overallByLocale[locale]}%
+                            <span style={{color: scoreColor(overallByLocale[locale]), fontWeight: 600}}>
+                  {overallByLocale[locale]}/100
                 </span>
                         </th>
                     ))}
@@ -199,18 +258,18 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
                             {typeBadge(row.type)}
                         </td>
                         {locales.map((locale) => {
-                            const percent = row.completionPercentByLocale[locale];
+                            const score = row.avgScoreByLocale[locale];
                             return (
                                 <td
                                     key={locale}
                                     style={{
                                         padding: 8,
                                         borderBottom: "1px solid #f0f0f0",
-                                        color: coverageColor(percent),
-                                        fontWeight: percent < 100 ? 600 : 400,
+                                        color: scoreColor(score),
+                                        fontWeight: score < 100 ? 600 : 400,
                                     }}
                                 >
-                                    {row.completeByLocale[locale]}/{row.countsByLocale[locale]} ({percent}%)
+                                    {score}/100 ({row.countsByLocale[locale]} doc{row.countsByLocale[locale] === 1 ? "" : "s"})
                                 </td>
                             );
                         })}
@@ -219,41 +278,51 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
                 </tbody>
             </table>
 
-            <h2 style={{fontSize: 16, fontWeight: 600, marginBottom: 12}}>Documents missing required SEO fields</h2>
+            <h2 style={{fontSize: 16, fontWeight: 600, marginBottom: 12}}>Documents scoring below 100</h2>
             {audit.length === 0 ? (
-                <p style={{color: "#666"}}>
-                    {mode === "lenient"
-                        ? "Nothing missing — every document either has its required SEO fields set, or falls back to something live."
-                        : "Nothing missing — every document has its required SEO fields set explicitly."}
-                </p>
+                <p style={{color: "#666"}}>Nothing to improve — every document scores a perfect 100.</p>
             ) : (
-                <table style={{width: "100%", borderCollapse: "collapse"}}>
-                    <thead>
-                    <tr>
-                        <th style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>Collection</th>
-                        <th style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>Locale</th>
-                        <th style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>Slug</th>
-                        <th style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>Missing</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {audit.map((row, i) => (
-                        <tr key={i}>
-                            <td style={{padding: 8, borderBottom: "1px solid #f0f0f0"}}>
-                                {row.label}
-                                {typeBadge(row.type)}
-                            </td>
-                            <td style={{padding: 8, borderBottom: "1px solid #f0f0f0"}}>{row.locale}</td>
-                            <td style={{padding: 8, borderBottom: "1px solid #f0f0f0"}}>{row.slug}</td>
-                            <td style={{padding: 8, borderBottom: "1px solid #f0f0f0"}}>
-                                {row.missingFields
-                                    .map((field) => (row.usingFallback.includes(field) ? `${field} (using fallback)` : field))
-                                    .join(", ")}
-                            </td>
+                <div style={{overflowX: "auto"}}>
+                    <table style={{width: "100%", borderCollapse: "collapse"}}>
+                        <thead>
+                        <tr>
+                            <th style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>Item</th>
+                            {RUBRIC.map((r) => (
+                                <th key={r.field} style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>
+                                    {r.label}
+                                </th>
+                            ))}
+                            <th style={{textAlign: "left", padding: 8, borderBottom: "1px solid #e2e2e2"}}>Total</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {audit.map((row, i) => {
+                            const byField = Object.fromEntries(row.scores.map((s) => [s.field, s])) as Record<
+                                SeoScoredField,
+                                SeoFieldScore
+                            >;
+                            return (
+                                <tr key={i}>
+                                    {itemCell(row)}
+                                    {RUBRIC.map((r) => (
+                                        <React.Fragment key={r.field}>{scoreCell(byField[r.field])}</React.Fragment>
+                                    ))}
+                                    <td
+                                        style={{
+                                            padding: 8,
+                                            borderBottom: "1px solid #f0f0f0",
+                                            fontWeight: 700,
+                                            color: scoreColor(row.totalScore),
+                                        }}
+                                    >
+                                        {row.totalScore}/100
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );
