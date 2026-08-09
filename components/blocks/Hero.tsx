@@ -74,7 +74,7 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
               // downloading) once the carousel actually reaches it.
               <video
                 src={slide.video}
-                poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1920&q=75` : undefined}
+                poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1280&q=50` : undefined}
                 data-tina-field={tinaField(slide, "video")}
                 className="absolute inset-0 h-full w-full object-cover"
                 autoPlay={i === index}
