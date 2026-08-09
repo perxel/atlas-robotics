@@ -106,6 +106,7 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
                       padding: 8,
                       borderBottom: "1px solid #f0f0f0",
                       color: coverageColor(percent),
+                      fontWeight: percent < 100 ? 600 : 400,
                     }}
                   >
                     {row.completeByLocale[locale]}/{row.countsByLocale[locale]} ({percent}%)
