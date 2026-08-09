@@ -141,13 +141,28 @@ all — confirmed via Lighthouse's "efficient cache lifetimes" audit flagging
 configure. `mediaUrl()` rewrites an `assets.tina.io` URL to
 `/media/<path>` — same-origin, served by `app/media/[...path]/route.ts` —
 which proxies the fetch to Tina's CDN and stamps
-`Cache-Control: public, max-age=31536000, immutable` on the way back out,
-plus edge-caches full (non-range) responses via Cloudflare's Cache API so
-repeat requests from any visitor at that edge location skip the origin
-fetch entirely. Locally (`next dev`), a Tina media field instead resolves to
-a relative `/uploads/...` path (already same-origin); `mediaUrl()` detects
-this via `new URL()` throwing on a non-absolute string and returns it
-unchanged, so nothing routes through the proxy in dev.
+`Cache-Control: public, max-age=31536000, immutable` on the way back out;
+Cloudflare's own zone edge cache and every visitor's browser honor that
+header with no further code needed. Locally (`next dev`), a Tina media
+field instead resolves to a relative `/uploads/...` path (already
+same-origin); `mediaUrl()` detects this via `new URL()` throwing on a
+non-absolute string and returns it unchanged, so nothing routes through the
+proxy in dev.
+
+**Do not add Cloudflare's `caches.default` Cache API to this route without
+verifying it first against real production logs.** An earlier version did
+exactly that (plus `getCloudflareContext()` to get `waitUntil`), and it
+spiked this Worker's error rate from <150 to 1.25k almost immediately after
+deploy — every fresh (non-edge-cached) request to `/media/...` started
+returning a 500 from this route. Root cause was never confirmed with a
+stack trace (no log access at the time), but `caches.default` was the one
+piece of that version that didn't type-check against this project's
+ambient Cloudflare types without a forced cast — a real signal its runtime
+shape inside a Next.js Route Handler on the Node.js runtime (this adapter's
+default for Route Handlers, unlike `middleware.ts`'s forced edge runtime)
+didn't match what was assumed. It also wasn't necessary: the plain
+`Cache-Control` header is what actually satisfies Lighthouse's "efficient
+cache lifetimes" check.
 
 **Not enforced like `slugLifecycleGuard`** — there's no equivalent build-time
 gate that fails loudly if a new component forgets the call, since a missed
