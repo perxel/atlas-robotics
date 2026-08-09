@@ -73,11 +73,13 @@ export default function CoverMedia({
 
   if (isVideo) {
     return (
-      <div ref={containerRef} className={className}>
+      // `aria-label` lives here, not just on the `<video>` below, so a link/button
+      // wrapping this element still has a discernible name before the video mounts
+      // (it's gated behind IntersectionObserver — see the comment above).
+      <div ref={containerRef} className={className} aria-label={alt}>
         {shouldLoadVideo && (
           <video
             src={src}
-            aria-label={alt}
             data-tina-field={dataTinaField}
             className="h-full w-full object-cover"
             autoPlay={autoPlay}
