@@ -27,7 +27,6 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     getType: (collectionName: TCollectionName) => SeoSourceType;
   };
   #locales: readonly TLocale[];
-  #defaultLocale: TLocale;
   #requiredFields: Array<keyof NonNullable<SeoFields>>;
   #order?: readonly TCollectionName[];
 
@@ -54,7 +53,6 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     // and the dashboard screen reading Object.keys() off it) uses as column
     // order, so reordering once here is enough to fix both.
     this.#locales = [options.defaultLocale, ...options.locales.filter((l) => l !== options.defaultLocale)];
-    this.#defaultLocale = options.defaultLocale;
     this.#requiredFields = options.requiredFields ?? DEFAULT_REQUIRED_FIELDS;
     this.#order = options.order;
   }
@@ -119,29 +117,24 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
       names.map(async (collectionName) => {
         const index = await this.#deps.getSeoIndex(collectionName);
 
-        // % is always "of the default locale's documents" — same convention
-        // as TranslationDashboardService.getStats(): a locale's own doc count
-        // isn't the right denominator, since an untranslated locale's small
-        // count would otherwise show a misleadingly high percentage (4 of 4
-        // translated docs reading as "100%" when 6 more are simply missing).
-        const defaultFilenames = new Set(
-          index.filter((entry) => entry.locale === this.#defaultLocale).map((entry) => entry.filename)
-        );
-
         const countsByLocale = {} as Record<TLocale, number>;
         const completeByLocale = {} as Record<TLocale, number>;
         const completionPercentByLocale = {} as Record<TLocale, number>;
 
+        // % is always "of the documents that actually exist in this locale"
+        // — NOT the default locale's doc count. A locale missing a
+        // translation entirely is a translation gap (TranslationDashboardService
+        // already tracks that); it isn't an SEO-metadata gap, and denominating
+        // by the default locale's count here previously conflated the two —
+        // a locale with 4 of 10 documents translated, all 4 with complete SEO,
+        // read as "40%", which looked like an SEO problem when it was really
+        // a 100%-complete metadata story on a partially-translated locale.
         for (const locale of this.#locales) {
           const docs = index.filter((entry) => entry.locale === locale);
-          const complete = docs.filter(
-            (entry) =>
-              defaultFilenames.has(entry.filename) && this.#isComplete(entry.seo as SeoFields, entry.fallback, mode)
-          ).length;
-          countsByLocale[locale] = defaultFilenames.size;
+          const complete = docs.filter((entry) => this.#isComplete(entry.seo as SeoFields, entry.fallback, mode)).length;
+          countsByLocale[locale] = docs.length;
           completeByLocale[locale] = complete;
-          completionPercentByLocale[locale] =
-            defaultFilenames.size === 0 ? 100 : Math.round((complete / defaultFilenames.size) * 100);
+          completionPercentByLocale[locale] = docs.length === 0 ? 100 : Math.round((complete / docs.length) * 100);
         }
 
         return {
