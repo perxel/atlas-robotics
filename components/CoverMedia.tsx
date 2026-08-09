@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { mediaUrl } from "@/cms/media-url";
 
 /**
  * Tina's `image` field type accepts any file, including video (see
@@ -37,7 +36,7 @@ export default function CoverMedia({
   if (isVideoSrc(src)) {
     return (
       <video
-        src={mediaUrl(src)}
+        src={src}
         aria-label={alt}
         data-tina-field={dataTinaField}
         className={className}
@@ -57,11 +56,6 @@ export default function CoverMedia({
   // wrapper carrying the caller's own sizing className is the one approach
   // that works everywhere without every call site also passing pixel
   // dimensions.
-  // Deliberately NOT mediaUrl(src) here — next/image's optimizer fetches the
-  // `src` itself via Cloudflare's Images binding, and a same-origin /media/...
-  // path makes that fetch call back into this same Worker (self-referencing),
-  // which broke production twice (see CLAUDE.md's "Media URLs" section).
-  // The raw assets.tina.io URL is what worked before and works here.
   return (
     <div className={`relative overflow-hidden ${className || ""}`}>
       <Image

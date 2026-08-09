@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import { type Locale, CMSDictionary, getMultilingualSettings, getNav, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms-server";
 import { CMSMultilingual } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
-import { mediaUrl } from "@/cms/media-url";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default async function Header({ locale }: { locale: Locale }) {
@@ -27,7 +26,7 @@ export default async function Header({ locale }: { locale: Locale }) {
         >
           {settings?.logo && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaUrl(settings.logo)} alt={settings.logoAlt || ""} className="h-8 w-8 rounded" />
+            <img src={settings.logo} alt={settings.logoAlt || ""} className="h-8 w-8 rounded" />
           )}
           {settings?.title || t("Lorem ipsum")}
         </Link>

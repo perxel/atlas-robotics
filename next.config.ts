@@ -19,19 +19,9 @@ const nextConfig: NextConfig = {
   images: {
     // Repo-based media (see CLAUDE.md's "TinaCMS" section) is synced to and
     // served from TinaCloud's asset CDN in production, not from this app's
-    // own /uploads path — confirmed live, not assumed. next/image needs the
-    // remote host allow-listed to fetch/optimize images loaded from there.
-    //
-    // Deliberately still the raw assets.tina.io host, NOT this app's own
-    // /media/[...path] proxy (cms/media-url.ts) — next/image's optimizer
-    // fetches its `src` itself via Cloudflare's Images binding
-    // (wrangler.jsonc's `images.binding`), and pointing that at a
-    // same-origin /media/... path makes the Images binding call back into
-    // this same Worker to resolve it — a self-referencing fetch that broke
-    // production twice (see CLAUDE.md's "Media URLs" section). Every
-    // next/image `<Image>` render (CoverMedia.tsx, Hero.tsx) intentionally
-    // passes the raw Tina URL, unproxied; only plain <video>/<img> tags and
-    // the favicon route through /media/....
+    // own /uploads path — confirmed live, not assumed (zero requests hit
+    // this Worker's own domain for media). next/image needs the remote
+    // host allow-listed to optimize images loaded from there.
     remotePatterns: [{ protocol: "https", hostname: "assets.tina.io" }],
   },
   async redirects() {

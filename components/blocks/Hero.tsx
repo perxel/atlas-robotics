@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksHero } from "@/tina/__generated__/types";
-import { mediaUrl } from "@/cms/media-url";
 
 const AUTOPLAY_MS = 6000;
 
@@ -38,8 +37,8 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
         >
           {slide.video ? (
             <video
-              src={mediaUrl(slide.video)}
-              poster={mediaUrl(slide.image) || undefined}
+              src={slide.video}
+              poster={slide.image || undefined}
               data-tina-field={tinaField(slide, "video")}
               className="absolute inset-0 h-full w-full object-cover"
               autoPlay
@@ -51,9 +50,6 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
             />
           ) : (
             slide.image && (
-              // Not mediaUrl() — see CoverMedia.tsx's comment: next/image's
-              // optimizer fetches this src itself via a Worker-self-fetch
-              // through the Images binding, which is what broke production.
               <Image
                 src={slide.image}
                 alt={slide.imageAlt || ""}

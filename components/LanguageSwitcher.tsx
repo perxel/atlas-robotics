@@ -8,7 +8,6 @@ import Link from "next/link";
 // business in a client bundle. Same reasoning as middleware.ts's import.
 import { localeLabels, CMSMultilingual, type Locale } from "@/lib/registry";
 import type { SwitcherConfigItem } from "@/cms/multilingual";
-import { mediaUrl } from "@/cms/media-url";
 
 export default function LanguageSwitcher({
   currentLocale,
@@ -83,7 +82,7 @@ export default function LanguageSwitcher({
         >
           {flag && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaUrl(flag)} alt="" className="h-3.5 w-5 rounded-sm object-cover" />
+            <img src={flag} alt="" className="h-3.5 w-5 rounded-sm object-cover" />
           )}
           {label}
         </Link>
