@@ -1,5 +1,20 @@
 import { client } from "@/tina/__generated__/client";
-import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
+import {
+  BlogConnectionDocument,
+  CategoriesConnectionDocument,
+  MultilingualDocument,
+  PagesConnectionDocument,
+  ProductCategoriesConnectionDocument,
+  ProductsConnectionDocument,
+} from "@/tina/__generated__/types";
+import type {
+  BlogConnectionQuery,
+  CategoriesConnectionQuery,
+  MultilingualQuery,
+  PagesConnectionQuery,
+  ProductCategoriesConnectionQuery,
+  ProductsConnectionQuery,
+} from "@/tina/__generated__/types";
 import type { ConnectionItem } from "@/cms/collection";
 import { createCmsProject } from "@/cms/create-project";
 import { siteUrl } from "@/cms/seo";
@@ -24,17 +39,45 @@ export type { Locale };
 
 // --- Registration: the only per-project data below ---
 
+// Connection/list fetchers below call `client.request()` with the raw generated
+// `*Document` query string instead of the more convenient `client.queries.*()`
+// SDK helper. This file is imported (via tina/config.ts's cmsCallback) into
+// Tina's own admin app, which Tina builds as a separate Vite-bundled SPA — a
+// different bundler from the Next.js app's webpack build that runs everywhere
+// else. `TinaClient`'s constructor builds `client.queries` by invoking a
+// factory function shipped in the generated `types.js`
+// (`this.queries = queries(this)`); in that Vite bundle specifically, `client.
+// queries` ends up `undefined` at runtime, so `client.queries.blogConnection()`
+// throws "Cannot read properties of undefined (reading 'blogConnection')"
+// before any request is even made — reproduced live on the deployed SEO/
+// Translation dashboards, and matches a report of the identical symptom from
+// another TinaCMS user hitting `client.queries.*` from custom admin-bundled
+// code (https://github.com/tinacms/tinacms/discussions/4464). `client.
+// request()` is a plain instance method (no factory step) and works
+// identically under both bundlers. Single-document fetchers below
+// (`fetchBySlug`/`fetchByPath`/`fetchDoc`) are untouched — they're never
+// called from these dashboards, only from `resolve-by-slug.ts` (page
+// rendering + Tina's visual-editing preview iframe, both webpack-bundled),
+// and visual editing depends on their `{data, query, variables}` shape,
+// which `client.request()` doesn't return (see "Visual editing" in
+// CLAUDE.md) — swapping those too would fix nothing and break that shape.
 const collectionRegistry = {
   blog: {
     ...collectionPathConfig.blog,
     draftFieldName: "draft",
-    fetchEdges: () => client.queries.blogConnection().then((r) => r.data.blogConnection.edges),
+    fetchEdges: () =>
+      client
+        .request<BlogConnectionQuery>({ query: BlogConnectionDocument }, {})
+        .then((r) => r.data.blogConnection.edges),
     fetchBySlug: (relativePath: string) => client.queries.blog({ relativePath }),
   },
   products: {
     ...collectionPathConfig.products,
     draftFieldName: "draft",
-    fetchEdges: () => client.queries.productsConnection().then((r) => r.data.productsConnection.edges),
+    fetchEdges: () =>
+      client
+        .request<ProductsConnectionQuery>({ query: ProductsConnectionDocument }, {})
+        .then((r) => r.data.productsConnection.edges),
     fetchBySlug: (relativePath: string) => client.queries.products({ relativePath }),
   },
 };
@@ -42,12 +85,17 @@ const collectionRegistry = {
 const taxonomyRegistry = {
   categories: {
     ...taxonomyPathConfig.categories,
-    fetchTerms: () => client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges),
+    fetchTerms: () =>
+      client
+        .request<CategoriesConnectionQuery>({ query: CategoriesConnectionDocument }, {})
+        .then((r) => r.data.categoriesConnection.edges),
   },
   productCategories: {
     ...taxonomyPathConfig.productCategories,
     fetchTerms: () =>
-      client.queries.productCategoriesConnection().then((r) => r.data.productCategoriesConnection.edges),
+      client
+        .request<ProductCategoriesConnectionQuery>({ query: ProductCategoriesConnectionDocument }, {})
+        .then((r) => r.data.productCategoriesConnection.edges),
   },
 };
 
@@ -90,22 +138,30 @@ export const {
   taxonomyRegistry,
   singletonRegistry,
   pagesConfig: {
+    // See the fetchEdges/fetchTerms comment above collectionRegistry — same
+    // client.queries.* bug inside Tina's Vite-bundled admin.
     fetchConnection: (args) =>
-      client.queries
-        .pagesConnection({
-          filter: { draft: { eq: false }, ...(args?.slug ? { slug: { eq: args.slug } } : {}) },
-        })
+      client
+        .request<PagesConnectionQuery>(
+          {
+            query: PagesConnectionDocument,
+            variables: { filter: { draft: { eq: false }, ...(args?.slug ? { slug: { eq: args.slug } } : {}) } },
+          },
+          {}
+        )
         .then((r) => r.data.pagesConnection.edges),
     fetchByPath: (relativePath: string) => client.queries.pages({ relativePath }),
   },
   dictionaryConfig: {
     fetchEntries: () =>
-      client.queries.multilingual({ relativePath: "index.json" }).then(
-        (r) =>
-          (r.data.multilingual.entries ?? []).filter(
-            (entry): entry is NonNullable<typeof entry> => !!entry
-          ) as { key: string; values: Record<string, string | null | undefined> }[]
-      ),
+      client
+        .request<MultilingualQuery>({ query: MultilingualDocument, variables: { relativePath: "index.json" } }, {})
+        .then(
+          (r) =>
+            (r.data.multilingual.entries ?? []).filter(
+              (entry): entry is NonNullable<typeof entry> => !!entry
+            ) as { key: string; values: Record<string, string | null | undefined> }[]
+        ),
   },
 });
 
