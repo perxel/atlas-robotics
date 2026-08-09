@@ -45,6 +45,8 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
               loop
               muted
               playsInline
+              preload={i === 0 ? "auto" : "none"}
+              {...({ fetchPriority: i === 0 ? "high" : "low" } as Record<string, string>)}
             />
           ) : (
             slide.image && (
