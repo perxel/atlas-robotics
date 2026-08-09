@@ -119,10 +119,14 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
                 type="button"
                 aria-label={`Go to slide ${i + 1}`}
                 onClick={() => setIndex(i)}
-                className={`h-2 w-2 rounded-full transition ${
-                  i === index ? "bg-white" : "bg-white/40 hover:bg-white/70"
-                }`}
-              />
+                className="group flex h-6 w-6 items-center justify-center"
+              >
+                <span
+                  className={`h-2 w-2 rounded-full transition ${
+                    i === index ? "bg-white" : "bg-white/40 group-hover:bg-white/70"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         </>

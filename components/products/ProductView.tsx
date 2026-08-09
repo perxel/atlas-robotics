@@ -80,7 +80,7 @@ export default function ProductView({
                   }) ?? "#"
                 }
                 data-tina-field={tinaField(c)}
-                className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-foreground hover:opacity-80"
+                className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent hover:opacity-80"
               >
                 {c.term.title}
               </Link>
