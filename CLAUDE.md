@@ -122,55 +122,82 @@ project built from this boilerplate — not optional, not
 platform-specific.** See "Production builds require Tina Cloud" under Known
 issues below before deploying anywhere for the first time.
 
-## Media URLs — always through `mediaUrl()`, never a raw field value
+## Media URLs — `mediaUrl()` for plain tags, raw URL for `next/image`
 
-Every place that renders a Tina `image`-field value as an `<img>`/`<video>`
-`src` (or a favicon/OG-image URL) must pass it through `mediaUrl()`
-(`cms/media-url.ts`) first — never interpolate the field's string value
-directly. `CoverMedia.tsx` (the shared image/video renderer behind most
-content-driven media in this repo) already does this once, centrally; a new
-ad-hoc media render outside that component — the way `Hero.tsx`'s slide
-image/video, `Header.tsx`'s logo, `LanguageSwitcher.tsx`'s flag, and the
-layout's favicon all are — needs its own `mediaUrl()` call.
+Every place that renders a Tina `image`-field value as a plain `<video>`
+`src`, a plain `<img>` `src` (or a favicon URL) must pass it through
+`mediaUrl()` (`cms/media-url.ts`) first — never interpolate the field's
+string value directly. `CoverMedia.tsx`'s video branch already does this
+centrally; a new ad-hoc plain-tag media render outside that component — the
+way `Hero.tsx`'s slide video/poster, `Header.tsx`'s logo,
+`LanguageSwitcher.tsx`'s flag, and the layout's favicon all are — needs its
+own `mediaUrl()` call.
 
-**Why:** in production, a Tina `image` field resolves to a full
-`https://assets.tina.io/...` URL (Tina Cloud's asset CDN — see "TinaCMS"
-above), and that CDN serves every asset with no `Cache-Control` header at
-all — confirmed via Lighthouse's "efficient cache lifetimes" audit flagging
-~32MB of video/image transfer with no cache TTL. That host isn't ours to
-configure. `mediaUrl()` rewrites an `assets.tina.io` URL to
-`/media/<path>` — same-origin, served by `app/media/[...path]/route.ts` —
-which proxies the fetch to Tina's CDN and stamps
-`Cache-Control: public, max-age=31536000, immutable` on the way back out;
-Cloudflare's own zone edge cache and every visitor's browser honor that
-header with no further code needed. Locally (`next dev`), a Tina media
+**`next/image` (`<Image>`) is the one exception — it must keep the raw
+`https://assets.tina.io/...` URL, never `mediaUrl()`.** `CoverMedia.tsx`'s
+image branch and `Hero.tsx`'s slide image both intentionally pass `src`
+unmodified. Getting this backwards broke production twice in the same
+afternoon:
+
+**Why `mediaUrl()` exists at all:** in production, a Tina `image` field
+resolves to a full `https://assets.tina.io/...` URL (Tina Cloud's asset
+CDN — see "TinaCMS" above), and that CDN serves every asset with no
+`Cache-Control` header at all — confirmed via Lighthouse's "efficient cache
+lifetimes" audit flagging ~32MB of video/image transfer with no cache TTL.
+That host isn't ours to configure. For a plain `<video>`/`<img>` tag,
+`mediaUrl()` rewrites the URL to `/media/<path>` — same-origin, served by
+`app/media/[...path]/route.ts` — which proxies the fetch to Tina's CDN and
+stamps `Cache-Control: public, max-age=31536000, immutable` on the way back
+out; Cloudflare's own zone edge cache and every visitor's browser honor
+that header with no further code needed. Locally (`next dev`), a Tina media
 field instead resolves to a relative `/uploads/...` path (already
 same-origin); `mediaUrl()` detects this via `new URL()` throwing on a
 non-absolute string and returns it unchanged, so nothing routes through the
 proxy in dev.
 
-**Do not add Cloudflare's `caches.default` Cache API to this route without
-verifying it first against real production logs.** An earlier version did
-exactly that (plus `getCloudflareContext()` to get `waitUntil`), and it
-spiked this Worker's error rate from <150 to 1.25k almost immediately after
-deploy — every fresh (non-edge-cached) request to `/media/...` started
-returning a 500 from this route. Root cause was never confirmed with a
-stack trace (no log access at the time), but `caches.default` was the one
-piece of that version that didn't type-check against this project's
-ambient Cloudflare types without a forced cast — a real signal its runtime
-shape inside a Next.js Route Handler on the Node.js runtime (this adapter's
-default for Route Handlers, unlike `middleware.ts`'s forced edge runtime)
-didn't match what was assumed. It also wasn't necessary: the plain
-`Cache-Control` header is what actually satisfies Lighthouse's "efficient
-cache lifetimes" check.
+**Why `next/image` can't go through that same proxy:** `next/image`
+doesn't just render the string you give it — its optimizer (backed here by
+Cloudflare's native Images binding, `wrangler.jsonc`'s `images.binding`)
+makes its *own* HTTP fetch to resolve `src` into resized bytes. Pointing
+that at a same-origin `/media/...` path makes the Images binding call back
+into this same Worker to serve the source image, which then itself calls
+out to `assets.tina.io` — a self-referencing Worker-calling-itself fetch,
+repeated once per responsive width `next/image` generates (8 variants per
+image by default). This is what actually caused the second production
+outage: `/_next/image?url=%2Fmedia%2F...` started returning "upstream
+response is invalid" and the Worker hit Cloudflare's Error 1102 (exceeded
+resource limits) under real traffic. `images.remotePatterns` in
+`next.config.ts` allow-lists `assets.tina.io` directly for exactly this
+reason — `next/image` fetches Tina's CDN itself, uncached by this app, same
+as before any of this work. The videos were the overwhelming majority of
+the original ~32MB flagged by Lighthouse anyway (plain `<video>` tags,
+unaffected by any of this — they don't go through `next/image`), so scoping
+the fix to plain tags still captures the actual win.
+
+**A second, now-reverted mistake from the first outage:** an earlier
+version of `app/media/[...path]/route.ts` also added Cloudflare's
+`caches.default` Cache API (plus `getCloudflareContext()` for `waitUntil`)
+to edge-cache responses. That spiked this Worker's error rate from <150 to
+1.25k almost immediately after deploy — every fresh (non-edge-cached)
+request to `/media/...` started returning a 500. Root cause was never
+confirmed with a stack trace (no log access at the time), but
+`caches.default` was the one piece of that version that didn't type-check
+against this project's ambient Cloudflare types without a forced cast — a
+real signal its runtime shape inside a Next.js Route Handler on the
+Node.js runtime (this adapter's default for Route Handlers, unlike
+`middleware.ts`'s forced edge runtime) didn't match what was assumed. It
+also wasn't necessary: the plain `Cache-Control` header is what actually
+satisfies Lighthouse's check. **Do not re-add `caches.default` to this
+route without verifying it first against real production logs.**
 
 **Not enforced like `slugLifecycleGuard`** — there's no equivalent build-time
-gate that fails loudly if a new component forgets the call, since a missed
-`mediaUrl()` degrades to "this one asset isn't cached" rather than a broken
-page (unlike a missing slug guard, which produces a live 404). Get it right
-by routing new media through `CoverMedia.tsx` whenever the render shape fits
-it, and calling `mediaUrl()` directly at the `src`/`poster`/`icon` prop
-whenever it doesn't.
+gate that fails loudly if a new component gets this backwards (uses
+`mediaUrl()` on a `next/image` `src`, or forgets it on a plain tag). A
+missed `mediaUrl()` on a plain tag degrades to "this one asset isn't
+cached"; a wrongly-added one on `next/image` risks repeating the second
+outage above. Route new media through `CoverMedia.tsx` whenever the render
+shape fits it — its two branches already get this right — and match its
+pattern exactly whenever it doesn't.
 
 ## Visual editing
 

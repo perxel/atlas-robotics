@@ -51,8 +51,11 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
             />
           ) : (
             slide.image && (
+              // Not mediaUrl() — see CoverMedia.tsx's comment: next/image's
+              // optimizer fetches this src itself via a Worker-self-fetch
+              // through the Images binding, which is what broke production.
               <Image
-                src={mediaUrl(slide.image)}
+                src={slide.image}
                 alt={slide.imageAlt || ""}
                 data-tina-field={tinaField(slide, "image")}
                 fill
