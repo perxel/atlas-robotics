@@ -75,8 +75,11 @@ export default function CoverMedia({
     return (
       // `aria-label` lives here, not just on the `<video>` below, so a link/button
       // wrapping this element still has a discernible name before the video mounts
-      // (it's gated behind IntersectionObserver — see the comment above).
-      <div ref={containerRef} className={className} aria-label={alt}>
+      // (it's gated behind IntersectionObserver — see the comment above). A plain
+      // `<div>`'s implicit role is `generic`, which prohibits naming attributes
+      // (axe: "aria-prohibited-attr") — `role="img"` makes this element one that
+      // actually supports `aria-label` as its accessible name.
+      <div ref={containerRef} className={className} role="img" aria-label={alt}>
         {shouldLoadVideo && (
           <video
             src={src}
