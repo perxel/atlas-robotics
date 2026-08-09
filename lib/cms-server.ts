@@ -6,7 +6,6 @@ import { siteUrl } from "@/cms/seo";
 import {
   collectionPathConfig,
   taxonomyPathConfig,
-  seoDashboardOrder,
   CMSMultilingual,
   defaultLocale,
   locales,
@@ -108,7 +107,6 @@ export const {
           ) as { key: string; values: Record<string, string | null | undefined> }[]
       ),
   },
-  seoDashboardOrder,
 });
 
 // --- Typed query helpers (project-specific generics on top of generic CMS methods) ---

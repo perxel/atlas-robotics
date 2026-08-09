@@ -152,25 +152,6 @@ export function buildArchiveTitle(args: {
   );
 }
 
-// --- SEO dashboard row order — mirrors tina/config.ts's `collections` array
-// declaration order (pages, products, productCategories, blog, categories)
-// so the admin dashboard reads top-to-bottom in the same order an editor
-// sees in Tina's own nav. The two lists aren't derived from one another
-// (tina/config.ts holds real Tina `Collection` objects, this is plain
-// string keys) so this must be kept in sync by hand whenever that array
-// changes — same hand-synced-parallel-list tradeoff already accepted for
-// collectionPathConfig/taxonomyPathConfig vs. tina/config.ts's import
-// order. Names missing from this list (e.g. a newly added collection) sort
-// to the end rather than disappearing — see SeoDashboardService's `order`
-// option.
-export const seoDashboardOrder: readonly ("pages" | CollectionKey | TaxonomyKey)[] = [
-  "pages",
-  "products",
-  "productCategories",
-  "blog",
-  "categories",
-];
-
 // --- Path-only CMSCollection/CMSTaxonomy — browser/edge-safe. No
 // fetchEdges/fetchBySlug/fetchTerms, so importing this file never pulls in
 // the generated Tina client. lib/cms-server.ts builds the full, data-fetching

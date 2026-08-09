@@ -30,10 +30,9 @@ export function createCmsDashboards<TCollectionName extends string, TTaxonomyNam
     CMSMultilingual: MultilingualService<TLocale>;
     locales: readonly TLocale[];
     defaultLocale: TLocale;
-    /** Display order for the SEO dashboard's rows — see
-     * lib/registry.ts's `seoDashboardOrder` for the concrete list this
-     * project passes in, and why it exists (mirrors tina/config.ts's
-     * `collections` declaration order). Names omitted here sort to the end. */
+    /** Optional display order for the SEO dashboard's rows — omit to use
+     * whatever order `getRegisteredCollectionNames` returns. Names omitted
+     * here sort to the end. Not currently set by any registered project. */
     seoDashboardOrder?: readonly (ContentCollection<TCollectionName> | TTaxonomyName)[];
   }
 ) {
