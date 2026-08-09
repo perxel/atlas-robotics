@@ -7,9 +7,9 @@
     "dev": "tinacms dev --noTelemetry -c \"next dev\"",
     "start": "next start",
     "lint": "eslint",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "preview": "opennextjs-cloudflare build && echo 'uploads/**' > .open-next/assets/.assetsignore && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && echo 'uploads/**' > .open-next/assets/.assetsignore && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && echo 'uploads/**' > .open-next/assets/.assetsignore && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
