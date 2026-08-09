@@ -622,3 +622,41 @@ slug changes without a rebuild, defeating the point.
   only carries `_sys` at runtime, matching its TypeScript type exactly —
   the type wasn't the incomplete part here, an earlier version of this code
   was wrong to override it with a cast.
+- **Lighthouse's "efficient cache lifetimes" finding is unresolved — do not
+  re-attempt the same fix without real Workers Logs access first.**
+  `assets.tina.io` (Tina Cloud's media CDN) serves every video/image with no
+  `Cache-Control` header at all, flagged by Lighthouse as ~32MB of uncached
+  transfer. That host isn't ours to configure. On 2026-08-09, a same-origin
+  proxy fix was attempted (`app/media/[...path]/route.ts`, rewriting every
+  render site's media URL from `assets.tina.io` to `/media/...` via a
+  `mediaUrl()` helper) and was **fully reverted after causing three separate
+  production outages** (Cloudflare Error 1102, "Worker exceeded resource
+  limits") in one session:
+  1. Adding Cloudflare's `caches.default` Cache API + `getCloudflareContext()`
+     to the route spiked the Worker's error rate from <150 to 1.25k — every
+     fresh request 500'd. `caches.default` didn't type-check against this
+     project's ambient Cloudflare types without a forced cast, a real signal
+     its runtime shape inside a Next.js Route Handler (Node.js runtime, this
+     adapter's default for Route Handlers) didn't match what was assumed.
+  2. After removing that: `next/image`'s optimizer (backed by Cloudflare's
+     Images binding, `wrangler.jsonc`'s `images.binding`) fetches its `src`
+     itself; a same-origin `/media/...` path made that binding call back
+     into this same Worker to resolve the source image — a self-referencing
+     fetch, once per responsive width (8 per image) — causing "upstream
+     response is invalid" and another Error 1102.
+  3. After scoping the proxy down to *only* plain `<video>`/`<img>` tags
+     (`next/image` fully excluded, pointed back at the raw CDN URL): **Error
+     1102 happened a third time anyway**, proving the self-referencing
+     `next/image` fetch wasn't the sole cause. The real root cause was never
+     confirmed — every diagnosis in this sequence was inferred from response
+     headers and local `curl` against the live deployment, never an actual
+     stack trace, because there was no Workers Logs (`wrangler tail`/
+     dashboard) access during the investigation.
+
+  Current state: fully reverted to before any of this (commit `af182d7`,
+  reverting `922cdd2`/`2fef13f`/`c7df6a0`) — every Tina media URL renders as
+  the raw `assets.tina.io` link again, uncached. Before trying again: get
+  real Workers Logs access so a failure produces a stack trace instead of
+  another inference chain, and load-test any candidate fix (this homepage
+  renders ~15 autoplay videos, so match that concurrency) somewhere other
+  than production first.
