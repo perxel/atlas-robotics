@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksHero } from "@/tina/__generated__/types";
+import { mediaUrl } from "@/cms/media-url";
 
 const AUTOPLAY_MS = 6000;
 
@@ -37,8 +38,8 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
         >
           {slide.video ? (
             <video
-              src={slide.video}
-              poster={slide.image || undefined}
+              src={mediaUrl(slide.video)}
+              poster={mediaUrl(slide.image) || undefined}
               data-tina-field={tinaField(slide, "video")}
               className="absolute inset-0 h-full w-full object-cover"
               autoPlay
@@ -51,7 +52,7 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
           ) : (
             slide.image && (
               <Image
-                src={slide.image}
+                src={mediaUrl(slide.image)}
                 alt={slide.imageAlt || ""}
                 data-tina-field={tinaField(slide, "image")}
                 fill

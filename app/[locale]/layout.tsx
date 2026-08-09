@@ -7,6 +7,7 @@ import { CMSDictionary, CMSSeo, getSiteSettings } from "@/lib/cms-server";
 import { locales, defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { siteUrl } from "@/cms/seo";
 import { translateText } from "@/cms/multilingual";
+import { mediaUrl } from "@/cms/media-url";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -38,7 +39,7 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(siteUrl),
-    icons: settings?.favicon ? { icon: settings.favicon } : undefined,
+    icons: settings?.favicon ? { icon: mediaUrl(settings.favicon) } : undefined,
     ...CMSSeo.buildMetadata({
       lang: locale,
       pathWithoutLocale,

@@ -16,14 +16,18 @@ const nextConfig: NextConfig = {
   // like any other file, so no separate wiring is needed on the Cloudflare
   // side.
   productionBrowserSourceMaps: true,
-  images: {
-    // Repo-based media (see CLAUDE.md's "TinaCMS" section) is synced to and
-    // served from TinaCloud's asset CDN in production, not from this app's
-    // own /uploads path — confirmed live, not assumed (zero requests hit
-    // this Worker's own domain for media). next/image needs the remote
-    // host allow-listed to optimize images loaded from there.
-    remotePatterns: [{ protocol: "https", hostname: "assets.tina.io" }],
-  },
+  // Repo-based media (see CLAUDE.md's "TinaCMS" section) is synced to and
+  // served from TinaCloud's asset CDN in production, not from this app's own
+  // /uploads path — confirmed live, not assumed (zero requests hit this
+  // Worker's own domain for media). That CDN sends no Cache-Control at all
+  // (flagged by Lighthouse's "efficient cache lifetimes"), and we don't
+  // control its response headers, so cms/media-url.ts's mediaUrl() rewrites
+  // every render site to /media/[...path] (app/media/[...path]/route.ts)
+  // instead of linking to assets.tina.io directly — that route proxies the
+  // fetch and stamps a long-lived Cache-Control on the way back out.
+  // next/image never receives a raw assets.tina.io URL anymore (it's always
+  // /media/... or, locally, /uploads/...), so no images.remotePatterns entry
+  // is needed for that host.
   async redirects() {
     return [
       { source: "/vi/blog", destination: "/vi/tin-tuc", permanent: true },

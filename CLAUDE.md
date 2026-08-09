@@ -122,6 +122,41 @@ project built from this boilerplate — not optional, not
 platform-specific.** See "Production builds require Tina Cloud" under Known
 issues below before deploying anywhere for the first time.
 
+## Media URLs — always through `mediaUrl()`, never a raw field value
+
+Every place that renders a Tina `image`-field value as an `<img>`/`<video>`
+`src` (or a favicon/OG-image URL) must pass it through `mediaUrl()`
+(`cms/media-url.ts`) first — never interpolate the field's string value
+directly. `CoverMedia.tsx` (the shared image/video renderer behind most
+content-driven media in this repo) already does this once, centrally; a new
+ad-hoc media render outside that component — the way `Hero.tsx`'s slide
+image/video, `Header.tsx`'s logo, `LanguageSwitcher.tsx`'s flag, and the
+layout's favicon all are — needs its own `mediaUrl()` call.
+
+**Why:** in production, a Tina `image` field resolves to a full
+`https://assets.tina.io/...` URL (Tina Cloud's asset CDN — see "TinaCMS"
+above), and that CDN serves every asset with no `Cache-Control` header at
+all — confirmed via Lighthouse's "efficient cache lifetimes" audit flagging
+~32MB of video/image transfer with no cache TTL. That host isn't ours to
+configure. `mediaUrl()` rewrites an `assets.tina.io` URL to
+`/media/<path>` — same-origin, served by `app/media/[...path]/route.ts` —
+which proxies the fetch to Tina's CDN and stamps
+`Cache-Control: public, max-age=31536000, immutable` on the way back out,
+plus edge-caches full (non-range) responses via Cloudflare's Cache API so
+repeat requests from any visitor at that edge location skip the origin
+fetch entirely. Locally (`next dev`), a Tina media field instead resolves to
+a relative `/uploads/...` path (already same-origin); `mediaUrl()` detects
+this via `new URL()` throwing on a non-absolute string and returns it
+unchanged, so nothing routes through the proxy in dev.
+
+**Not enforced like `slugLifecycleGuard`** — there's no equivalent build-time
+gate that fails loudly if a new component forgets the call, since a missed
+`mediaUrl()` degrades to "this one asset isn't cached" rather than a broken
+page (unlike a missing slug guard, which produces a live 404). Get it right
+by routing new media through `CoverMedia.tsx` whenever the render shape fits
+it, and calling `mediaUrl()` directly at the `src`/`poster`/`icon` prop
+whenever it doesn't.
+
 ## Visual editing
 
 Wired up for `blog`, `products`, and `pages` — collections editors touch

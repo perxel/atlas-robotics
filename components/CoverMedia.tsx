@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { mediaUrl } from "@/cms/media-url";
 
 /**
  * Tina's `image` field type accepts any file, including video (see
@@ -36,7 +37,7 @@ export default function CoverMedia({
   if (isVideoSrc(src)) {
     return (
       <video
-        src={src}
+        src={mediaUrl(src)}
         aria-label={alt}
         data-tina-field={dataTinaField}
         className={className}
@@ -59,7 +60,7 @@ export default function CoverMedia({
   return (
     <div className={`relative overflow-hidden ${className || ""}`}>
       <Image
-        src={src}
+        src={mediaUrl(src)}
         alt={alt}
         data-tina-field={dataTinaField}
         fill
