@@ -107,9 +107,24 @@ export class PagesService<TLocale extends string> {
    * tacked on (optional — not every project's `pages` collection has it)
    * because it's the same freshness signal every other consumer of this
    * index would want (e.g. app/sitemap.ts's `lastModified`), not worth a
-   * second near-identical method just to omit one field. */
+   * second near-identical method just to omit one field.
+   *
+   * `fallback.metaTitle` mirrors what app/[locale]/[slug]/page.tsx actually
+   * passes as `fallbackTitle` (this document's own `title`, required).
+   * `fallback.metaDescription` is deliberately always `null` — unlike
+   * blog/products' excerpt fallback, that route never passes a
+   * `fallbackDescription` at all, so a `pages` document with no
+   * `seo.metaDescription` genuinely renders with no description, in every
+   * mode the dashboard offers. */
   async getSeoIndex(): Promise<
-    { filename: string; locale: TLocale; slug: string; seo: unknown; publishDate?: string | null }[]
+    {
+      filename: string;
+      locale: TLocale;
+      slug: string;
+      seo: unknown;
+      publishDate?: string | null;
+      fallback: { metaTitle: string | null; metaDescription: string | null };
+    }[]
   > {
     const edges = await this.#deps.fetchConnection();
     return (edges || [])
@@ -119,6 +134,7 @@ export class PagesService<TLocale extends string> {
             | {
                 slug?: string;
                 seo?: unknown;
+                title?: string | null;
                 publishDate?: string | null;
                 _sys?: { relativePath: string; breadcrumbs: string[] };
               }
@@ -133,6 +149,7 @@ export class PagesService<TLocale extends string> {
         slug: node.slug ?? "",
         seo: node.seo,
         publishDate: node.publishDate,
+        fallback: { metaTitle: node.title ?? null, metaDescription: null },
       }));
   }
 }

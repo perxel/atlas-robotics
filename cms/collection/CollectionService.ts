@@ -187,17 +187,39 @@ export class CollectionService<TCollectionName extends string, TLocale extends s
   /** Per-document SEO index for the SEO dashboard — prefers a registered
    * `fetchSeoIndex`, otherwise falls back to reading `.seo`/`.slug` off the
    * same fetchEdges() results already used for everything else (works out
-   * of the box for any collection whose fields include seoField()). */
+   * of the box for any collection whose fields include seoField()).
+   *
+   * `fallback` mirrors what a detail route (e.g. app/[locale]/blog/[slug]/page.tsx)
+   * actually passes as `fallbackTitle`/`fallbackDescription` to
+   * `SeoService.buildMetadata` — `title` (required on every content
+   * collection) and `excerpt` (optional — genuinely empty for some
+   * documents) — so the dashboard can tell "no explicit SEO, but the live
+   * page still renders fine" apart from "no explicit SEO, and nothing
+   * covers it either". */
   async getSeoIndex(
     collectionName: TCollectionName
-  ): Promise<{ filename: string; locale: TLocale; slug: string; seo: unknown }[]> {
+  ): Promise<
+    {
+      filename: string;
+      locale: TLocale;
+      slug: string;
+      seo: unknown;
+      fallback: { metaTitle: string | null; metaDescription: string | null };
+    }[]
+  > {
     const entry = this.#registry[collectionName];
     const edges = await (entry.fetchSeoIndex ?? entry.fetchEdges)();
     return (edges || [])
       .map(
         (edge) =>
           edge?.node as
-            | { slug?: string; seo?: unknown; _sys?: { relativePath: string; breadcrumbs: string[] } }
+            | {
+                slug?: string;
+                seo?: unknown;
+                title?: string | null;
+                excerpt?: string | null;
+                _sys?: { relativePath: string; breadcrumbs: string[] };
+              }
             | undefined
       )
       .filter((node): node is NonNullable<typeof node> & { _sys: { relativePath: string; breadcrumbs: string[] } } =>
@@ -208,6 +230,7 @@ export class CollectionService<TCollectionName extends string, TLocale extends s
         locale: node._sys.breadcrumbs[0] as TLocale,
         slug: node.slug ?? "",
         seo: node.seo,
+        fallback: { metaTitle: node.title ?? null, metaDescription: node.excerpt ?? null },
       }));
   }
 }

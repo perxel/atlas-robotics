@@ -68,10 +68,29 @@ export class TaxonomyService<
    * CollectionService.getSeoIndex/PagesService.getSeoIndex, so the SEO
    * dashboard can dispatch to whichever of the three produced it without
    * caring which. Always sees every term (there's no draft concept for a
-   * taxonomy term), unlike CollectionService's registered collections. */
+   * taxonomy term), unlike CollectionService's registered collections.
+   *
+   * `fallback` is keyed off `title` alone for both fields, not a literal
+   * copy of what an archive route (e.g. app/[locale]/blog/[slug]/[term]/archive.tsx)
+   * renders — that route's `fallbackTitle`/`fallbackDescription` are built
+   * from `term.title` plus a label/site-title template that always resolves
+   * to *something*, so "does `title` exist" is an exact proxy for "does the
+   * real fallback resolve", without this generic, project-agnostic service
+   * needing to import the project's own title-template helpers. `title` is
+   * a required field on every taxonomy term, so this is effectively always
+   * true — a term with no `seo` block still gets a real title/description
+   * live. */
   async getSeoIndex(
     taxonomyName: TTaxonomyName
-  ): Promise<{ filename: string; locale: TLocale; slug: string; seo: unknown }[]> {
+  ): Promise<
+    {
+      filename: string;
+      locale: TLocale;
+      slug: string;
+      seo: unknown;
+      fallback: { metaTitle: string | null; metaDescription: string | null };
+    }[]
+  > {
     const edges = await this.#registry[taxonomyName].fetchTerms();
     return (edges || [])
       .map((edge) => edge?.node)
@@ -81,6 +100,7 @@ export class TaxonomyService<
         locale: node._sys.breadcrumbs[0] as TLocale,
         slug: node.slug,
         seo: node.seo,
+        fallback: { metaTitle: node.title ?? null, metaDescription: node.title ?? null },
       }));
   }
 

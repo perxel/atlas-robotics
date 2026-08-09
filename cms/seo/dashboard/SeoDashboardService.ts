@@ -1,10 +1,15 @@
-import type { SeoAuditRow, SeoCoverage, SeoFields, SeoSourceType } from "../types";
+import type { SeoAuditRow, SeoCoverage, SeoCoverageMode, SeoFields, SeoSourceType } from "../types";
 
 type SeoIndexEntry<TLocale extends string> = {
   filename: string;
   locale: TLocale;
   slug: string;
   seo: unknown;
+  /** What the document's own render route would fall back to per required
+   * field, when `seo` doesn't set it explicitly — see the three
+   * `getSeoIndex()` implementations (CollectionService, PagesService,
+   * TaxonomyService) for what each source actually puts here. */
+  fallback?: { metaTitle?: string | null; metaDescription?: string | null };
 };
 
 const DEFAULT_REQUIRED_FIELDS: Array<keyof NonNullable<SeoFields>> = ["metaTitle", "metaDescription"];
@@ -63,15 +68,51 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     return [...names].sort((a, b) => (rank.get(a) ?? Infinity) - (rank.get(b) ?? Infinity));
   }
 
-  #isComplete(seo: SeoFields): boolean {
-    return this.#requiredFields.every((field) => !!(seo as Record<string, unknown> | null | undefined)?.[field]);
+  /** A field is satisfied if the editor set it explicitly, or — in
+   * "lenient" mode only — the document's own render route has a working
+   * fallback for it. "strict" mode ignores fallback entirely: only an
+   * explicit value counts. */
+  #isSatisfied(
+    seo: SeoFields,
+    fallback: SeoIndexEntry<TLocale>["fallback"],
+    mode: SeoCoverageMode,
+    field: keyof NonNullable<SeoFields>
+  ): boolean {
+    if (!!(seo as Record<string, unknown> | null | undefined)?.[field]) return true;
+    return mode === "lenient" && !!(fallback as Record<string, unknown> | undefined)?.[field];
   }
 
-  #missingFields(seo: SeoFields): Array<keyof NonNullable<SeoFields>> {
-    return this.#requiredFields.filter((field) => !(seo as Record<string, unknown> | null | undefined)?.[field]);
+  #isComplete(seo: SeoFields, fallback: SeoIndexEntry<TLocale>["fallback"], mode: SeoCoverageMode): boolean {
+    return this.#requiredFields.every((field) => this.#isSatisfied(seo, fallback, mode, field));
   }
 
-  async getCoverage(): Promise<SeoCoverage<TCollectionName, TLocale>[]> {
+  #missingFields(
+    seo: SeoFields,
+    fallback: SeoIndexEntry<TLocale>["fallback"],
+    mode: SeoCoverageMode
+  ): Array<keyof NonNullable<SeoFields>> {
+    return this.#requiredFields.filter((field) => !this.#isSatisfied(seo, fallback, mode, field));
+  }
+
+  /** Required fields with no explicit value but a working fallback —
+   * computed independent of `mode`, so a "strict" audit row can still show
+   * "missing, but the live page falls back to X" instead of reading like a
+   * blank page. */
+  #fallbackCoveredFields(
+    seo: SeoFields,
+    fallback: SeoIndexEntry<TLocale>["fallback"]
+  ): Array<keyof NonNullable<SeoFields>> {
+    return this.#requiredFields.filter(
+      (field) =>
+        !(seo as Record<string, unknown> | null | undefined)?.[field] &&
+        !!(fallback as Record<string, unknown> | undefined)?.[field]
+    );
+  }
+
+  /** @param mode "lenient" (default) counts a route's own fallback as
+   * covering a field; "strict" only counts an explicit editor value. See
+   * `SeoCoverageMode`'s doc comment. */
+  async getCoverage(mode: SeoCoverageMode = "lenient"): Promise<SeoCoverage<TCollectionName, TLocale>[]> {
     const names = this.#sortedNames();
 
     return Promise.all(
@@ -94,7 +135,8 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
         for (const locale of this.#locales) {
           const docs = index.filter((entry) => entry.locale === locale);
           const complete = docs.filter(
-            (entry) => defaultFilenames.has(entry.filename) && this.#isComplete(entry.seo as SeoFields)
+            (entry) =>
+              defaultFilenames.has(entry.filename) && this.#isComplete(entry.seo as SeoFields, entry.fallback, mode)
           ).length;
           countsByLocale[locale] = defaultFilenames.size;
           completeByLocale[locale] = complete;
@@ -114,18 +156,22 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
     );
   }
 
+  /** @param args.mode See `getCoverage`'s doc comment — defaults to
+   * "lenient", same as `getCoverage`, so the two tables agree unless the
+   * caller explicitly asks for the strict view. */
   async getAudit(args?: {
     collectionName?: TCollectionName;
     onlyMissing?: boolean;
+    mode?: SeoCoverageMode;
   }): Promise<SeoAuditRow<TCollectionName, TLocale>[]> {
     const names = args?.collectionName ? [args.collectionName] : this.#sortedNames();
+    const mode = args?.mode ?? "lenient";
 
     const rows: SeoAuditRow<TCollectionName, TLocale>[] = [];
     for (const collectionName of names) {
       const index = await this.#deps.getSeoIndex(collectionName);
       for (const entry of index) {
         const seo = entry.seo as SeoFields;
-        const missingFields = this.#missingFields(seo);
         rows.push({
           collectionName,
           label: this.#deps.getLabel(collectionName),
@@ -134,15 +180,11 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
           slug: entry.slug,
           filename: entry.filename,
           seo,
-          missingFields,
-          // A generic SEO index only carries {filename, locale, slug, seo} —
-          // not enough context to know whether a specific route's fallback
-          // (e.g. a listing page's dictionary-sourced title vs. a detail
-          // page's own `title` field) actually covers a missing field, so
-          // this always reports empty rather than guessing. Revisit if a
-          // richer index becomes worth the cost — see the plan's own note
-          // that this default may not feel right in practice.
-          usingFallback: [],
+          missingFields: this.#missingFields(seo, entry.fallback, mode),
+          // Independent of `mode` — even a "strict" row that counts as
+          // missing can still say "but the live page falls back to X",
+          // rather than reading like the page renders blank.
+          usingFallback: this.#fallbackCoveredFields(seo, entry.fallback),
         });
       }
     }

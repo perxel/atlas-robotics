@@ -10,6 +10,14 @@ export type SeoFields =
 
 export type SeoSourceType = "content" | "taxonomy";
 
+/** "lenient" counts a required field as covered if either the editor set it
+ * explicitly or the document's own render route has a working fallback for
+ * it (e.g. a blog post's `title`/`excerpt`) — "is anything actually blank
+ * live?". "strict" only counts an explicit editor value — "what still needs
+ * hand-written SEO copy?". Both dashboard tables (coverage % and the
+ * missing-fields audit) switch together on this one mode. */
+export type SeoCoverageMode = "lenient" | "strict";
+
 export type SeoAuditRow<TCollectionName extends string, TLocale extends string> = {
   collectionName: TCollectionName;
   /** English source label, e.g. "Product Categories" — for display, never
