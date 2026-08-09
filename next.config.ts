@@ -9,6 +9,14 @@ import type { NextConfig } from "next";
 // needs entries here: en's segments already match the physical folder
 // names verbatim, so there's nothing to translate or redirect for it.
 const nextConfig: NextConfig = {
+  images: {
+    // Repo-based media (see CLAUDE.md's "TinaCMS" section) is synced to and
+    // served from TinaCloud's asset CDN in production, not from this app's
+    // own /uploads path — confirmed live, not assumed (zero requests hit
+    // this Worker's own domain for media). next/image needs the remote
+    // host allow-listed to optimize images loaded from there.
+    remotePatterns: [{ protocol: "https", hostname: "assets.tina.io" }],
+  },
   async redirects() {
     return [
       { source: "/vi/blog", destination: "/vi/tin-tuc", permanent: true },

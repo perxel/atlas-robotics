@@ -54,6 +54,7 @@ export default function BlogListingBlock({
                   src={post.seo.ogImage}
                   alt={post.seo.ogImageAlt || post.title}
                   className="aspect-video w-full object-cover"
+                  sizes="(min-width: 640px) 50vw, 100vw"
                 />
               )}
             </Link>

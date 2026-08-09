@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksHero } from "@/tina/__generated__/types";
 
@@ -47,12 +48,14 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
             />
           ) : (
             slide.image && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={slide.image}
                 alt={slide.imageAlt || ""}
                 data-tina-field={tinaField(slide, "image")}
-                className="absolute inset-0 h-full w-full object-cover"
+                fill
+                sizes="100vw"
+                priority={i === 0}
+                className="object-cover"
               />
             )
           )}

@@ -62,6 +62,7 @@ export default function ProductView({
             alt={product.seo.ogImageAlt || product.title}
             dataTinaField={tinaField(product.seo, "ogImage")}
             className="aspect-video w-full rounded-lg object-cover"
+            sizes="(min-width: 1152px) 1152px, 100vw"
           />
         )}
 
@@ -155,6 +156,7 @@ export default function ProductView({
                     src={related.seo.ogImage}
                     alt={related.seo.ogImageAlt || related.title}
                     className="aspect-video w-full object-cover"
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   />
                 )}
                 <div className="p-4">

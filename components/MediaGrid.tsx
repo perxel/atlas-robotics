@@ -35,6 +35,7 @@ export default function MediaGrid({ items, heading }: { items: GalleryItem[]; he
                 alt={item.caption!}
                 dataTinaField={tinaField(item, "media")}
                 className="h-full w-full object-cover"
+                sizes="(min-width: 640px) 33vw, 50vw"
               />
             </div>
             <figcaption

@@ -59,7 +59,8 @@ export default function ContactFormBlock({
                         src={data.media}
                         alt={data.mediaAlt || ""}
                         dataTinaField={tinaField(data, "media")}
-                        className="absolute inset-0 h-full w-full object-cover"
+                        className="h-full w-full"
+                        sizes="(min-width: 768px) 50vw, 100vw"
                     />
                 </div>
                 <div className="flex flex-col justify-center">{form}</div>

@@ -94,6 +94,7 @@ export default function ProductListingBlock({
                   src={product.seo.ogImage}
                   alt={product.seo.ogImageAlt || product.title}
                   className="aspect-video w-full object-cover"
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                 />
               )}
             </Link>
