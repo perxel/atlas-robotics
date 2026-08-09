@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { headers } from "next/headers";
 import { type Locale, CMSDictionary, getMultilingualSettings, getNav, getSiteSettings, resolveLocaleAlternates } from "@/lib/cms-server";
 import { CMSMultilingual } from "@/lib/registry";
@@ -25,8 +26,13 @@ export default async function Header({ locale }: { locale: Locale }) {
           className="flex items-center gap-2 text-lg font-semibold whitespace-nowrap"
         >
           {settings?.logo && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={settings.logo} alt={settings.logoAlt || ""} className="h-8 w-8 rounded" />
+            <Image
+              src={settings.logo}
+              alt={settings.logoAlt || ""}
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded object-cover"
+            />
           )}
           {settings?.title || t("Lorem ipsum")}
         </Link>

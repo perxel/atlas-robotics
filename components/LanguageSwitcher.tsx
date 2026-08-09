@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 // From lib/registry.ts, not lib/cms-server.ts — this is a client component,
 // and lib/cms-server.ts drags in the generated Tina client, which has no
 // business in a client bundle. Same reasoning as middleware.ts's import.
@@ -81,8 +82,7 @@ export default function LanguageSwitcher({
           }
         >
           {flag && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={flag} alt="" className="h-3.5 w-5 rounded-sm object-cover" />
+            <Image src={flag} alt="" width={20} height={14} className="h-3.5 w-5 rounded-sm object-cover" />
           )}
           {label}
         </Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksHero } from "@/tina/__generated__/types";
@@ -9,7 +9,35 @@ const AUTOPLAY_MS = 6000;
 
 export default function Hero({ data }: { data: PagesBlocksHero }) {
   const slides = (data.slides ?? []).filter((s): s is NonNullable<typeof s> => !!s);
-  const [index, setIndex] = useState(0);
+  // Slides are stacked absolute+opacity for the crossfade, so every slide's
+  // media sits within the viewport bounding box regardless of visibility —
+  // native lazy-loading can't tell an opacity-0 slide apart from a visible
+  // one. `loaded` tracks which slides have ever been active (plus a
+  // one-ahead preload) so the rest genuinely don't mount/fetch until
+  // needed. Bundled into `index`'s own setState call rather than a
+  // separate effect, since deriving one piece of state from another inside
+  // an effect just to setState again causes an extra cascading render.
+  const [{ index, loaded }, setSlide] = useState(() => {
+    const loaded = new Set<number>([0]);
+    if (slides.length > 1) loaded.add(1 % slides.length);
+    return { index: 0, loaded };
+  });
+
+  const goTo = useCallback(
+    (next: number) => {
+      setSlide((prev) => {
+        const preload = (next + 1) % slides.length;
+        if (prev.loaded.has(next) && prev.loaded.has(preload)) {
+          return { index: next, loaded: prev.loaded };
+        }
+        const loaded = new Set(prev.loaded);
+        loaded.add(next);
+        loaded.add(preload);
+        return { index: next, loaded };
+      });
+    },
+    [slides.length]
+  );
 
   // Re-arms on every index change, whether that change came from autoplay
   // or a manual click — so clicking a dot/arrow doesn't get immediately
@@ -17,10 +45,10 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
   useEffect(() => {
     if (slides.length < 2) return;
     const timer = setInterval(() => {
-      setIndex((i) => (i + 1) % slides.length);
+      goTo((index + 1) % slides.length);
     }, AUTOPLAY_MS);
     return () => clearInterval(timer);
-  }, [index, slides.length]);
+  }, [index, slides.length, goTo]);
 
   if (slides.length === 0) return null;
 
@@ -36,20 +64,23 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
           }`}
         >
           {slide.video ? (
-            <video
-              src={slide.video}
-              poster={slide.image || undefined}
-              data-tina-field={tinaField(slide, "video")}
-              className="absolute inset-0 h-full w-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload={i === 0 ? "auto" : "none"}
-              {...({ fetchPriority: i === 0 ? "high" : "low" } as Record<string, string>)}
-            />
+            loaded.has(i) && (
+              <video
+                src={slide.video}
+                poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1920&q=75` : undefined}
+                data-tina-field={tinaField(slide, "video")}
+                className="absolute inset-0 h-full w-full object-cover"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload={i === 0 ? "auto" : "none"}
+                {...({ fetchPriority: i === 0 ? "high" : "low" } as Record<string, string>)}
+              />
+            )
           ) : (
-            slide.image && (
+            slide.image &&
+            loaded.has(i) && (
               <Image
                 src={slide.image}
                 alt={slide.imageAlt || ""}
@@ -96,7 +127,7 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
           <button
             type="button"
             aria-label="Previous slide"
-            onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}
+            onClick={() => goTo((index - 1 + slides.length) % slides.length)}
             className="absolute top-1/2 left-4 z-20 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white hover:bg-black/50"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
@@ -106,7 +137,7 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
           <button
             type="button"
             aria-label="Next slide"
-            onClick={() => setIndex((i) => (i + 1) % slides.length)}
+            onClick={() => goTo((index + 1) % slides.length)}
             className="absolute top-1/2 right-4 z-20 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white hover:bg-black/50"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
@@ -120,7 +151,7 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
                 key={i}
                 type="button"
                 aria-label={`Go to slide ${i + 1}`}
-                onClick={() => setIndex(i)}
+                onClick={() => goTo(i)}
                 className="group flex h-6 w-6 items-center justify-center"
               >
                 <span

@@ -63,6 +63,13 @@ export default async function LocaleLayout({
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Every page's LCP candidate (hero/cover image or video) is
+            served from Tina Cloud's asset CDN, not this origin — warming
+            up DNS/TLS to it before the browser discovers the actual media
+            URL shaves that connection setup off the LCP critical path. */}
+        <link rel="preconnect" href="https://assets.tina.io" />
+      </head>
       <body className="flex min-h-full flex-col">
         <Header locale={locale} />
         <main className="flex-1">

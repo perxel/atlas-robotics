@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
     // this Worker's own domain for media). next/image needs the remote
     // host allow-listed to optimize images loaded from there.
     remotePatterns: [{ protocol: "https", hostname: "assets.tina.io" }],
+    formats: ["image/avif", "image/webp"],
   },
   async redirects() {
     return [

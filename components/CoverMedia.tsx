@@ -21,6 +21,7 @@ export default function CoverMedia({
   dataTinaField,
   autoPlay = true,
   sizes = "100vw",
+  priority = false,
 }: {
   src: string;
   /** Required at every call site — also doubles as a video's caption/description. */
@@ -32,6 +33,11 @@ export default function CoverMedia({
    * image never renders full-bleed (a grid card, a half-width panel, ...) so
    * the CDN doesn't ship a full-viewport-wide image for a small slot. */
   sizes?: string;
+  /** Passed straight to next/image's `priority` — set true only for a
+   * call site that's genuinely above the fold (a single article/product
+   * hero, not a grid card), so that image skips lazy-loading. No effect
+   * on the video branch; video has no equivalent eager-fetch hint here. */
+  priority?: boolean;
 }) {
   if (isVideoSrc(src)) {
     return (
@@ -64,6 +70,7 @@ export default function CoverMedia({
         data-tina-field={dataTinaField}
         fill
         sizes={sizes}
+        priority={priority}
         className="object-cover"
       />
     </div>

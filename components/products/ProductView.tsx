@@ -63,6 +63,7 @@ export default function ProductView({
             dataTinaField={tinaField(product.seo, "ogImage")}
             className="aspect-video w-full rounded-lg object-cover"
             sizes="(min-width: 1152px) 1152px, 100vw"
+            priority
           />
         )}
 
