@@ -22,7 +22,7 @@ export default function FeaturedBlogPosts({
   const shown = posts.slice(0, data.postsToShow || 3);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16">
+    <section className="mx-auto my-container px-4 py-16">
       <div className="mx-auto max-w-2xl text-center">
         <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
           {data.heading}

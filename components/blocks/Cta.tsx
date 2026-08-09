@@ -3,7 +3,7 @@ import type { PagesBlocksCta } from "@/tina/__generated__/types";
 
 export default function Cta({ data }: { data: PagesBlocksCta }) {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-12 text-center">
+    <section className="my-container text-center">
       <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
         {data.heading}
       </h2>

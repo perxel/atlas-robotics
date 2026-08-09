@@ -50,7 +50,7 @@ export default function PageView({
   return (
     <article>
       {titleEnabled && (
-        <div className="mx-auto max-w-6xl px-4 py-12">
+        <div className="my-container py-12">
           <h1 data-tina-field={tinaField(page, "title")} className="text-3xl font-semibold">
             {page.title}
           </h1>

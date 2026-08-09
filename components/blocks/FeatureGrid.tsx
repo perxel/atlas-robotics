@@ -5,7 +5,7 @@ export default function FeatureGrid({ data }: { data: PagesBlocksFeatureGrid }) 
   const items = (data.items ?? []).filter((item): item is NonNullable<typeof item> => !!item);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16">
+    <section className="mx-auto my-container px-4 py-16">
       <div className="mx-auto max-w-2xl text-center">
         <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
           {data.heading}

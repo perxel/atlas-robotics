@@ -208,5 +208,6 @@ export const reservedSlugs = new Set<string>(["admin", "api"]);
  * `slugLifecycleGuard`. `home` plus every collection's locked listing page. */
 export const lockedSlugFilenames = new Set<string>([
   "home",
+  "404",
   ...CMSCollection.getRegisteredCollectionNames().map((name) => CMSCollection.getListingPageFilename(name)),
 ]);

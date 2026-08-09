@@ -124,7 +124,7 @@ export async function BlogArchive({
   redirectIfPageMismatch(requestedPage, currentPage, basePath);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="my-container py-12">
       <p className="text-sm text-muted-foreground">
         <Link
           href={CMSCollection.getCollectionPath({ collectionName: "blog", lang: locale })}

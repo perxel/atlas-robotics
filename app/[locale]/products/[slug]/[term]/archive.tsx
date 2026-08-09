@@ -119,7 +119,7 @@ export async function ProductsArchive({
   redirectIfPageMismatch(requestedPage, currentPage, basePath);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="my-container py-12">
       <p className="text-sm text-muted-foreground">
         <Link
           href={CMSCollection.getCollectionPath({ collectionName: "products", lang: locale })}

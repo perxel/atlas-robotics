@@ -1,5 +1,5 @@
-import { type Locale, CMSDictionary, getFooter, getSiteSettings } from "@/lib/cms-server";
-import { translateText } from "@/cms/multilingual";
+import {CMSDictionary, getFooter, getSiteSettings, type Locale} from "@/lib/cms-server";
+import {translateText} from "@/cms/multilingual";
 import SocialIcons from "./SocialIcons";
 
 export default async function Footer({ locale }: { locale: Locale }) {
@@ -12,7 +12,7 @@ export default async function Footer({ locale }: { locale: Locale }) {
 
   return (
     <footer className="border-t border-border bg-surface-muted">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-4">
+        <div className="my-container grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
         {footer?.columns?.map(
           (col, i) =>
             col && (

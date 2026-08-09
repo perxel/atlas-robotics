@@ -32,7 +32,7 @@ export default function BlogListingBlock({
   );
 
   return (
-    <section className="mx-auto max-w-4xl px-4 py-12">
+    <section className="my-container py-12">
       {data.subheading && (
         <p
           data-tina-field={tinaField(data, "subheading")}

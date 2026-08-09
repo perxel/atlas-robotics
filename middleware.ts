@@ -31,6 +31,13 @@ export function middleware(request: NextRequest) {
   // Stash the visible (unprefixed-for-default-locale) pathname so server
   // components can build canonical/hreflang links.
   requestHeaders.set("x-pathname", pathname);
+  // Stash the resolved locale too — not-found.tsx (a Next.js special file)
+  // receives no props/params, so it can't derive locale from the route the
+  // way every normal page does; this header is the only way it learns it.
+  requestHeaders.set(
+    "x-locale",
+    CMSMultilingual.pathnameHasLocalePrefix(pathname) ? pathname.split("/")[1] : defaultLocale
+  );
 
   if (CMSMultilingual.pathnameHasLocalePrefix(pathname)) {
     // A disabled locale's content isn't deleted or unreachable in Tina —

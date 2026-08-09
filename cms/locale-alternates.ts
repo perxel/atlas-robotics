@@ -78,7 +78,11 @@ export type LocaleAlternatesDeps<
  * - **Everything else**: treated as a `pages` document's own slug, which
  *   CAN genuinely diverge per locale, with nothing pairing them but a
  *   matching filename — resolved with a real cross-locale document lookup
- *   (`getPageAlternates`) instead of a guess.
+ *   (`getPageAlternates`) instead of a guess. A slug that doesn't resolve
+ *   even in the current locale means the route is 404ing (nothing else
+ *   reaches this branch with a slug that "just" lacks a translation — see
+ *   `#resolve`'s inline comment), so this falls back to each locale's home
+ *   instead of leaving the switcher empty.
  */
 export class LocaleAlternatesService<
   TCollectionName extends string,
@@ -133,7 +137,14 @@ export class LocaleAlternatesService<
 
     const slug = path.slice(1);
     const filename = await this.#deps.getPageFilenameBySlug({ lang: locale, slug });
-    if (!filename) return {};
+    // No document owns this slug in the *current* locale, which can only
+    // happen when the path doesn't resolve to anything at all — every other
+    // branch above already handles "resolves here but not translated there"
+    // via a partial map, not an empty one. In practice this means the page
+    // is 404ing, so there's no per-locale equivalent to link to; fall back
+    // to each locale's home, same as the "/" case above, rather than hiding
+    // the switcher entirely.
+    if (!filename) return this.#deps.getPageAlternates("home");
 
     return this.#deps.getPageAlternates(filename);
   }

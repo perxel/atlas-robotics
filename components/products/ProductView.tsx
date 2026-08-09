@@ -55,7 +55,7 @@ export default function ProductView({
 
   return (
     <>
-      <article className="mx-auto max-w-3xl px-4 py-12">
+      <article className="my-container py-12">
         {product.seo?.ogImage && (
           <CoverMedia
             src={product.seo.ogImage}
@@ -141,7 +141,7 @@ export default function ProductView({
       </article>
 
       {relatedProducts.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-16">
+        <section className="mx-auto my-container px-4 pb-16">
           <h2 className="text-xl font-semibold">{t("Related products")}</h2>
           <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {relatedProducts.map((related) => (
