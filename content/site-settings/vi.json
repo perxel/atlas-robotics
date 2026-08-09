@@ -1,11 +1,11 @@
 {
-  "title": "Lorem ipsum",
+  "title": "Atlas Robotics",
   "logo": "/uploads/placeholder-logo.svg",
   "favicon": "/favicon.ico",
   "defaultSeo": {
-    "metaTitle": "Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn",
-    "metaDescription": "Lorem ipsum xây dựng những công cụ tập trung cho các nhóm đang phát triển: tự động hóa quy trình, phân tích thời gian thực và cộng tác nhóm.",
-    "ogImage": "/uploads/hero-banner.jpg"
+    "metaTitle": "Atlas Robotics — Robot, Vệ Tinh, Và Phần Mềm Kết Nối Chúng",
+    "metaDescription": "Atlas Robotics chế tạo cánh tay robot, robot bốn chân, nền tảng robot hình người, và mạng lưới vệ tinh trung chuyển giữ chúng luôn kết nối.",
+    "ogImage": "/uploads/boston-dynamics-robot-in-a-car-factory.jpg"
   },
   "socialLinks": [
     {

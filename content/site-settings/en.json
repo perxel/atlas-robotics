@@ -1,11 +1,11 @@
 {
-  "title": "Lorem ipsum",
+  "title": "Atlas Robotics",
   "logo": "/uploads/placeholder-logo.svg",
   "favicon": "/favicon.ico",
   "defaultSeo": {
-    "metaTitle": "Lorem ipsum — Automate, Understand, and Sync Your Team's Work",
-    "metaDescription": "Lorem ipsum builds focused tools for growing teams: workflow automation, real-time analytics, and team collaboration.",
-    "ogImage": "/uploads/hero-banner.jpg"
+    "metaTitle": "Atlas Robotics — Robots, Satellites, and the Software Between Them",
+    "metaDescription": "Atlas Robotics builds robotic arms, quadrupeds, humanoid platforms, and the orbital relay network that keeps them connected.",
+    "ogImage": "/uploads/boston-dynamics-robot-in-a-car-factory.jpg"
   },
   "socialLinks": [
     { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },

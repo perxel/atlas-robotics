@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { translateText } from "@/cms/multilingual";
 import { paginateItems, redirectIfPageMismatch } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
+import CoverMedia from "@/components/CoverMedia";
 import {
   type Locale,
   CMSCollection,
@@ -141,8 +142,7 @@ export async function ProductsArchive({
             className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
           >
             {product.seo?.ogImage && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <CoverMedia
                 src={product.seo.ogImage}
                 alt={product.seo.ogImageAlt || product.title}
                 className="aspect-video w-full object-cover"

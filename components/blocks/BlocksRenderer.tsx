@@ -2,6 +2,7 @@ import { tinaField } from "tinacms/dist/react";
 import type { PagesQuery } from "@/tina/__generated__/types";
 import { type Locale, type BlogPostItem, type ProductItem } from "@/lib/cms-server";
 import Hero from "./Hero";
+import MediaGalleryBlock from "./MediaGalleryBlock";
 import RichTextBlock from "./RichTextBlock";
 import Cta from "./Cta";
 import FeatureGrid from "./FeatureGrid";
@@ -68,6 +69,7 @@ export default function BlocksRenderer({
         return (
           <div key={i} data-tina-field={tinaField(block)}>
             {block.__typename === "PagesBlocksHero" && <Hero data={block} />}
+            {block.__typename === "PagesBlocksMediaGallery" && <MediaGalleryBlock data={block} />}
             {block.__typename === "PagesBlocksRichText" && <RichTextBlock data={block} />}
             {block.__typename === "PagesBlocksCta" && <Cta data={block} />}
             {block.__typename === "PagesBlocksFeatureGrid" && <FeatureGrid data={block} />}

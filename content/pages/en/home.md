@@ -1,81 +1,153 @@
 ---
-title: 'Lorem ipsum — Automate, Understand, and Sync Your Team''s Work'
+title: 'Atlas Robotics — Robots, Satellites, and the Software Between Them'
 slug: home
 draft: false
 publishDate: '2026-08-06T00:00:00.000Z'
 hideTitle: true
 blocks:
   - slides:
-      - heading: Do more with less busywork
+      - heading: Robots Built for Real Work
         subheading: >-
-          Lorem ipsum helps growing teams automate the boring parts, see
-          what's actually happening, and stay in sync — without hiring more
-          people to manage the chaos.
-        image: /uploads/hero-banner.jpg
-        video: /uploads/hero-video-1.mp4
-        buttonLabel: Get started free
-        buttonUrl: /contact
-      - heading: See what's actually happening, in real time
+          From a factory floor to a hospital corridor, Atlas Robotics builds
+          machines that hold up under a full shift — not just a demo reel.
+        image: /uploads/boston-dynamics-robot-in-a-car-factory.jpg
+        imageAlt: 'A humanoid factory robot standing on an automotive assembly line'
+        video: /uploads/automated-factory-conveyor-in-action.mp4
+        buttonLabel: See our products
+        buttonUrl: /products
+      - heading: Beyond the Ground
         subheading: >-
-          Ipsum Insights turns scattered spreadsheets into live dashboards
-          your whole team can trust.
-        image: /uploads/hero-banner-2.jpg
-        buttonLabel: Explore Ipsum Insights
-        buttonUrl: /products/ipsum-insights
-      - heading: Keep your team in sync, always
+          Orbit Relay keeps every robot we build connected, even across
+          terrain that would otherwise break the signal.
+        video: /uploads/futuristic-spaceships-orbiting-earth-in-space.mp4
+        buttonLabel: Explore Orbit Relay
+        buttonUrl: /products/orbit-relay
+      - heading: Wherever the Terrain Goes
         subheading: >-
-          One shared workspace for projects, docs, and conversations —
-          Ipsum Sync replaces the scavenger hunt.
-        image: /uploads/hero-banner-3.jpg
-        buttonLabel: Explore Ipsum Sync
-        buttonUrl: /products/ipsum-sync
+          Stairs, snow, loading docks — the places a wheeled robot gives up
+          are exactly where ours get to work.
+        image: /uploads/winter-mountain-hiker-on-snowy-summit.jpg
+        imageAlt: 'A hiker crossing a snowy mountain summit'
+        video: /uploads/stunning-aerial-view-of-snowy-mountains.mp4
+        buttonLabel: Meet Rex
+        buttonUrl: /products/rex
+      - heading: Precision, Down to the Joint
+        subheading: >-
+          Every part we can't buy right, we print or machine ourselves —
+          engineering-grade, on our own floor.
+        video: /uploads/high-tech-3d-printer-manufacturing-process.mp4
+        buttonLabel: See how it's made
+        buttonUrl: /products/formprint-3d
+      - heading: A Team Behind the Machines
+        subheading: >-
+          Robotics is the product. The people who build it still take a
+          holiday off — read what we've been up to.
+        video: /uploads/elegant-table-set-up-for-christmas.mp4
+        buttonLabel: Read our blog
+        buttonUrl: /blog
     _template: hero
-  - heading: Why teams choose Lorem ipsum
+  - heading: Highlights
+    subheading: A closer look at what we build, in motion.
     items:
-      - icon: "⚡"
-        title: Set up in an afternoon
-        description: 'No engineering ticket required — connect your tools and go live the same day.'
-      - icon: "🔒"
-        title: Built for how teams actually work
-        description: 'Role-based access, full audit trails, and SSO on every plan.'
-      - icon: "❤️"
-        title: Loved by 2,000+ teams
-        description: 'From five-person startups to hundred-person operations teams.'
-    _template: featureGrid
-  - heading: Everything you need to run smoother operations
-    subheading: Three products, one account.
+      - media: /uploads/close-up-of-a-metallic-robot-arm-in-black-and-white.jpg
+        caption: 'Atlas Arm''s joint assembly, machined from aircraft-grade aluminum.'
+        heading: Built to Last a Shift
+        subheading: Sub-millimeter precision, rated for three shifts a day.
+        buttonLabel: See Atlas Arm
+        buttonUrl: /products/atlas-arm
+      - media: /uploads/advanced-cyberdog-robot-on-display-indoors.jpg
+        caption: Rex, our quadruped inspection and patrol robot.
+        heading: Four Legs, No Limits
+        subheading: Stairs, cable runs, loading docks — nothing a wheel could handle.
+        buttonLabel: Meet Rex
+        buttonUrl: /products/rex
+      - media: /uploads/futuristic-chrome-robot-sculpture-in-urban-setting.jpg
+        caption: Sentinel Chrome, our humanoid platform for public-facing spaces.
+        heading: A Presence, Not Just a Machine
+        subheading: 34 degrees of freedom, moving the way people actually expect.
+        buttonLabel: See Sentinel Chrome
+        buttonUrl: /products/sentinel-chrome
+      - media: /uploads/spaceship-fleet-orbiting-earth-in-outer-space.mp4
+        caption: Part of the Orbit Relay constellation, holding formation.
+        heading: A Network in Orbit
+        subheading: Sub-40ms relay latency, keeping fleets connected from above.
+        buttonLabel: Explore Orbit Relay
+        buttonUrl: /products/orbit-relay
+      - media: /uploads/adventurous-hiker-in-snowy-mountains.mp4
+        caption: The kind of terrain Rex is built to patrol without a ramp.
+        heading: Wherever the Trail Leads
+        subheading: We test where wheels give up.
+        buttonLabel: Read the trip report
+        buttonUrl: /blog/above-the-clouds-snowy-summit-hike
+      - media: /uploads/the-seljalandsfoss-waterfall-iceland.jpg
+        caption: Seljalandsfoss, Iceland — one of the places our team went looking for inspiration.
+        heading: 'Iceland, On Foot'
+        subheading: Field notes from the team, not just from the workshop.
+        buttonLabel: Read the story
+        buttonUrl: /blog/seljalandsfoss-icelands-waterfall
+      - media: /uploads/group-of-people-gathers-around-a-table-working-while-having-coffee.mp4
+        caption: Our installation team planning a layout change over coffee.
+        heading: The Room Behind the Robots
+        subheading: Every machine ships with people who actually answer the phone.
+      - media: /uploads/christmas-table-set-up.mp4
+        caption: A holiday table, set the way our kitchen team sets everything — deliberately.
+        heading: A Table Worth Setting
+        subheading: We build robots. We also take a break sometimes.
+        buttonLabel: Read the story
+        buttonUrl: /blog/a-chefs-christmas-table
+      - media: /uploads/toy-robot-in-pink-and-blue-background.jpg
+        caption: Toybox Mini, our companion robot for kids.
+        heading: Small Enough to Hug
+        subheading: The same safety engineering, scaled down for a five-year-old.
+        buttonLabel: Meet Toybox Mini
+        buttonUrl: /products/toybox-mini
+    _template: mediaGallery
+  - heading: Why facilities choose Atlas Robotics
     items:
-      - icon: "🔁"
-        title: Automation
-        description: Turn approvals and handoffs into a rule with Ipsum Flow.
-      - icon: "📊"
-        title: Analytics
-        description: Live dashboards and scheduled reports with Ipsum Insights.
-      - icon: "🤝"
-        title: Collaboration
-        description: One shared workspace for your whole team with Ipsum Sync.
+      - icon: "🛠️"
+        title: Installed in days, not months
+        description: 'Most units are up and running within two weeks of arrival, safety validation included.'
+      - icon: "🦺"
+        title: Built to work alongside people
+        description: 'Force-limited joints and vision-based safety zones — no cage required on most units.'
+      - icon: "📡"
+        title: Backed by our own network
+        description: 'Every fleet stays connected through Orbit Relay, even across sites Wi-Fi can''t reach.'
     _template: featureGrid
-  - heading: Our products
-    subheading: Three ways to run smoother operations, in one account.
+  - heading: What we build
+    subheading: Three product lines, one engineering team.
+    items:
+      - icon: "🦾"
+        title: Robotics
+        description: Arms, quadrupeds, and humanoid platforms — Atlas Arm, Rex, Sentinel Chrome, and more.
+      - icon: "🛰️"
+        title: Space Tech
+        description: Orbit Relay keeps ground fleets connected from low earth orbit.
+      - icon: "🏭"
+        title: Industrial Automation
+        description: FormPrint 3D and FlowLine keep a factory floor running without a redesign.
+    _template: featureGrid
+  - heading: Our latest robots
+    subheading: A look at what just shipped.
     mode: latest
     productsToShow: 3
     _template: productListing
-  - heading: From the blog
-    subheading: Playbooks and product news from the Lorem ipsum team.
+  - heading: From the field
+    subheading: Trip reports, workshop notes, and the occasional holiday dinner — from the Atlas Robotics team.
     postsToShow: 3
     _template: featuredBlogPosts
   - heading: Stay in the loop
-    subheading: Product updates and playbooks, once a month. No spam.
+    subheading: New robots and field notes, once a month. No spam.
     _template: newsletter
-  - heading: Ready to get started?
-    buttonLabel: Talk to us
+  - heading: Ready to put a robot to work?
+    buttonLabel: Talk to sales
     buttonUrl: /contact
     _template: cta
 seo:
-  metaTitle: 'Lorem ipsum — Automate, Understand, and Sync Your Team''s Work'
+  metaTitle: 'Atlas Robotics — Robots, Satellites, and the Software Between Them'
   metaDescription: >-
-    Lorem ipsum helps growing teams automate busywork, see what's happening
-    in real time, and stay in sync — Ipsum Flow, Ipsum Insights, and Ipsum
-    Sync in one account.
-  ogImage: /uploads/hero-banner.jpg
+    Atlas Robotics builds robotic arms, quadrupeds, humanoid platforms, and
+    the orbital relay network that keeps them connected — engineered for
+    real factory floors, not demo reels.
+  ogImage: /uploads/boston-dynamics-robot-in-a-car-factory.jpg
 ---

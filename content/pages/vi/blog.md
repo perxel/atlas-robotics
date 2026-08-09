@@ -6,7 +6,7 @@ publishDate: '2026-08-07T00:00:00.000Z'
 blocks:
   - _template: blogListing
 seo:
-  metaTitle: Blog — Lorem ipsum
-  metaDescription: Bí quyết vận hành, tin tức sản phẩm và câu chuyện từ đội ngũ Lorem ipsum.
+  metaTitle: Blog — Atlas Robotics
+  metaDescription: Nhật ký chuyến đi, ghi chú xưởng chế tạo, và câu chuyện từ đội ngũ Atlas Robotics.
   ogImage: ''
 ---

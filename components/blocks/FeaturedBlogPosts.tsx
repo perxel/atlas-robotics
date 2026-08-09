@@ -4,6 +4,7 @@ import type { PagesBlocksFeaturedBlogPosts } from "@/tina/__generated__/types";
 import type { Locale, BlogPostItem } from "@/lib/cms-server";
 import { CMSCollection } from "@/lib/registry";
 import { translateText } from "@/cms/multilingual";
+import CoverMedia from "@/components/CoverMedia";
 
 export default function FeaturedBlogPosts({
   data,
@@ -45,8 +46,7 @@ export default function FeaturedBlogPosts({
               className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
             >
               {post.seo?.ogImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <CoverMedia
                   src={post.seo.ogImage}
                   alt={post.seo.ogImageAlt || post.title}
                   className="aspect-video w-full object-cover"

@@ -1,5 +1,6 @@
 import type {Collection} from "tinacms";
 import {defineContentCollection} from "@/cms/define-content-collection";
+import {galleryField} from "@/cms/collection";
 import {taxonomyField} from "@/cms/taxonomy";
 import {collectionPathConfig, defaultLocale, type Locale} from "@/lib/registry";
 
@@ -23,6 +24,7 @@ export const productsCollection: Collection = defineContentCollection<Locale>({
             list: true,
             description: "Short feature bullets shown on the product card and detail page.",
         },
+        galleryField(),
     ],
     taxonomyFields: [taxonomyField({taxonomy: "productCategories", label: "Categories"})],
     body: {kind: "richtext"},

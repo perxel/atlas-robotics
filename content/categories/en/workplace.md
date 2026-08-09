@@ -1,0 +1,4 @@
+---
+title: 'Workplace'
+slug: workplace
+---

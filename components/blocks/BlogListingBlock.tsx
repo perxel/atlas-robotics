@@ -6,6 +6,7 @@ import type { Locale, CollectionKey, BlogPostItem } from "@/lib/cms-server";
 import { CMSCollection, CMSTaxonomy } from "@/lib/registry";
 import { paginateItems } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
+import CoverMedia from "@/components/CoverMedia";
 
 const COLLECTION: CollectionKey = "blog";
 
@@ -49,8 +50,7 @@ export default function BlogListingBlock({
           >
             <Link href={blogPath(`/${post.slug}`)}>
               {post.seo?.ogImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <CoverMedia
                   src={post.seo.ogImage}
                   alt={post.seo.ogImageAlt || post.title}
                   className="aspect-video w-full object-cover"

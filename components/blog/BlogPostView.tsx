@@ -10,6 +10,8 @@ import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import type { BlogQuery, BlogQueryVariables } from "@/tina/__generated__/types";
 import Breadcrumb from "@/components/Breadcrumb";
+import CoverMedia from "@/components/CoverMedia";
+import MediaGrid from "@/components/MediaGrid";
 
 export default function BlogPostView({
   query,
@@ -48,11 +50,10 @@ export default function BlogPostView({
     <>
       <article className="mx-auto max-w-3xl px-4 py-12">
         {post.seo?.ogImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <CoverMedia
             src={post.seo.ogImage}
             alt={post.seo.ogImageAlt || post.title}
-            data-tina-field={tinaField(post.seo, "ogImage")}
+            dataTinaField={tinaField(post.seo, "ogImage")}
             className="aspect-video w-full rounded-lg object-cover"
           />
         )}
@@ -101,6 +102,8 @@ export default function BlogPostView({
         <div data-tina-field={tinaField(post, "body")} className="prose prose-sm mt-8 max-w-none">
           <TinaMarkdown content={post.body} />
         </div>
+
+        <MediaGrid items={post.gallery ?? []} heading={t("Gallery")} />
       </article>
 
       {relatedPosts.length > 0 && (
@@ -114,8 +117,7 @@ export default function BlogPostView({
                 className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
               >
                 {related.seo?.ogImage && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <CoverMedia
                     src={related.seo.ogImage}
                     alt={related.seo.ogImageAlt || related.title}
                     className="aspect-video w-full object-cover"

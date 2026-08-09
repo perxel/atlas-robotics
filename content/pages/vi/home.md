@@ -1,72 +1,154 @@
 ---
-title: 'Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn'
+title: 'Atlas Robotics — Robot, Vệ Tinh, Và Phần Mềm Kết Nối Chúng'
 slug: home
 draft: false
 publishDate: '2026-08-06T00:00:00.000Z'
 hideTitle: true
 blocks:
   - slides:
-      - heading: Làm nhiều hơn với ít việc vặt hơn
-        subheading: 'Lorem ipsum giúp các nhóm đang phát triển tự động hóa những phần nhàm chán, thấy rõ điều gì đang thực sự diễn ra, và luôn đồng bộ — mà không cần tuyển thêm người để quản lý sự hỗn loạn.'
-        image: /uploads/hero-banner.jpg
-        video: /uploads/flower.mp4
-        buttonLabel: Bắt đầu miễn phí
-        buttonUrl: /vi/lien-he
-      - heading: 'Thấy rõ mọi thứ đang diễn ra, theo thời gian thực'
-        subheading: Ipsum Insights biến những bảng tính rời rạc thành bảng điều khiển trực tiếp mà cả nhóm bạn có thể tin tưởng.
-        image: /uploads/hero-banner-2.jpg
-        buttonLabel: Khám phá Ipsum Insights
-        buttonUrl: /vi/san-pham/ipsum-insights
-      - heading: Giữ cả nhóm luôn đồng bộ
-        subheading: 'Một không gian làm việc chung cho dự án, tài liệu và hội thoại — Ipsum Sync thay thế cuộc truy lùng thông tin.'
-        image: /uploads/hero-banner-3.jpg
-        buttonLabel: Khám phá Ipsum Sync
-        buttonUrl: /vi/san-pham/ipsum-sync
+      - heading: Robot Được Chế Tạo Cho Công Việc Thực Sự
+        subheading: >-
+          Từ sàn nhà máy đến hành lang bệnh viện, Atlas Robotics chế tạo
+          những cỗ máy trụ vững suốt cả ca làm việc — không chỉ đẹp trong
+          video demo.
+        image: /uploads/boston-dynamics-robot-in-a-car-factory.jpg
+        imageAlt: 'Robot hình người đứng trên dây chuyền lắp ráp ô tô'
+        video: /uploads/automated-factory-conveyor-in-action.mp4
+        buttonLabel: Xem sản phẩm của chúng tôi
+        buttonUrl: /vi/san-pham
+      - heading: Vượt Ra Ngoài Mặt Đất
+        subheading: >-
+          Orbit Relay giữ mọi robot chúng tôi chế tạo luôn kết nối, kể cả
+          qua địa hình vốn sẽ làm mất tín hiệu.
+        video: /uploads/futuristic-spaceships-orbiting-earth-in-space.mp4
+        buttonLabel: Khám phá Orbit Relay
+        buttonUrl: /vi/san-pham/orbit-relay
+      - heading: Bất Kể Địa Hình Nào
+        subheading: >-
+          Cầu thang, tuyết, bến bốc dỡ — những nơi robot bánh xe phải bỏ
+          cuộc chính là nơi robot của chúng tôi bắt đầu làm việc.
+        image: /uploads/winter-mountain-hiker-on-snowy-summit.jpg
+        imageAlt: 'Người leo núi băng qua đỉnh núi phủ tuyết'
+        video: /uploads/stunning-aerial-view-of-snowy-mountains.mp4
+        buttonLabel: Gặp gỡ Rex
+        buttonUrl: /vi/san-pham/rex
+      - heading: Chính Xác Đến Từng Khớp Nối
+        subheading: >-
+          Mọi linh kiện chúng tôi không thể mua đúng chuẩn, chúng tôi tự in
+          hoặc tự gia công — đạt chuẩn kỹ thuật, ngay trên sàn của mình.
+        video: /uploads/high-tech-3d-printer-manufacturing-process.mp4
+        buttonLabel: Xem cách chúng tôi chế tạo
+        buttonUrl: /vi/san-pham/formprint-3d
+      - heading: Đội Ngũ Đứng Sau Những Cỗ Máy
+        subheading: >-
+          Robot là sản phẩm. Nhưng những người chế tạo ra chúng vẫn có ngày
+          nghỉ lễ — đọc xem chúng tôi đã làm gì.
+        video: /uploads/elegant-table-set-up-for-christmas.mp4
+        buttonLabel: Đọc blog của chúng tôi
+        buttonUrl: /vi/tin-tuc
     _template: hero
-  - heading: Vì sao các nhóm chọn Lorem ipsum
+  - heading: Điểm Nổi Bật
+    subheading: Nhìn gần hơn vào những gì chúng tôi chế tạo, trong chuyển động.
     items:
-      - icon: ⚡
-        title: Thiết lập trong một buổi chiều
-        description: Không cần yêu cầu kỹ thuật — kết nối công cụ của bạn và vận hành ngay trong ngày.
-      - icon: "\U0001F512"
-        title: Xây dựng cho cách các nhóm thực sự làm việc
-        description: 'Phân quyền theo vai trò, nhật ký đầy đủ và SSO trên mọi gói.'
-      - icon: ❤️
-        title: Được hơn 2.000 nhóm tin dùng
-        description: Từ startup năm người đến các nhóm vận hành hàng trăm người.
-    _template: featureGrid
-  - heading: Mọi thứ bạn cần để vận hành trơn tru hơn
-    subheading: 'Ba sản phẩm, một tài khoản duy nhất.'
+      - media: /uploads/close-up-of-a-metallic-robot-arm-in-black-and-white.jpg
+        caption: 'Cụm khớp của Atlas Arm, gia công từ hợp kim nhôm hàng không.'
+        heading: Bền Bỉ Suốt Ca Làm Việc
+        subheading: Độ chính xác dưới milimét, hoạt động ba ca mỗi ngày.
+        buttonLabel: Xem Atlas Arm
+        buttonUrl: /vi/san-pham/atlas-arm
+      - media: /uploads/advanced-cyberdog-robot-on-display-indoors.jpg
+        caption: Rex, robot bốn chân tuần tra và kiểm tra của chúng tôi.
+        heading: Bốn Chân, Không Giới Hạn
+        subheading: Cầu thang, đường dây cáp, bến bốc dỡ — không gì cản được.
+        buttonLabel: Gặp gỡ Rex
+        buttonUrl: /vi/san-pham/rex
+      - media: /uploads/futuristic-chrome-robot-sculpture-in-urban-setting.jpg
+        caption: Sentinel Chrome, nền tảng robot hình người cho không gian công cộng.
+        heading: Một Sự Hiện Diện, Không Chỉ Là Máy Móc
+        subheading: 34 bậc tự do, chuyển động đúng như con người mong đợi.
+        buttonLabel: Xem Sentinel Chrome
+        buttonUrl: /vi/san-pham/sentinel-chrome
+      - media: /uploads/spaceship-fleet-orbiting-earth-in-outer-space.mp4
+        caption: Một phần chòm vệ tinh Orbit Relay, giữ đội hình.
+        heading: Một Mạng Lưới Trên Quỹ Đạo
+        subheading: Độ trễ trung chuyển dưới 40ms, giữ các đội robot kết nối từ trên cao.
+        buttonLabel: Khám phá Orbit Relay
+        buttonUrl: /vi/san-pham/orbit-relay
+      - media: /uploads/adventurous-hiker-in-snowy-mountains.mp4
+        caption: Loại địa hình mà Rex được chế tạo để tuần tra không cần dốc.
+        heading: Bất Kể Con Đường Mòn Dẫn Đến Đâu
+        subheading: Chúng tôi thử nghiệm ở nơi bánh xe phải bỏ cuộc.
+        buttonLabel: Đọc nhật ký chuyến đi
+        buttonUrl: /vi/tin-tuc/above-the-clouds-snowy-summit-hike
+      - media: /uploads/the-seljalandsfoss-waterfall-iceland.jpg
+        caption: Seljalandsfoss, Iceland — một trong những nơi đội ngũ chúng tôi tìm cảm hứng.
+        heading: Iceland, Bằng Đôi Chân
+        subheading: Ghi chép thực địa từ đội ngũ, không chỉ từ xưởng chế tạo.
+        buttonLabel: Đọc bài viết
+        buttonUrl: /vi/tin-tuc/seljalandsfoss-icelands-waterfall
+      - media: /uploads/group-of-people-gathers-around-a-table-working-while-having-coffee.mp4
+        caption: Đội lắp đặt của chúng tôi lên kế hoạch thay đổi bố trí bên tách cà phê.
+        heading: Căn Phòng Đứng Sau Những Robot
+        subheading: Mỗi cỗ máy đều đi kèm con người thực sự nghe máy khi bạn gọi.
+      - media: /uploads/christmas-table-set-up.mp4
+        caption: Một bàn tiệc lễ hội, bày biện theo đúng cách đội bếp của chúng tôi làm mọi thứ — có chủ đích.
+        heading: Một Bàn Tiệc Đáng Được Bày Biện
+        subheading: Chúng tôi chế tạo robot. Đôi khi chúng tôi cũng nghỉ ngơi.
+        buttonLabel: Đọc bài viết
+        buttonUrl: /vi/tin-tuc/a-chefs-christmas-table
+      - media: /uploads/toy-robot-in-pink-and-blue-background.jpg
+        caption: Toybox Mini, robot đồng hành cho trẻ em của chúng tôi.
+        heading: Nhỏ Đủ Để Ôm
+        subheading: Cùng công nghệ an toàn, thu nhỏ lại cho một đứa trẻ năm tuổi.
+        buttonLabel: Gặp gỡ Toybox Mini
+        buttonUrl: /vi/san-pham/toybox-mini
+    _template: mediaGallery
+  - heading: Vì sao các cơ sở chọn Atlas Robotics
     items:
-      - icon: "\U0001F501"
-        title: Tự Động Hóa
-        description: Biến phê duyệt và bàn giao thành một quy tắc với Ipsum Flow.
-      - icon: "\U0001F4CA"
-        title: Phân Tích
-        description: Bảng điều khiển trực tiếp và báo cáo theo lịch với Ipsum Insights.
-      - icon: "\U0001F91D"
-        title: Cộng Tác
-        description: Một không gian làm việc chung cho cả nhóm với Ipsum Sync.
+      - icon: "🛠️"
+        title: Lắp đặt trong vài ngày, không phải vài tháng
+        description: 'Hầu hết máy vận hành trong vòng hai tuần kể từ khi đến nơi, đã bao gồm kiểm định an toàn.'
+      - icon: "🦺"
+        title: Được chế tạo để làm việc cùng con người
+        description: 'Khớp giới hạn lực và vùng an toàn dựa trên thị giác — hầu hết máy không cần rào chắn.'
+      - icon: "📡"
+        title: Được hỗ trợ bởi mạng lưới riêng
+        description: 'Mọi đội robot luôn kết nối qua Orbit Relay, kể cả ở những nơi Wi-Fi không thể chạm tới.'
     _template: featureGrid
-  - heading: Sản phẩm của chúng tôi
-    subheading: 'Ba giải pháp giúp vận hành trơn tru hơn, trong một tài khoản.'
+  - heading: Những gì chúng tôi chế tạo
+    subheading: Ba dòng sản phẩm, một đội ngũ kỹ thuật.
+    items:
+      - icon: "🦾"
+        title: Người Máy
+        description: Cánh tay, robot bốn chân và nền tảng hình người — Atlas Arm, Rex, Sentinel Chrome và hơn thế nữa.
+      - icon: "🛰️"
+        title: Công Nghệ Vũ Trụ
+        description: Orbit Relay giữ các đội robot mặt đất kết nối từ quỹ đạo thấp.
+      - icon: "🏭"
+        title: Tự Động Hóa Công Nghiệp
+        description: FormPrint 3D và FlowLine giữ sàn nhà máy vận hành mà không cần thiết kế lại.
+    _template: featureGrid
+  - heading: Robot mới nhất của chúng tôi
+    subheading: Nhìn qua những gì vừa ra mắt.
     mode: latest
     productsToShow: 3
     _template: productListing
-  - heading: Từ blog của chúng tôi
-    subheading: Bí quyết vận hành và tin tức sản phẩm từ đội ngũ Lorem ipsum.
+  - heading: Từ hiện trường
+    subheading: Nhật ký chuyến đi, ghi chú xưởng chế tạo, và thỉnh thoảng là một bữa tối lễ hội — từ đội ngũ Atlas Robotics.
     postsToShow: 3
     _template: featuredBlogPosts
-  - heading: Đừng bỏ lỡ tin tức mới
-    subheading: 'Cập nhật sản phẩm và bí quyết vận hành, mỗi tháng một lần. Không spam.'
+  - heading: Luôn cập nhật
+    subheading: Robot mới và ghi chép thực địa, mỗi tháng một lần. Không spam.
     _template: newsletter
-  - heading: Sẵn sàng bắt đầu?
-    buttonLabel: Liên hệ với chúng tôi
+  - heading: Sẵn sàng đưa một robot vào vận hành?
+    buttonLabel: Liên hệ đội kinh doanh
     buttonUrl: /vi/lien-he
     _template: cta
 seo:
-  metaTitle: 'Lorem ipsum — Tự Động Hóa, Thấu Hiểu Và Đồng Bộ Công Việc Của Nhóm Bạn'
-  metaDescription: 'Lorem ipsum giúp các nhóm đang phát triển tự động hóa việc vặt, thấy rõ mọi thứ theo thời gian thực và luôn đồng bộ — Ipsum Flow, Ipsum Insights và Ipsum Sync trong một tài khoản.'
-  ogImage: /uploads/hero-banner.jpg
+  metaTitle: 'Atlas Robotics — Robot, Vệ Tinh, Và Phần Mềm Kết Nối Chúng'
+  metaDescription: >-
+    Atlas Robotics chế tạo cánh tay robot, robot bốn chân, nền tảng robot
+    hình người, và mạng lưới vệ tinh trung chuyển giữ chúng luôn kết nối —
+    thiết kế cho sàn nhà máy thực tế, không chỉ video demo.
+  ogImage: /uploads/boston-dynamics-robot-in-a-car-factory.jpg
 ---
-

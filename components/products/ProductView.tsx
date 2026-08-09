@@ -10,6 +10,8 @@ import { translateText } from "@/cms/multilingual";
 import { buildBreadcrumbJsonLd, type BreadcrumbItem } from "@/cms/seo";
 import type { ProductsQuery, ProductsQueryVariables } from "@/tina/__generated__/types";
 import Breadcrumb from "@/components/Breadcrumb";
+import CoverMedia from "@/components/CoverMedia";
+import MediaGrid from "@/components/MediaGrid";
 
 export default function ProductView({
   query,
@@ -55,11 +57,10 @@ export default function ProductView({
     <>
       <article className="mx-auto max-w-3xl px-4 py-12">
         {product.seo?.ogImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <CoverMedia
             src={product.seo.ogImage}
             alt={product.seo.ogImageAlt || product.title}
-            data-tina-field={tinaField(product.seo, "ogImage")}
+            dataTinaField={tinaField(product.seo, "ogImage")}
             className="aspect-video w-full rounded-lg object-cover"
           />
         )}
@@ -125,6 +126,8 @@ export default function ProductView({
           <TinaMarkdown content={product.body} />
         </div>
 
+        <MediaGrid items={product.gallery ?? []} heading={t("Gallery")} />
+
         {contactHref && (
           <div className="mt-10">
             <Link
@@ -148,8 +151,7 @@ export default function ProductView({
                 className="block overflow-hidden rounded-lg border border-border bg-surface hover:border-accent"
               >
                 {related.seo?.ogImage && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <CoverMedia
                     src={related.seo.ogImage}
                     alt={related.seo.ogImageAlt || related.title}
                     className="aspect-video w-full object-cover"

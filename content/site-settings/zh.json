@@ -1,11 +1,11 @@
 {
-  "title": "Lorem ipsum",
+  "title": "Atlas Robotics",
   "logo": "/uploads/placeholder-logo.svg",
   "favicon": "/favicon.ico",
   "defaultSeo": {
-    "metaTitle": "Lorem ipsum — 自动化、洞察并同步您团队的工作",
-    "metaDescription": "Lorem ipsum 为成长型团队打造专注的工具：工作流自动化、实时数据分析与团队协作。",
-    "ogImage": "/uploads/hero-banner.jpg"
+    "metaTitle": "Atlas Robotics — 机器人、卫星,以及连接它们的软件",
+    "metaDescription": "Atlas Robotics 打造机械臂、四足机器人、人形机器人平台,以及让它们保持连接的轨道中继网络。",
+    "ogImage": "/uploads/boston-dynamics-robot-in-a-car-factory.jpg"
   },
   "socialLinks": [
     { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },

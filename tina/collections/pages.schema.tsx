@@ -1,6 +1,7 @@
 import type {Collection, Template} from "tinacms";
 import {defineContentCollection} from "@/cms/define-content-collection";
 import {heroTemplate} from "@/components/blocks/Hero.template";
+import {mediaGalleryTemplate} from "@/components/blocks/MediaGalleryBlock.template";
 import {richTextTemplate} from "@/components/blocks/RichTextBlock.template";
 import {ctaTemplate} from "@/components/blocks/Cta.template";
 import {featureGridTemplate} from "@/components/blocks/FeatureGrid.template";
@@ -14,6 +15,7 @@ import {type Locale, lockedSlugFilenames, reservedSlugs} from "@/lib/registry";
 
 export const pageBlocks: Template[] = [
     heroTemplate,
+    mediaGalleryTemplate,
     richTextTemplate,
     ctaTemplate,
     featureGridTemplate,

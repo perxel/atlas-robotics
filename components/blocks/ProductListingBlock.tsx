@@ -6,6 +6,7 @@ import type { Locale, CollectionKey, ProductItem } from "@/lib/cms-server";
 import { CMSCollection, CMSTaxonomy } from "@/lib/registry";
 import { paginateItems } from "@/cms/pagination";
 import Pagination from "@/components/Pagination";
+import CoverMedia from "@/components/CoverMedia";
 
 const COLLECTION: CollectionKey = "products";
 
@@ -89,8 +90,7 @@ export default function ProductListingBlock({
           >
             <Link href={productPath(`/${product.slug}`)}>
               {product.seo?.ogImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <CoverMedia
                   src={product.seo.ogImage}
                   alt={product.seo.ogImageAlt || product.title}
                   className="aspect-video w-full object-cover"
