@@ -182,7 +182,7 @@ function SeoDashboard<TCollectionName extends string, TLocale extends string>({
 
     return (
         <div style={{padding: 24}}>
-            <h1 style={{fontSize: 20, fontWeight: 600, marginBottom: 12}}>SEO coverage</h1>
+            <h1 style={{fontSize: 20, fontWeight: 600, marginBottom: 12}}>SEO Score</h1>
             <div style={{display: "flex", alignItems: "stretch", gap: 16, marginTop: 8, marginBottom: 24}}>
 
                 {/*left — overall score*/}
@@ -337,7 +337,7 @@ export function createSeoDashboardScreen<TCollectionName extends string, TLocale
 ): ScreenPlugin {
     return {
         __type: "screen",
-        name: "SEO Coverage",
+        name: "SEO Score",
         Component: () => <SeoDashboard dashboard={dashboard}/>,
         Icon: SeoIcon,
         layout: "fullscreen",

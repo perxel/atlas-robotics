@@ -1,22 +1,23 @@
 ---
-title: 'Ipsum Alerts'
+title: Ipsum Alerts
 slug: ipsum-alerts
-draft: false
-publishDate: '2026-08-07T00:00:00.000Z'
 excerpt: 'Know the moment something needs attention, with custom thresholds delivered to Slack, email, or SMS.'
-price: '$12/mo'
-highlights:
-  - 'Custom thresholds on any metric'
-  - 'Delivered to Slack, email, or SMS'
-  - 'Snooze and escalation rules built in'
+draft: false
+publishDate: 2026-08-07T00:00:00.000Z
+modifiedDate: 2026-08-09T03:23:34.574Z
 productCategories:
   - term: content/productCategories/en/analytics.md
   - term: content/productCategories/en/automation.md
 seo:
-  metaTitle: 'Ipsum Alerts — Threshold Alerts For Any Metric'
-  metaDescription: 'Set a threshold once and get notified the moment it is crossed, starting at $12/mo.'
+  metaTitle: Ipsum Alerts — Threshold Alerts For Any Metric
+  metaDescription: ''
   ogImage: /uploads/product-ipsum-flow.jpg
-  ogImageAlt: 'Abstract alert-threshold visual for Ipsum Alerts'
+  ogImageAlt: Abstract alert-threshold visual for Ipsum Alerts
+price: $12/mo
+highlights:
+  - Custom thresholds on any metric
+  - 'Delivered to Slack, email, or SMS'
+  - Snooze and escalation rules built in
 ---
 
 Dashboards only help if someone is looking at them. **Ipsum Alerts** watches the metrics for you, and only interrupts you when something actually needs attention.
@@ -25,9 +26,9 @@ Dashboards only help if someone is looking at them. **Ipsum Alerts** watches the
 
 Set a threshold on any metric coming out of Ipsum Insights, choose where it should go, and Ipsum Alerts handles the watching from there.
 
-- Custom thresholds on any metric, not a fixed preset list
-- Delivered wherever your team already looks: Slack, email, or SMS
-- Snooze a noisy alert, or set escalation rules for the ones that matter
+* Custom thresholds on any metric, not a fixed preset list
+* Delivered wherever your team already looks: Slack, email, or SMS
+* Snooze a noisy alert, or set escalation rules for the ones that matter
 
 ## Who it's for
 
