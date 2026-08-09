@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Tina's `image` field type accepts any file, including video (see
@@ -33,25 +36,58 @@ export default function CoverMedia({
    * image never renders full-bleed (a grid card, a half-width panel, ...) so
    * the CDN doesn't ship a full-viewport-wide image for a small slot. */
   sizes?: string;
-  /** Passed straight to next/image's `priority` — set true only for a
-   * call site that's genuinely above the fold (a single article/product
-   * hero, not a grid card), so that image skips lazy-loading. No effect
-   * on the video branch; video has no equivalent eager-fetch hint here. */
+  /** Passed straight to next/image's `priority` for the image branch. For
+   * the video branch, `true` skips viewport-gating instead (see below) —
+   * both mean the same thing, "this call site is above the fold." */
   priority?: boolean;
 }) {
-  if (isVideoSrc(src)) {
+  // <video> has no lazy-loading equivalent to next/image's built-in one,
+  // and `preload="metadata"` isn't enough on its own: a muted `autoPlay`
+  // video gets buffered by the browser regardless of that hint, so every
+  // CoverMedia video on a page — MediaGalleryBlock renders up to 5 full
+  // -viewport sections at once — downloaded in full on initial load
+  // regardless of scroll position (confirmed live: ~28MB of video
+  // transferred on a single homepage load in Lighthouse). Mounting the
+  // <video> element itself only once its wrapper actually intersects the
+  // viewport is the only way to defer that fetch for real.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isVideo = isVideoSrc(src);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(priority);
+
+  useEffect(() => {
+    if (!isVideo || priority) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isVideo, priority]);
+
+  if (isVideo) {
     return (
-      <video
-        src={src}
-        aria-label={alt}
-        data-tina-field={dataTinaField}
-        className={className}
-        autoPlay={autoPlay}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-      />
+      <div ref={containerRef} className={className}>
+        {shouldLoadVideo && (
+          <video
+            src={src}
+            aria-label={alt}
+            data-tina-field={dataTinaField}
+            className="h-full w-full object-cover"
+            autoPlay={autoPlay}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+          />
+        )}
+      </div>
     );
   }
 

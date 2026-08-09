@@ -65,17 +65,24 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
         >
           {slide.video ? (
             loaded.has(i) && (
+              // Only the truly active slide autoplays. The one-slide-ahead
+              // preload used to set `autoPlay` unconditionally too — Chrome
+              // buffers a muted autoplay video regardless of `preload`'s
+              // hint, so that alone downloaded a second full video on every
+              // page load. A not-yet-active slide now only warms up
+              // `preload="metadata"`, and starts playing (and fully
+              // downloading) once the carousel actually reaches it.
               <video
                 src={slide.video}
                 poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1920&q=75` : undefined}
                 data-tina-field={tinaField(slide, "video")}
                 className="absolute inset-0 h-full w-full object-cover"
-                autoPlay
+                autoPlay={i === index}
                 loop
                 muted
                 playsInline
-                preload={i === 0 ? "auto" : "none"}
-                {...({ fetchPriority: i === 0 ? "high" : "low" } as Record<string, string>)}
+                preload={i === index ? "auto" : "metadata"}
+                {...({ fetchPriority: i === index ? "high" : "low" } as Record<string, string>)}
               />
             )
           ) : (

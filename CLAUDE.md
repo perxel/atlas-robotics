@@ -660,3 +660,32 @@ slug changes without a rebuild, defeating the point.
   another inference chain, and load-test any candidate fix (this homepage
   renders ~15 autoplay videos, so match that concurrency) somewhere other
   than production first.
+- **Video is never optimized by anything in this stack, and a muted
+  `autoPlay` `<video>` ignores its own `preload` hint — any new
+  video-carrying component must gate on mount, not on `preload`.**
+  `next/image` (and the Cloudflare Images binding backing it in
+  production) only ever touches `<img>`/`<Image>`; whatever gets uploaded
+  to Tina Cloud ships byte-for-byte, no resize/re-encode pipeline exists
+  for `<video>` at all. Separately, `preload="none"`/`"metadata"` is only
+  an advisory hint — a Chromium browser buffers a muted `autoPlay` video
+  regardless of it, to honor the autoplay. Confirmed live via mobile
+  Lighthouse on 2026-08-09: `Hero.tsx`'s carousel (4 of 5 homepage slides
+  are video) and `MediaGalleryBlock` (renders every item's video via
+  `CoverMedia`, unconditionally `autoPlay`, no viewport gating at all)
+  together transferred **~28MB of video on a single homepage load** —
+  Speed Index 4.3s, LCP 5.6s under mobile throttling, despite desktop
+  looking fine and despite the images-focused fixes above already having
+  landed. **The fix in both places was to stop mounting/autoplaying the
+  `<video>` element until it's actually needed, not to tune `preload`:**
+  `Hero.tsx` only sets `autoPlay` on the slide that's genuinely active
+  (`i === index`), never on the one-slide-ahead preload; `CoverMedia.tsx`'s
+  video branch mounts the `<video>` tag behind a real `IntersectionObserver`
+  (200px `rootMargin`), skipped only when the caller passes `priority`
+  (a genuinely above-the-fold usage, same flag the image branch already
+  used). This generalizes beyond video too: `opacity`/`aria-hidden` alone
+  never defers *any* media fetch, image or video — an element with
+  `opacity: 0` still sits inside the viewport's bounding box, so native
+  lazy-loading can't distinguish it from something actually visible. Any
+  new block/component that renders more than one image or video where only
+  one is meant to be "active" (another carousel, another gallery) needs
+  the same conditional-mount treatment, not a CSS-visibility trick.
