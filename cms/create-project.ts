@@ -96,7 +96,7 @@ export function createCmsProject<
   // collectionRegistry appear to require taxonomy keys and vice versa.
   // NoInfer forces TCollectionName/TTaxonomyName to be inferred only from
   // collectionRegistry/taxonomyRegistry above, as intended.
-  seoDashboardOrder?: readonly NoInfer<ContentCollection<TCollectionName> | TTaxonomyName>[];
+  dashboardOrder?: readonly NoInfer<ContentCollection<TCollectionName> | TTaxonomyName>[];
 }) {
   const CMSCollection = new CollectionService<TCollectionName, TLocale>(config.collectionRegistry, {
     defaultLocale: config.defaultLocale,
@@ -179,7 +179,7 @@ export function createCmsProject<
     CMSSeo,
     locales: config.locales,
     defaultLocale: config.defaultLocale,
-    seoDashboardOrder: config.seoDashboardOrder,
+    dashboardOrder: config.dashboardOrder,
   });
 
   return {

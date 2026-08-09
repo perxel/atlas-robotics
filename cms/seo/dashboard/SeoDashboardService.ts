@@ -1,5 +1,6 @@
 import type { SeoService } from "../SeoService";
 import type { ResolvedSeoValue, SeoAuditRow, SeoCoverage, SeoFieldScore, SeoFields, SeoSourceType } from "../types";
+import { sortByOrder } from "../../sort-by-order";
 
 type SeoIndexEntry<TLocale extends string> = {
   filename: string;
@@ -67,10 +68,7 @@ export class SeoDashboardService<TCollectionName extends string, TLocale extends
   /** Registered names sorted per `options.order`, when given — a stable
    * sort, so unlisted names keep their original relative order at the end. */
   #sortedNames(): TCollectionName[] {
-    const names = this.#deps.getRegisteredCollectionNames();
-    if (!this.#order) return names;
-    const rank = new Map(this.#order.map((name, i) => [name, i]));
-    return [...names].sort((a, b) => (rank.get(a) ?? Infinity) - (rank.get(b) ?? Infinity));
+    return sortByOrder(this.#deps.getRegisteredCollectionNames(), this.#order);
   }
 
   /** Scores a resolved title/description against an ideal character range:

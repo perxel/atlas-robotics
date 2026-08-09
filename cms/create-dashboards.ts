@@ -8,8 +8,8 @@ import type { SeoService } from "./seo/SeoService";
 import type { ContentCollection } from "./create-project";
 
 /**
- * Wires the two admin dashboard screens (SEO coverage, translation
- * coverage) from an already-built CMSCollection/CMSPages/CMSMultilingual —
+ * Wires the two admin dashboard screens (SEO score, translation coverage)
+ * from an already-built CMSCollection/CMSPages/CMSTaxonomy/CMSMultilingual —
  * same generic DI wiring as create-project.ts, which calls this directly
  * and folds its two screens into its own return value. Kept as a separate
  * file for readability (SEO/multilingual dashboard wiring is its own
@@ -32,70 +32,83 @@ export function createCmsDashboards<TCollectionName extends string, TTaxonomyNam
     CMSSeo: SeoService<TLocale>;
     locales: readonly TLocale[];
     defaultLocale: TLocale;
-    /** Optional display order for the SEO dashboard's rows — omit to use
+    /** Optional display order shared by both dashboards' rows — omit to use
      * whatever order `getRegisteredCollectionNames` returns. Names omitted
      * here sort to the end. Not currently set by any registered project. */
-    seoDashboardOrder?: readonly (ContentCollection<TCollectionName> | TTaxonomyName)[];
+    dashboardOrder?: readonly (ContentCollection<TCollectionName> | TTaxonomyName)[];
   }
 ) {
   /**
-   * The SEO dashboard's source set — deliberately *not* the same type as
-   * `ContentCollection`, even though it's a superset of it: taxonomies
-   * (`categories`, `productCategories`) have their own SEO fields (a
-   * term's archive page, e.g. `/blog/category/news`, is a real visited
-   * URL) without being individually-publishable content themselves. "Has
-   * SEO" and "is a ContentCollection" are different, overlapping traits.
+   * The shared source set for both dashboards — deliberately *not* the same
+   * type as `ContentCollection`, even though it's a superset of it:
+   * taxonomies (`categories`, `productCategories`) have their own SEO
+   * fields (a term's archive page, e.g. `/blog/category/news`, is a real
+   * visited URL) and their own translation coverage (a term store is
+   * itself locale-directory content, same as any other collection) without
+   * being individually-publishable content themselves. "Has SEO/coverage"
+   * and "is a ContentCollection" are different, overlapping traits.
    */
-  type SeoSource = ContentCollection<TCollectionName> | TTaxonomyName;
+  type DashboardSource = ContentCollection<TCollectionName> | TTaxonomyName;
 
   const taxonomyNames = new Set<TTaxonomyName>(config.CMSTaxonomy.getRegisteredTaxonomyNames());
-  const isTaxonomyName = (name: SeoSource): name is TTaxonomyName => taxonomyNames.has(name as TTaxonomyName);
+  const isTaxonomyName = (name: DashboardSource): name is TTaxonomyName => taxonomyNames.has(name as TTaxonomyName);
 
-  const getLabel = (name: SeoSource): string =>
+  const getRegisteredDashboardSourceNames = (): DashboardSource[] => [
+    ...config.CMSCollection.getRegisteredCollectionNames(),
+    "pages",
+    ...config.CMSTaxonomy.getRegisteredTaxonomyNames(),
+  ];
+
+  const getLabel = (name: DashboardSource): string =>
     name === "pages"
       ? "Pages"
       : isTaxonomyName(name)
         ? config.CMSTaxonomy.getLabel(name)
         : config.CMSCollection.getLabel(name as TCollectionName);
 
-  const getType = (name: SeoSource): "content" | "taxonomy" => (isTaxonomyName(name) ? "taxonomy" : "content");
+  const getType = (name: DashboardSource): "content" | "taxonomy" => (isTaxonomyName(name) ? "taxonomy" : "content");
+
+  const getSeoIndex = (name: DashboardSource) =>
+    name === "pages"
+      ? config.CMSPages.getSeoIndex()
+      : isTaxonomyName(name)
+        ? config.CMSTaxonomy.getSeoIndex(name)
+        : config.CMSCollection.getSeoIndex(name as TCollectionName);
 
   const seoDashboardScreen = createSeoDashboardScreen(
-    new SeoDashboardService<SeoSource, TLocale>(
+    new SeoDashboardService<DashboardSource, TLocale>(
       {
-        getRegisteredCollectionNames: (): SeoSource[] => [
-          ...config.CMSCollection.getRegisteredCollectionNames(),
-          "pages",
-          ...config.CMSTaxonomy.getRegisteredTaxonomyNames(),
-        ],
-        getSeoIndex: (collectionName) =>
-          collectionName === "pages"
-            ? config.CMSPages.getSeoIndex()
-            : isTaxonomyName(collectionName)
-              ? config.CMSTaxonomy.getSeoIndex(collectionName)
-              : config.CMSCollection.getSeoIndex(collectionName as TCollectionName),
+        getRegisteredCollectionNames: getRegisteredDashboardSourceNames,
+        getSeoIndex,
         getLabel,
         getType,
         seoService: config.CMSSeo,
       },
-      { locales: config.locales, defaultLocale: config.defaultLocale, order: config.seoDashboardOrder }
+      { locales: config.locales, defaultLocale: config.defaultLocale, order: config.dashboardOrder }
     )
   );
 
   const translationDashboardScreen = config.CMSMultilingual.isEnabled()
     ? createTranslationDashboardScreen(
-        new TranslationDashboardService<ContentCollection<TCollectionName>, TLocale>(
+        new TranslationDashboardService<DashboardSource, TLocale>(
           {
-            getRegisteredCollectionNames: (): ContentCollection<TCollectionName>[] => [
-              ...config.CMSCollection.getRegisteredCollectionNames(),
-              "pages",
-            ],
-            getItemLocaleIndex: (collectionName) =>
-              collectionName === "pages"
-                ? config.CMSPages.getSeoIndex()
-                : config.CMSCollection.getItemLocaleIndex(collectionName as TCollectionName),
+            getRegisteredCollectionNames: getRegisteredDashboardSourceNames,
+            // `getSeoIndex`'s `{filename, locale, slug, seo, fallback}` is
+            // structurally compatible with the `{filename, locale}[]`
+            // getItemLocaleIndex needs — reused as-is for "pages" and
+            // taxonomies (neither has a lighter-weight index of its own);
+            // regular collections get CollectionService's cheaper index
+            // instead, since it doesn't need to read seo/slug at all.
+            getItemLocaleIndex: (name) =>
+              name === "pages" || isTaxonomyName(name) ? getSeoIndex(name) : config.CMSCollection.getItemLocaleIndex(name),
+            getLabel,
+            getType,
           },
-          { locales: config.CMSMultilingual.getEnabledLocales(), defaultLocale: config.defaultLocale }
+          {
+            locales: config.CMSMultilingual.getEnabledLocales(),
+            defaultLocale: config.defaultLocale,
+            order: config.dashboardOrder,
+          }
         )
       )
     : null;
