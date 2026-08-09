@@ -61,5 +61,17 @@ export const contactFormTemplate: Template = {
       label: "Submit Button Label",
       description: "Leave blank to use the site default.",
     },
+    {
+      type: "image",
+      name: "media",
+      label: "Side Image or Video",
+      description:
+        "Optional. Shown beside the form (left on desktop, above it on mobile). Tina's image field accepts any file — set a video (.mp4) to autoplay it muted/looped. Leave blank to render the form alone, centered.",
+    },
+    {
+      type: "string",
+      name: "mediaAlt",
+      label: "Side Image/Video Alt Text",
+    },
   ],
 };

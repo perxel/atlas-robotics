@@ -1,7 +1,8 @@
-import { tinaField } from "tinacms/dist/react";
-import type { PagesBlocksContactForm } from "@/tina/__generated__/types";
-import { translateText } from "@/cms/multilingual";
-import ContactForm, { type ContactFormCopy } from "./ContactForm";
+import {tinaField} from "tinacms/dist/react";
+import type {PagesBlocksContactForm} from "@/tina/__generated__/types";
+import {translateText} from "@/cms/multilingual";
+import CoverMedia from "@/components/CoverMedia";
+import ContactForm, {type ContactFormCopy} from "./ContactForm";
 
 export default function ContactFormBlock({
   data,
@@ -32,8 +33,8 @@ export default function ContactFormBlock({
     error: t("Something went wrong. Please try again."),
   };
 
-  return (
-    <section className="mx-auto max-w-xl px-4 py-12">
+    const form = (
+        <div>
       {data.subheading && (
         <p
           data-tina-field={tinaField(data, "subheading")}
@@ -43,6 +44,26 @@ export default function ContactFormBlock({
         </p>
       )}
       <ContactForm fields={fields} />
+        </div>
+    );
+
+    if (!data.media) {
+        return <section className="mx-auto max-w-xl px-4 py-12">{form}</section>;
+    }
+
+    return (
+        <section className="my-container py-12">
+            <div className="grid gap-10 md:grid-cols-2 md:items-stretch">
+                <div className="relative min-h-64 overflow-hidden rounded-lg md:min-h-full">
+                    <CoverMedia
+                        src={data.media}
+                        alt={data.mediaAlt || ""}
+                        dataTinaField={tinaField(data, "media")}
+                        className="absolute inset-0 h-full w-full object-cover"
+                    />
+                </div>
+                <div className="flex flex-col justify-center">{form}</div>
+            </div>
     </section>
   );
 }
