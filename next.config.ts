@@ -9,6 +9,13 @@ import type { NextConfig } from "next";
 // needs entries here: en's segments already match the physical folder
 // names verbatim, so there's nothing to translate or redirect for it.
 const nextConfig: NextConfig = {
+  // Off by default, so production chunks ship with no accompanying .map —
+  // Lighthouse flags this and it also blocks reading real stack traces from
+  // prod error reports. The .map files land in .open-next/assets next to
+  // their chunks and opennextjs-cloudflare uploads them as static assets
+  // like any other file, so no separate wiring is needed on the Cloudflare
+  // side.
+  productionBrowserSourceMaps: true,
   images: {
     // Repo-based media (see CLAUDE.md's "TinaCMS" section) is synced to and
     // served from TinaCloud's asset CDN in production, not from this app's
