@@ -89,6 +89,16 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
   `components/blocks/<Name>.template.tsx`. This follows Tina's own
   naming-conventions guide (https://tina.io/docs/guides/naming-conventions)
   rather than one large inline schema file.
+- **Collection filenames are prefixed by group, hyphenated, no dots:**
+  content collections that stand on their own (`pages`, `blog`, `products`)
+  get no prefix; a collection that only makes sense attached to another one
+  is prefixed with that collection's name (`product-categories.schema.tsx`,
+  `blog-categories.schema.tsx` — both taxonomies, see "Taxonomies" below);
+  the global/singleton config documents are prefixed `site-`
+  (`site-settings.schema.tsx`, `site-nav.schema.tsx`,
+  `site-footer.schema.tsx`, `site-multilingual.schema.tsx`). Keep new
+  collections in one of these three groups rather than inventing a fourth
+  naming shape.
 - Media is repo-based (`media.tina` in the config, `publicFolder: "public"`,
   `mediaRoot: "uploads"`) — uploads land in `public/uploads`, not an external
   provider. Tina's `image` field type accepts any file (PDFs included).
