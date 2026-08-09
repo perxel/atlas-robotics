@@ -30,7 +30,7 @@ export default function MediaGalleryBlock({ data }: { data: PagesBlocksMediaGall
             src={item.media!}
             alt={item.caption || item.heading || ""}
             dataTinaField={tinaField(item, "media")}
-            className="h-full w-full"
+            className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/30" />
 
