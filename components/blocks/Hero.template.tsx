@@ -13,7 +13,7 @@ export const heroTemplate: Template = {
         itemProps: (item) => ({ label: item?.heading || "Slide" }),
       },
       fields: [
-        { type: "string", name: "heading", label: "Heading", required: true },
+        { type: "string", name: "heading", label: "Heading" },
         { type: "string", name: "subheading", label: "Subheading" },
         {
           type: "image",

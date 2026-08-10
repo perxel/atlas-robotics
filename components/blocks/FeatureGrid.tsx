@@ -7,9 +7,11 @@ export default function FeatureGrid({ data }: { data: PagesBlocksFeatureGrid }) 
   return (
     <section className="mx-auto my-container px-4 py-16">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
-          {data.heading}
-        </h2>
+        {data.heading && (
+          <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
+            {data.heading}
+          </h2>
+        )}
         {data.subheading && (
           <p
             data-tina-field={tinaField(data, "subheading")}
@@ -25,7 +27,7 @@ export default function FeatureGrid({ data }: { data: PagesBlocksFeatureGrid }) 
           {items.map((item, i) => (
             <div key={i} data-tina-field={tinaField(item)} className="text-center sm:text-left">
               {item.icon && <div className="text-3xl">{item.icon}</div>}
-              <h3 className="mt-3 font-semibold">{item.title}</h3>
+              {item.title && <h3 className="mt-3 font-semibold">{item.title}</h3>}
               {item.description && (
                 <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
               )}

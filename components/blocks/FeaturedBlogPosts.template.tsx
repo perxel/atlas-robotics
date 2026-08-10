@@ -4,7 +4,7 @@ export const featuredBlogPostsTemplate: Template = {
   name: "featuredBlogPosts",
   label: "Featured Blog Posts",
   fields: [
-    { type: "string", name: "heading", label: "Heading", required: true },
+    { type: "string", name: "heading", label: "Heading" },
     { type: "string", name: "subheading", label: "Subheading" },
     {
       type: "number",

@@ -1,14 +1,16 @@
 import type { Template } from "tinacms";
 
 // No `heading` field: the page's own title (rendered by PageView above the
-// blocks) already covers that for a page like Contact, and a `heading`
-// field here would collide at the GraphQL level with the required
-// `heading` other block templates declare — Tina's query builder merges
-// same-named fields across sibling block types and errors on a
-// nullability mismatch: "Fields \"heading\" conflict because they return
-// conflicting types \"String!\" and \"String\"" (confirmed by hitting that
-// error directly). `subheading` is optional on every other block that has
-// it too, so it's safe.
+// blocks) already covers that for a page like Contact. (A `heading` field
+// here used to also risk colliding at the GraphQL level — Tina's query
+// builder merges same-named fields across sibling block types in the
+// `blocks` union and errors on a nullability mismatch:
+// "Fields \"heading\" conflict because they return conflicting types
+// \"String!\" and \"String\"" [confirmed by hitting that error directly]
+// — now moot, see BlocksRenderer.tsx's top comment: every block field is
+// optional, so a same-named field never conflicts either way.)
+// `subheading` is optional on every other block that has it too, so it's
+// safe.
 //
 // name/email/message/submitLabel are all optional per-instance overrides —
 // components/blocks/ContactFormBlock.tsx resolves the site default (the

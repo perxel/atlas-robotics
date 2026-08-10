@@ -20,6 +20,29 @@ import ProductListingBlock from "./ProductListingBlock";
 // click-to-edit in Tina's admin preview — a no-op outside that context,
 // since tinaField() returns "" when the object has no live-edit metadata.
 //
+// Never mark a block-level (or block-list-item) field `required: true`,
+// for two independent reasons, both confirmed live:
+// 1. A required field left empty anyway (Tina's admin doesn't reliably
+//    block the save even when a nested block field is marked required)
+//    makes the GraphQL schema mark it non-null, and a null value on a
+//    non-null field throws "Cannot return null for non-nullable field
+//    ..." at query time — which PagesService.getBySlug's catch-all
+//    swallows into a plain 404, with no error shown anywhere. A whole
+//    page going dark because of one empty block field is worse than that
+//    field just rendering blank, so every render component here already
+//    guards each of its fields with `{data.field && (...)}` (matching how
+//    already-optional fields like `subheading` were always handled) —
+//    keep that pattern for any field you add.
+// 2. Tina's query codegen merges same-named fields across sibling block
+//    types within the `blocks` union (e.g. every block's own top-level
+//    `heading`) into one shared shape, and errors the whole build if
+//    their nullability doesn't match: "Fields \"heading\" conflict
+//    because they return conflicting types \"String!\" and \"String\""
+//    (confirmed by hitting it directly — see BlogListingBlock.template.tsx/
+//    ContactFormBlock.template.tsx, which used to omit `heading` entirely
+//    to dodge this). Consistently leaving every block field optional
+//    avoids this class of conflict altogether, not just for `heading`.
+//
 // `locale`/`latestPosts`/`products`/`uiDictionary` are extra data blocks
 // need but don't carry themselves (FeaturedBlogPosts/BlogListingBlock need
 // blog posts, ProductListingBlock needs products, several blocks need

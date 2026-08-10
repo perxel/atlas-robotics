@@ -39,12 +39,14 @@ export default function MediaGalleryBlock({ data }: { data: PagesBlocksMediaGall
           </span>
 
           <div className="absolute inset-x-0 bottom-0 flex flex-col gap-4 px-4 pb-16 sm:px-8 sm:pb-20">
-            <h3
-              data-tina-field={tinaField(item, "heading")}
-              className="max-w-3xl text-4xl font-semibold text-balance text-white sm:text-6xl"
-            >
-              {item.heading}
-            </h3>
+            {item.heading && (
+              <h3
+                data-tina-field={tinaField(item, "heading")}
+                className="max-w-3xl text-4xl font-semibold text-balance text-white sm:text-6xl"
+              >
+                {item.heading}
+              </h3>
+            )}
             {item.subheading && (
               <p
                 data-tina-field={tinaField(item, "subheading")}

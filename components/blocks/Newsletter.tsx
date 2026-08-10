@@ -27,9 +27,11 @@ export default function Newsletter({
 
   return (
     <section className="border-t border-border bg-surface-muted px-4 py-16 text-center">
-      <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
-        {data.heading}
-      </h2>
+      {data.heading && (
+        <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
+          {data.heading}
+        </h2>
+      )}
       {data.subheading && (
         <p
           data-tina-field={tinaField(data, "subheading")}

@@ -8,7 +8,7 @@ export const featureGridTemplate: Template = {
   name: "featureGrid",
   label: "Feature Grid",
   fields: [
-    { type: "string", name: "heading", label: "Heading", required: true },
+    { type: "string", name: "heading", label: "Heading" },
     { type: "string", name: "subheading", label: "Subheading" },
     {
       type: "object",
@@ -25,7 +25,7 @@ export const featureGridTemplate: Template = {
           label: "Icon",
           description: "A single emoji, e.g. ⚡",
         },
-        { type: "string", name: "title", label: "Title", required: true },
+        { type: "string", name: "title", label: "Title" },
         {
           type: "string",
           name: "description",

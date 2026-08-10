@@ -102,12 +102,14 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/40 to-black/10" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white">
-            <h2
-              data-tina-field={tinaField(slide, "heading")}
-              className="max-w-3xl text-4xl font-semibold text-balance sm:text-5xl"
-            >
-              {slide.heading}
-            </h2>
+            {slide.heading && (
+              <h2
+                data-tina-field={tinaField(slide, "heading")}
+                className="max-w-3xl text-4xl font-semibold text-balance sm:text-5xl"
+              >
+                {slide.heading}
+              </h2>
+            )}
             {slide.subheading && (
               <p
                 data-tina-field={tinaField(slide, "subheading")}

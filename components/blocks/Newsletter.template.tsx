@@ -4,7 +4,7 @@ export const newsletterTemplate: Template = {
   name: "newsletter",
   label: "Newsletter Signup",
   fields: [
-    { type: "string", name: "heading", label: "Heading", required: true },
+    { type: "string", name: "heading", label: "Heading" },
     { type: "string", name: "subheading", label: "Subheading" },
     // Optional per-instance overrides — components/blocks/Newsletter.tsx
     // resolves the site default (the CMS-editable translation dictionary,

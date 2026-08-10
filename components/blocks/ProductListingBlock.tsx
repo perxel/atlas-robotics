@@ -73,9 +73,11 @@ export default function ProductListingBlock({
 
   return (
     <section className="my-container py-12">
-      <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
-        {data.heading}
-      </h2>
+      {data.heading && (
+        <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
+          {data.heading}
+        </h2>
+      )}
       {data.subheading && (
         <p data-tina-field={tinaField(data, "subheading")} className="mt-3 text-muted-foreground">
           {data.subheading}
