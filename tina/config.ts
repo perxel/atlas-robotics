@@ -57,8 +57,32 @@ export default defineConfig({
         collections,
     },
     cmsCallback: (cms) => {
-        if (translationDashboardScreen) cms.plugins.add(translationDashboardScreen);
-        cms.plugins.add(seoDashboardScreen);
+        // SEO/Translation dashboards call client.queries.* (lib/cms-server.ts) to
+        // build their coverage tables. That works fine in local self-hosted dev,
+        // but crashes ("Cannot read properties of undefined (reading
+        // 'blogConnection')") in the deployed admin: Tina builds its own admin as
+        // a separate Vite-bundled SPA (distinct from the Next.js app's webpack
+        // build), and in that bundle specifically, TinaClient's constructor
+        // (`this.queries = queries(this)`, tinacms/dist/client) ends up leaving
+        // `client.queries` undefined at runtime — reproduced live on the
+        // deployed dashboards, and matches another TinaCMS user's identical
+        // report from custom admin-bundled code
+        // (https://github.com/tinacms/tinacms/discussions/4464). Switching these
+        // fetchers to client.request() with hand-imported query documents was
+        // tried and reverted: it requires a static value import from
+        // tina/__generated__/types, which doesn't exist yet on a fresh checkout
+        // when the Tina CLI first loads this file to derive the schema (unlike
+        // tina/__generated__/client, the CLI writes that one a stub before
+        // config load specifically so config.ts can import it — no such stub
+        // exists for types.ts) — fails every clean build with "Could not
+        // resolve '@/tina/__generated__/types'". Until TinaCMS fixes the
+        // underlying bug, only register these in local dev (no clientId), same
+        // as Tina Cloud's own "Media Usage" screen already only appearing
+        // locally, never on the deployed admin.
+        if (!process.env.NEXT_PUBLIC_TINA_CLIENT_ID) {
+            if (translationDashboardScreen) cms.plugins.add(translationDashboardScreen);
+            cms.plugins.add(seoDashboardScreen);
+        }
         return cms;
     },
 });
