@@ -3,15 +3,31 @@
     {
       "title": "Explore",
       "links": [
-        { "label": "Products", "url": "/products" },
-        { "label": "Blog", "url": "/blog" },
-        { "label": "About", "url": "/about" }
+        {
+          "label": "Products",
+          "url": "/products"
+        },
+        {
+          "label": "Blog",
+          "url": "/blog"
+        },
+        {
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "label": "Hello",
+          "url": "https://tinacms-demo.bmp.workers.dev/hello"
+        }
       ]
     },
     {
       "title": "Company",
       "links": [
-        { "label": "Contact", "url": "/contact" }
+        {
+          "label": "Contact",
+          "url": "/contact"
+        }
       ]
     }
   ],
