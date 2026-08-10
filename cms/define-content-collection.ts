@@ -1,6 +1,6 @@
 import type {Collection, Template, TinaField} from "tinacms";
 import {slugField, slugLifecycleGuard} from "./slug";
-import {authorField, draftField, excerptField, modifiedDateField, publishDateField} from "./collection";
+import {authorField, defaultDraftToFalse, draftField, excerptField, modifiedDateField, publishDateField} from "./collection";
 import {seoField} from "./seo";
 import {type BeforeSubmitHook, composeBeforeSubmit, stampModifiedDate} from "./tina-hooks";
 
@@ -168,6 +168,7 @@ export function defineContentCollection<TLocale extends string>(config: ContentC
             },
             beforeSubmit: composeBeforeSubmit([
                 slugLifecycleGuard(config.name, {lockedFilenames: config.lockedFilenames}),
+                defaultDraftToFalse,
                 stampModifiedDate,
                 ...(config.extraBeforeSubmitHooks ?? []),
             ]),

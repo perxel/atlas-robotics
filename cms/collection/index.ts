@@ -1,5 +1,5 @@
 export { CollectionService } from "./CollectionService";
-export { draftField } from "./draft.field";
+export { draftField, defaultDraftToFalse } from "./draft.field";
 export { authorField } from "./author.field";
 export { excerptField } from "./excerpt.field";
 export { galleryField } from "./gallery.field";
