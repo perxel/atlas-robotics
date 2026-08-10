@@ -154,6 +154,19 @@ export function defineContentCollection<TLocale extends string>(config: ContentC
         label: config.label,
         path: config.path ?? `content/${config.name}`,
         format: "md",
+        // Prefills `publishDate` to "now" when an editor clicks "Add
+        // Document" — that field is `required: true` (an editor-chosen
+        // freshness signal, unlike auto-stamped `modifiedDate`) but Tina
+        // never fills a required field on its own, so without this the
+        // form opens already failing validation. `defaultItem` is flagged
+        // `@deprecated` on `BaseCollection` in favor of `ui.defaultItem`
+        // per-template, but that alternative only exists for
+        // `TemplateCollection`s (a `templates` union, e.g. this
+        // collection's own `blocks` list); a plain `fields`-based
+        // `FieldCollection` like this one has no non-deprecated
+        // replacement, so this is the correct mechanism here, not a stale
+        // API being reached for.
+        defaultItem: () => ({publishDate: new Date().toISOString()}),
         ui: {
             ...(config.allowedActions ? {allowedActions: config.allowedActions} : {}),
             // Derived from the filename (_sys.breadcrumbs), never the `slug`
