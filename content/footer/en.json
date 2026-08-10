@@ -17,7 +17,7 @@
         },
         {
           "label": "Hello",
-          "url": "https://tinacms-demo.bmp.workers.dev/hello"
+          "url": "/hello"
         }
       ]
     },
