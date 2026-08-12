@@ -1,15 +1,27 @@
 {
   "title": "Atlas Robotics",
-  "logo": "/uploads/placeholder-logo.svg",
-  "favicon": "/favicon.ico",
+  "logo": "/uploads/favicon.png",
+  "favicon": "/uploads/favicon.png",
   "defaultSeo": {
     "metaTitle": "Atlas Robotics — Robots, Satellites, and the Software Between Them",
     "metaDescription": "Atlas Robotics builds robotic arms, quadrupeds, humanoid platforms, and the orbital relay network that keeps them connected.",
-    "ogImage": "/uploads/boston-dynamics-robot-in-a-car-factory.jpg"
+    "ogImage": "/uploads/advanced-robotic-dog-in-indoor-setting.jpg"
   },
   "socialLinks": [
-    { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },
-    { "platform": "Instagram", "url": "https://instagram.com/example", "icon": "instagram" },
-    { "platform": "YouTube", "url": "https://youtube.com/example", "icon": "youtube" }
+    {
+      "platform": "Facebook",
+      "url": "https://facebook.com/example",
+      "icon": "facebook"
+    },
+    {
+      "platform": "Instagram",
+      "url": "https://instagram.com/example",
+      "icon": "instagram"
+    },
+    {
+      "platform": "YouTube",
+      "url": "https://youtube.com/example",
+      "icon": "youtube"
+    }
   ]
 }

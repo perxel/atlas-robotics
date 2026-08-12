@@ -1,15 +1,27 @@
 {
   "title": "Atlas Robotics",
-  "logo": "/uploads/placeholder-logo.svg",
-  "favicon": "/favicon.ico",
+  "logo": "/uploads/favicon.png",
+  "favicon": "/uploads/favicon.png",
   "defaultSeo": {
     "metaTitle": "Atlas Robotics — 机器人、卫星,以及连接它们的软件",
     "metaDescription": "Atlas Robotics 打造机械臂、四足机器人、人形机器人平台,以及让它们保持连接的轨道中继网络。",
     "ogImage": "/uploads/boston-dynamics-robot-in-a-car-factory.jpg"
   },
   "socialLinks": [
-    { "platform": "Facebook", "url": "https://facebook.com/example", "icon": "facebook" },
-    { "platform": "Instagram", "url": "https://instagram.com/example", "icon": "instagram" },
-    { "platform": "YouTube", "url": "https://youtube.com/example", "icon": "youtube" }
+    {
+      "platform": "Facebook",
+      "url": "https://facebook.com/example",
+      "icon": "facebook"
+    },
+    {
+      "platform": "Instagram",
+      "url": "https://instagram.com/example",
+      "icon": "instagram"
+    },
+    {
+      "platform": "YouTube",
+      "url": "https://youtube.com/example",
+      "icon": "youtube"
+    }
   ]
 }
