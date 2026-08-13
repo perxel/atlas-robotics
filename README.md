@@ -50,13 +50,39 @@ required in production:
 
 ## Deployment
 
-Deploys to Cloudflare Workers via `@opennextjs/cloudflare`. `npm run
-deploy` builds and deploys in one step — `wrangler.jsonc` and
-`open-next.config.ts` are committed so this is reproducible from a clean
-clone. Set `NEXT_PUBLIC_TINA_CLIENT_ID` and `TINA_TOKEN` in the Cloudflare
-dashboard under **both** Build and Worker runtime environment variables
-(they're separate steps on Cloudflare) — see `CLAUDE.md` for why both are
-needed.
+Deploys to Cloudflare Workers via `@opennextjs/cloudflare`. `wrangler.jsonc`
+and `open-next.config.ts` are committed, so this is reproducible from a
+clean clone.
+
+**One-time setup:**
+
+1. Create a project at [app.tina.io](https://app.tina.io) and grab its
+   Client ID and a token.
+2. In the Cloudflare dashboard, set `NEXT_PUBLIC_TINA_CLIENT_ID` and
+   `TINA_TOKEN` in **both** places — they're separate steps on Cloudflare,
+   and skipping either one breaks the deployed site (see "Production
+   builds require Tina Cloud" in `CLAUDE.md`):
+   - **Settings → Build → Environment Variables** (needed while building)
+   - **Settings → Variables and Secrets** on the deployed Worker, or
+     `wrangler secret put TINA_TOKEN` (needed at runtime)
+3. In the Cloudflare dashboard, set **Build command** to empty and
+   **Deploy command** to `npm run deploy`. Leaving Cloudflare's own build
+   step enabled makes it auto-detect an unconfigured Next.js project and
+   run the entire build twice (see `CLAUDE.md`).
+
+**Every deploy:**
+
+```bash
+npm run deploy
+```
+
+Builds the Worker bundle, excludes `public/uploads` from it (media is
+served from Tina Cloud's CDN, not this Worker), then deploys.
+
+**Verify it worked:** after a build, check
+`tina/__generated__/client.ts` — it should point at `content.tinajs.io`.
+If it says `localhost:4001` instead, the Tina Cloud env vars weren't
+picked up at build time.
 
 ## License
 
