@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 // Leaf import, not the `@/cms/multilingual` barrel — this is a client
 // component, and the barrel also re-exports dashboard/service code that has
@@ -44,7 +44,15 @@ function linkProps(link: NavMenuLink) {
   };
 }
 
-export default function NavMenu({ links, uiDictionary }: { links: NavMenuLink[]; uiDictionary: Record<string, string> }) {
+export default function NavMenu({
+  links,
+  uiDictionary,
+  languageSwitcher,
+}: {
+  links: NavMenuLink[];
+  uiDictionary: Record<string, string>;
+  languageSwitcher?: ReactNode;
+}) {
   const t = (text: string) => translateText(uiDictionary, text);
   const navRef = useRef<HTMLDivElement>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -177,6 +185,7 @@ export default function NavMenu({ links, uiDictionary }: { links: NavMenuLink[];
               );
             })}
           </nav>
+          {languageSwitcher && <div className="border-t border-border px-4 py-3">{languageSwitcher}</div>}
         </div>
       )}
     </>

@@ -47,9 +47,15 @@ export default async function Header({ locale }: { locale: Locale }) {
           {settings?.title || t("Lorem ipsum")}
         </Link>
 
-        <NavMenu links={links} uiDictionary={uiDictionary} />
+        <NavMenu
+          links={links}
+          uiDictionary={uiDictionary}
+          languageSwitcher={<LanguageSwitcher currentLocale={locale} urls={alternates} config={multilingual?.switcher} />}
+        />
 
-        <LanguageSwitcher currentLocale={locale} urls={alternates} config={multilingual?.switcher} />
+        <div className="hidden md:block">
+          <LanguageSwitcher currentLocale={locale} urls={alternates} config={multilingual?.switcher} />
+        </div>
       </div>
     </header>
   );
