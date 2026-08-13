@@ -1,5 +1,6 @@
 ---
 title: Atlas Robotics — 机器人、卫星，以及连接它们的软件
+locale: zh
 slug: home
 draft: false
 publishDate: 2026-08-08T00:00:00.000Z

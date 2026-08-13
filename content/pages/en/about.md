@@ -1,5 +1,6 @@
 ---
 title: About Atlas Robotics
+locale: en
 slug: about
 draft: false
 publishDate: '2026-08-06T00:00:00.000Z'

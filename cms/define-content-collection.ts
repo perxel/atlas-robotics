@@ -1,8 +1,8 @@
 import type {Collection, Template, TinaField} from "tinacms";
 import {slugField, slugLifecycleGuard} from "./slug";
-import {authorField, defaultDraftToFalse, draftField, excerptField, modifiedDateField, publishDateField} from "./collection";
+import {authorField, defaultDraftToFalse, draftField, excerptField, localeField, modifiedDateField, publishDateField} from "./collection";
 import {seoField} from "./seo";
-import {type BeforeSubmitHook, composeBeforeSubmit, stampModifiedDate} from "./tina-hooks";
+import {type BeforeSubmitHook, composeBeforeSubmit, stampLocale, stampModifiedDate} from "./tina-hooks";
 
 export type ContentCollectionBody = { kind: "richtext" } | { kind: "blocks"; templates: Template[] };
 
@@ -183,6 +183,7 @@ export function defineContentCollection<TLocale extends string>(config: ContentC
                 slugLifecycleGuard(config.name, {lockedFilenames: config.lockedFilenames}),
                 defaultDraftToFalse,
                 stampModifiedDate,
+                stampLocale,
                 ...(config.extraBeforeSubmitHooks ?? []),
             ]),
         },
@@ -203,6 +204,7 @@ export function defineContentCollection<TLocale extends string>(config: ContentC
             draftField(),
             publishDateField(),
             modifiedDateField(),
+            localeField(),
             ...(config.taxonomyFields ?? []),
             ...(config.hasAuthor ? [authorField()] : []),
             seoField(),

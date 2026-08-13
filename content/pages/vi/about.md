@@ -1,5 +1,6 @@
 ---
 title: Giới Thiệu Về Atlas Robotics
+locale: vi
 slug: ve-chung-toi
 draft: false
 publishDate: '2026-08-06T00:00:00.000Z'

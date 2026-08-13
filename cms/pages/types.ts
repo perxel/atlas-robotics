@@ -2,6 +2,7 @@ import type { Edge } from "@/cms/collection";
 
 export type PagesDoc = {
   slug: string;
+  title: string;
   _sys: { relativePath: string; breadcrumbs: string[] };
 };
 
