@@ -1,5 +1,6 @@
 ---
 title: 联系我们
+locale: zh
 slug: contact
 draft: false
 publishDate: '2026-08-08T00:00:00.000Z'

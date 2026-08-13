@@ -1,8 +1,0 @@
-{
-  "links": [
-    { "label": "Giới Thiệu", "url": "/vi/ve-chung-toi", "openInNewTab": false },
-    { "label": "Sản Phẩm", "url": "/vi/san-pham", "openInNewTab": false },
-    { "label": "Blog", "url": "/vi/tin-tuc", "openInNewTab": false },
-    { "label": "Liên Hệ", "url": "/vi/lien-he", "openInNewTab": false }
-  ]
-}

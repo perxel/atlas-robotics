@@ -1,5 +1,6 @@
 ---
 title: 产品
+locale: zh
 slug: products
 draft: false
 publishDate: '2026-08-08T00:00:00.000Z'

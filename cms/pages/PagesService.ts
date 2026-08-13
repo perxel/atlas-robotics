@@ -73,6 +73,27 @@ export class PagesService<TLocale extends string> {
     }
   }
 
+  /** Same cross-locale sibling lookup as `getAlternates`, reading each
+   * locale's own `title` instead of building a URL from `slug` — both read
+   * off the same already-fetched connection edges (`fetchConnection()`
+   * already selects `title` for every document, see `getSeoIndex` below),
+   * so this costs no extra query. Used as a nav link's default label when
+   * an editor hasn't typed an override for a given locale — see
+   * `resolveNavLink` in lib/cms-server.ts. */
+  async getTitleAlternates(filename: string): Promise<Partial<Record<TLocale, string>>> {
+    try {
+      const edges = await this.#deps.fetchConnection();
+      const result: Partial<Record<TLocale, string>> = {};
+      for (const locale of this.#locales) {
+        const doc = inLocale(edges, locale).find((d) => this.#filenameOf(d) === filename);
+        if (doc) result[locale] = doc.title;
+      }
+      return result;
+    } catch {
+      return {};
+    }
+  }
+
   /** Cross-locale existence check for a collection's listing page — same
    * filename-matched lookup as getAlternates, but the URL comes from the
    * collection registry (`getCollectionPath`), never from this document's

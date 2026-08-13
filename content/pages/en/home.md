@@ -1,5 +1,6 @@
 ---
 title: 'Atlas Robotics — Robots, Satellites, and the Software Between Them'
+locale: en
 slug: home
 draft: false
 publishDate: 2026-08-06T00:00:00.000Z

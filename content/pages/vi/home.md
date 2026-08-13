@@ -1,5 +1,6 @@
 ---
 title: 'Atlas Robotics — Robot, Vệ Tinh, Và Phần Mềm Kết Nối Chúng'
+locale: vi
 slug: home
 draft: false
 publishDate: 2026-08-06T00:00:00.000Z

@@ -63,3 +63,16 @@ export function composeBeforeSubmit(hooks: BeforeSubmitHook[]): BeforeSubmitHook
 export const stampModifiedDate: BeforeSubmitHook = async (args: BeforeSubmitArgs) => {
   return { ...args.values, modifiedDate: new Date().toISOString() };
 };
+
+/**
+ * Auto-stamps `locale` from the document's own file path on every save —
+ * pairs with `localeField()` (cms/collection). `form.path` is the
+ * document's relativePath within its collection (e.g. "en/about.md",
+ * confirmed against `slug-lifecycle-guard.ts`'s identical
+ * `form.path.split("/")[0]` use), so its first segment is always the
+ * locale folder it was saved into — derived, not asked of the editor, so
+ * it can't drift from where Tina actually put the file.
+ */
+export const stampLocale: BeforeSubmitHook = async (args: BeforeSubmitArgs) => {
+  return { ...args.values, locale: args.form.path.split("/")[0] };
+};

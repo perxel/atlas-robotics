@@ -1,5 +1,6 @@
 ---
 title: Blog
+locale: vi
 slug: blog
 draft: false
 publishDate: '2026-08-07T00:00:00.000Z'

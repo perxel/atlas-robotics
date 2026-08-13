@@ -1,0 +1,73 @@
+{
+  "links": [
+    {
+      "_template": "pageLink",
+      "labelOverride": { "en": "About", "vi": "Giới Thiệu", "zh": "关于我们" },
+      "page": "content/pages/en/about.md",
+      "openInNewTab": false,
+      "children": []
+    },
+    {
+      "_template": "pageLink",
+      "labelOverride": { "en": "", "vi": "", "zh": "" },
+      "page": "content/pages/en/products.md",
+      "openInNewTab": false,
+      "children": []
+    },
+    {
+      "_template": "pageLink",
+      "labelOverride": { "en": "", "vi": "", "zh": "" },
+      "page": "content/pages/en/blog.md",
+      "openInNewTab": false,
+      "children": [
+        {
+          "_template": "customLink",
+          "label": { "en": "Food & Entertaining", "vi": "Ẩm Thực & Tiệc Tùng", "zh": "美食与款待" },
+          "url": {
+            "en": "/blog/category/food-entertaining",
+            "vi": "/vi/tin-tuc/danh-muc/am-thuc-tiec-tung",
+            "zh": "/zh/blog/category/food-entertaining"
+          },
+          "openInNewTab": false
+        },
+        {
+          "_template": "customLink",
+          "label": { "en": "Science", "vi": "Khoa Học", "zh": "科学" },
+          "url": {
+            "en": "/blog/category/science",
+            "vi": "/vi/tin-tuc/danh-muc/khoa-hoc",
+            "zh": "/zh/blog/category/science"
+          },
+          "openInNewTab": false
+        },
+        {
+          "_template": "customLink",
+          "label": { "en": "Travel & Nature", "vi": "Du Lịch & Thiên Nhiên", "zh": "旅行与自然" },
+          "url": {
+            "en": "/blog/category/travel-nature",
+            "vi": "/vi/tin-tuc/danh-muc/du-lich-thien-nhien",
+            "zh": "/zh/blog/category/travel-nature"
+          },
+          "openInNewTab": false
+        },
+        {
+          "_template": "customLink",
+          "label": { "en": "Workplace", "vi": "Nơi Làm Việc", "zh": "职场" },
+          "url": {
+            "en": "/blog/category/workplace",
+            "vi": "/vi/tin-tuc/danh-muc/noi-lam-viec",
+            "zh": "/zh/blog/category/workplace"
+          },
+          "openInNewTab": false
+        }
+      ]
+    },
+    {
+      "_template": "pageLink",
+      "labelOverride": { "en": "", "vi": "", "zh": "" },
+      "page": "content/pages/en/contact.md",
+      "openInNewTab": false,
+      "children": []
+    }
+  ]
+}

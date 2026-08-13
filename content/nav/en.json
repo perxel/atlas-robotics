@@ -1,8 +1,0 @@
-{
-  "links": [
-    { "label": "About", "url": "/about", "openInNewTab": false },
-    { "label": "Products", "url": "/products", "openInNewTab": false },
-    { "label": "Blog", "url": "/blog", "openInNewTab": false },
-    { "label": "Contact", "url": "/contact", "openInNewTab": false }
-  ]
-}
