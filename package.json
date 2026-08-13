@@ -2,6 +2,7 @@
   "name": "tinacms-demo",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=4096 tinacms build --noTelemetry -c \"next build --webpack\"",
     "dev": "tinacms dev --noTelemetry -c \"next dev\"",
