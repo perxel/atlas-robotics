@@ -74,7 +74,11 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
               // downloading) once the carousel actually reaches it.
               <video
                 src={slide.video}
-                poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1280&q=50` : undefined}
+                // next/image's optimizer only serves widths listed in next.config.ts's
+                // images.deviceSizes/imageSizes (default set, unmodified here) — 1920 is
+                // the nearest bucket above 1280 in that default list; an arbitrary width
+                // like 1280 gets a hard 400 ("w parameter is not allowed").
+                poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1920&q=50` : undefined}
                 data-tina-field={tinaField(slide, "video")}
                 className="absolute inset-0 h-full w-full object-cover"
                 autoPlay={i === index}
