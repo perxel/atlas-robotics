@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
     // host allow-listed to optimize images loaded from there.
     remotePatterns: [{ protocol: "https", hostname: "assets.tina.io" }],
     formats: ["image/avif", "image/webp"],
+    // Next's default is `[75]` only — Hero.tsx's hand-built poster URL
+    // (`/_next/image?...&q=50`) deliberately asks for a lower quality than
+    // that, since it's just a placeholder shown before the video paints, so
+    // 50 has to be explicitly allow-listed or every poster request 400s.
+    qualities: [50, 75],
   },
   async redirects() {
     return [
