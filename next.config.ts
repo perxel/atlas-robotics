@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
     // host allow-listed to optimize images loaded from there.
     remotePatterns: [{ protocol: "https", hostname: "assets.tina.io" }],
     formats: ["image/avif", "image/webp"],
+    // Currently a no-op in production — @opennextjs/cloudflare@1.20.2's
+    // Worker-side /_next/image handler compiles this in but never reads it
+    // (dead code in the adapter, confirmed by reading its source; see
+    // CLAUDE.md's "Known issues"). Set anyway so this takes effect for free
+    // if a future adapter version wires it up. The real fix for today's
+    // Lighthouse "efficient cache lifetimes" finding on /_next/image is a
+    // Cloudflare Cache Rule — see CLAUDE.md.
+    minimumCacheTTL: 604800,
     // Next's default is `[75]` only — Hero.tsx's hand-built poster URL
     // (`/_next/image?...&q=50`) deliberately asks for a lower quality than
     // that, since it's just a placeholder shown before the video paints, so

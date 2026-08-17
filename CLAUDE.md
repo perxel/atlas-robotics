@@ -662,6 +662,36 @@ slug changes without a rebuild, defeating the point.
   another inference chain, and load-test any candidate fix (this homepage
   renders ~15 autoplay videos, so match that concurrency) somewhere other
   than production first.
+- **This same Lighthouse finding has a second, separate cause for its
+  first-party slice — `next.config.ts`'s `images.minimumCacheTTL` is
+  silently a no-op on this adapter, confirmed by reading source, not
+  guessed.** Requests through *our own* `/_next/image` route (as opposed to
+  the direct `assets.tina.io` hits above) ship with **no `Cache-Control`
+  header at all** — confirmed live via `curl -D -` against a production
+  `/_next/image?...` URL. Root cause, traced into
+  `@opennextjs/cloudflare@1.20.2` (latest published version as of
+  2026-08-17, so this isn't fixed by upgrading): its Worker-side image
+  handler (`dist/cli/templates/images.js`, `createImageResponse()`) only
+  ever sets `Cache-Control` when the *upstream* response's own
+  `Cache-Control` contains the literal string `immutable` — `assets.tina.io`
+  sends no `Cache-Control` at all, so that branch never fires and nothing is
+  set. Next's own `images.minimumCacheTTL` config value **is** read at build
+  time (`dist/cli/build/open-next/compile-images.js` compiles it into the
+  bundle as `__IMAGES_MINIMUM_CACHE_TTL_SEC__`) but that constant is never
+  referenced anywhere in the shipped `images.js` handler — dead code in the
+  adapter itself, not a config mistake on this repo's side. Setting
+  `minimumCacheTTL` in `next.config.ts` therefore changes nothing today; it's
+  set anyway (see that file) so this starts working for free if a future
+  adapter version wires the constant up.
+  **The actual fix for this slice is Cloudflare-side, not app code:** add a
+  Cloudflare **Cache Rule** (dashboard → Rules → Overview → Create rule →
+  Cache Rule) matching `URI Path starts with /_next/image`, and set a Browser
+  TTL (e.g. `public, max-age=604800`). This is a dashboard-only change — it
+  never touches Worker code, so it doesn't risk repeating the outage above.
+  It only closes the "perxel.com 1st party" portion of the Lighthouse
+  finding (routes through our own Worker); the direct `assets.tina.io` hits
+  (video/flags, the larger portion) are still the unresolved case documented
+  above.
 - **Video is never optimized by anything in this stack, and a muted
   `autoPlay` `<video>` ignores its own `preload` hint — any new
   video-carrying component must gate on mount, not on `preload`.**
