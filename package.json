@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
+  "packageManager": "pnpm@10.22.0",
   "scripts": {
     "build": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=4096 tinacms build --noTelemetry -c \"next build --webpack\"",
     "dev": "tinacms dev --noTelemetry -c \"next dev\"",
@@ -11,7 +12,8 @@
     "preview": "opennextjs-cloudflare build && echo 'uploads/**' > .open-next/assets/.assetsignore && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && echo 'uploads/**' > .open-next/assets/.assetsignore && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && echo 'uploads/**' > .open-next/assets/.assetsignore && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "compress-video": "node scripts/compress-video.mjs"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",

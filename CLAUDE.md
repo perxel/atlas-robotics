@@ -107,10 +107,10 @@ else, use the semantic utility classes (`bg-surface`, `text-muted-foreground`,
   "singleton" primitive.
 - Admin UI is served at `/admin/index.html`, generated automatically by the
   `tinacms` CLI wrapper — no app route needed for it.
-- `npm run dev` → `tinacms dev --noTelemetry -c "next dev"`. No Tina Cloud
+- `pnpm dev` → `tinacms dev --noTelemetry -c "next dev"`. No Tina Cloud
   credentials needed — `clientId`/`token` fall back to `null` in
   `tina/config.ts`, which makes the CLI self-host content locally for dev.
-- `npm run build` → `NODE_ENV=production NODE_OPTIONS=--max-old-space-size=4096
+- `pnpm build` → `NODE_ENV=production NODE_OPTIONS=--max-old-space-size=4096
   tinacms build --noTelemetry -c "next build --webpack"`. The
   `NODE_ENV=production` prefix and `--noTelemetry` are load-bearing, not
   decorative — see Known issues below. `--webpack` and the raised heap limit
@@ -594,15 +594,17 @@ slug changes without a rebuild, defeating the point.
   (~70-90s) and `next build --webpack` (~45-55s) each ran twice, plus a
   ~20-35s uncached dependency install in between — roughly 4 of the total
   9.5 minutes spent, doing nothing the first pass hadn't already done.
-  **The fix:** commit the adapter config once (`npx @opennextjs/cloudflare
+  **The fix:** commit the adapter config once (`pnpm dlx @opennextjs/cloudflare
   migrate --forceInstall` from the repo root — `--forceInstall` is needed
   because of the same React 19 peer-dependency warnings TinaCMS always
-  prints, see `npm install` output), verify `.dev.vars` has no secrets
+  prints, see `pnpm install` output), verify `.dev.vars` has no secrets
   before checking whether to commit it (this repo's only has
   `NEXTJS_ENV=development`; real secrets belong in Cloudflare env vars per
   "Production builds require Tina Cloud" above, not in this file even if
   gitignored), then in the Cloudflare dashboard set **Build command** to
-  empty and **Deploy command** to `npm run deploy` (`opennextjs-cloudflare
+  empty and **Deploy command** to `pnpm run deploy` (the explicit `run`
+  matters — pnpm's own built-in `deploy` command otherwise shadows this
+  script; see README.md's Scripts table) (`opennextjs-cloudflare
   build && opennextjs-cloudflare deploy` — one pass, build then bundle then
   deploy). Re-run the migrate command after any Next.js/`wrangler`/
   `@opennextjs/cloudflare` major-version bump, since it regenerates

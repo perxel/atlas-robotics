@@ -14,9 +14,9 @@ see [`CLAUDE.md`](./CLAUDE.md).
 ## Getting started
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env.local   # optional for local dev — see below
-npm run dev
+pnpm dev
 ```
 
 This starts both the Next.js site (`http://localhost:3000`) and the Tina
@@ -41,12 +41,18 @@ required in production:
 
 | Script | Purpose |
 | --- | --- |
-| `npm run dev` | Next.js dev server + self-hosted Tina admin |
-| `npm run build` | Production build (Tina indexing + `next build`) |
-| `npm run lint` | ESLint |
-| `npm run preview` | Build and preview the Cloudflare Worker locally |
-| `npm run deploy` | Build and deploy to Cloudflare Workers |
-| `npm run cf-typegen` | Regenerate Cloudflare env types |
+| `pnpm dev` | Next.js dev server + self-hosted Tina admin |
+| `pnpm build` | Production build (Tina indexing + `next build`) |
+| `pnpm lint` | ESLint |
+| `pnpm preview` | Build and preview the Cloudflare Worker locally |
+| `pnpm run deploy` | Build and deploy to Cloudflare Workers |
+| `pnpm cf-typegen` | Regenerate Cloudflare env types |
+| `pnpm compress-video` | Re-encode/shrink every video in `public/uploads` in place |
+
+`deploy` needs the explicit `run` — pnpm has its own built-in `deploy`
+command (for workspace deploys) that otherwise shadows this repo's
+same-named script; bare `pnpm deploy` errors with
+`ERR_PNPM_CANNOT_DEPLOY` instead of running it.
 
 ## Deployment
 
@@ -66,14 +72,15 @@ clean clone.
    - **Settings → Variables and Secrets** on the deployed Worker, or
      `wrangler secret put TINA_TOKEN` (needed at runtime)
 3. In the Cloudflare dashboard, set **Build command** to empty and
-   **Deploy command** to `npm run deploy`. Leaving Cloudflare's own build
-   step enabled makes it auto-detect an unconfigured Next.js project and
-   run the entire build twice (see `CLAUDE.md`).
+   **Deploy command** to `pnpm run deploy` (the explicit `run` matters —
+   see the Scripts table above). Leaving Cloudflare's own build step
+   enabled makes it auto-detect an unconfigured Next.js project and run
+   the entire build twice (see `CLAUDE.md`).
 
 **Every deploy:**
 
 ```bash
-npm run deploy
+pnpm run deploy
 ```
 
 Builds the Worker bundle, excludes `public/uploads` from it (media is
