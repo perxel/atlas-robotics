@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { tinaField } from "tinacms/dist/react";
 import type { PagesBlocksHero } from "@/tina/__generated__/types";
@@ -50,6 +50,28 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
     return () => clearInterval(timer);
   }, [index, slides.length, goTo]);
 
+  // Playback can't be left to the `autoPlay` attribute alone: it's only
+  // honored by the browser at the moment a <video> first mounts (or its
+  // data becomes ready) with the attribute already set. The one-slide-ahead
+  // preload mounts with `autoPlay={false}` (see below), so when the
+  // carousel later reaches it and its `autoPlay` prop flips to `true`,
+  // Chrome doesn't retroactively start playback — the element just sits
+  // paused on whatever frame its `preload="metadata"` warm-up buffered.
+  // Confirmed live: every slide past the first loaded its poster/first
+  // frame and stayed frozen there. Driving `.play()`/`.pause()` imperatively
+  // here is the only way a slide actually starts once it becomes active.
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  useEffect(() => {
+    videoRefs.current.forEach((video, i) => {
+      if (!video) return;
+      if (i === index) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [index]);
+
   if (slides.length === 0) return null;
 
   return (
@@ -65,14 +87,17 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
         >
           {slide.video ? (
             loaded.has(i) && (
-              // Only the truly active slide autoplays. The one-slide-ahead
-              // preload used to set `autoPlay` unconditionally too — Chrome
-              // buffers a muted autoplay video regardless of `preload`'s
-              // hint, so that alone downloaded a second full video on every
-              // page load. A not-yet-active slide now only warms up
-              // `preload="metadata"`, and starts playing (and fully
-              // downloading) once the carousel actually reaches it.
+              // Only the truly active slide plays (driven imperatively by
+              // the effect above, not the `autoPlay` attribute — see its
+              // comment). The one-slide-ahead preload only warms up
+              // `preload="metadata"`; a muted autoplaying video buffers
+              // regardless of that hint, so leaving `autoPlay` off here is
+              // what keeps a not-yet-active slide from also fully
+              // downloading on page load.
               <video
+                ref={(el) => {
+                  videoRefs.current[i] = el;
+                }}
                 src={slide.video}
                 // next/image's optimizer only serves widths listed in next.config.ts's
                 // images.deviceSizes/imageSizes (default set, unmodified here) — 1920 is
@@ -81,7 +106,6 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
                 poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1920&q=50` : undefined}
                 data-tina-field={tinaField(slide, "video")}
                 className="absolute inset-0 h-full w-full object-cover"
-                autoPlay={i === index}
                 loop
                 muted
                 playsInline
