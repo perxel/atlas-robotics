@@ -16,6 +16,20 @@ const nextConfig: NextConfig = {
   // like any other file, so no separate wiring is needed on the Cloudflare
   // side.
   productionBrowserSourceMaps: true,
+  experimental: {
+    // Embeds the global Tailwind stylesheet as a <style> tag in <head>
+    // instead of a render-blocking <link>, eliminating the "download HTML,
+    // discover the CSS link, fetch it, then paint" waterfall — Lighthouse
+    // flagged this stylesheet as render-blocking (LCP/FCP) at 6.9KB/170ms.
+    // Next's own docs recommend this specifically for atomic-CSS frameworks
+    // like Tailwind, where the stylesheet stays small regardless of app
+    // size. Tradeoff, per those docs: inlined CSS can't be cached
+    // separately from the HTML, so returning visitors re-download it on
+    // every load instead of hitting a cached stylesheet — accepted here
+    // since this is a marketing/product site, not a frequent-return app.
+    // Experimental, production-builds-only (no effect in `next dev`).
+    inlineCss: true,
+  },
   images: {
     // Repo-based media (see CLAUDE.md's "TinaCMS" section) is synced to and
     // served from TinaCloud's asset CDN in production, not from this app's
