@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ViewTransition } from "react";
+import { Suspense, ViewTransition } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import "../globals.css";
@@ -8,6 +8,7 @@ import { locales, defaultLocale, CMSMultilingual } from "@/lib/registry";
 import { siteUrl } from "@/cms/seo";
 import { translateText } from "@/cms/multilingual";
 import Header from "@/components/Header";
+import HeaderSkeleton from "@/components/HeaderSkeleton";
 import Footer from "@/components/Footer";
 
 const geistSans = Geist({
@@ -71,7 +72,18 @@ export default async function LocaleLayout({
         <link rel="preconnect" href="https://assets.tina.io" />
       </head>
       <body className="flex min-h-full flex-col">
-        <Header locale={locale} />
+        {/* Header awaits 5 CMS calls (nav, settings, alternates, multilingual,
+            dictionary) before it can render anything. Without this boundary,
+            Next.js won't flush *any* HTML for the route until Header resolves —
+            confirmed live, the document response alone was ~1.4s with zero
+            bytes sent to the browser in that window. Suspense lets the shell +
+            this fallback stream immediately instead. Doesn't touch LCP: {children}
+            (the hero) is a separate, still-unwrapped async subtree, so the
+            overall response is still gated on whichever of the two is slower —
+            this only changes when the header itself becomes visible. */}
+        <Suspense fallback={<HeaderSkeleton />}>
+          <Header locale={locale} />
+        </Suspense>
         <main className="flex-1">
           <ViewTransition>{children}</ViewTransition>
         </main>
