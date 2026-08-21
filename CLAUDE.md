@@ -683,15 +683,42 @@ slug changes without a rebuild, defeating the point.
   `minimumCacheTTL` in `next.config.ts` therefore changes nothing today; it's
   set anyway (see that file) so this starts working for free if a future
   adapter version wires the constant up.
-  **The actual fix for this slice is Cloudflare-side, not app code:** add a
-  Cloudflare **Cache Rule** (dashboard → Rules → Overview → Create rule →
-  Cache Rule) matching `URI Path starts with /_next/image`, and set a Browser
-  TTL (e.g. `public, max-age=604800`). This is a dashboard-only change — it
-  never touches Worker code, so it doesn't risk repeating the outage above.
-  It only closes the "perxel.com 1st party" portion of the Lighthouse
-  finding (routes through our own Worker); the direct `assets.tina.io` hits
-  (video/flags, the larger portion) are still the unresolved case documented
-  above.
+  **A dashboard Cache Rule was tried for this slice on 2026-08-21 and
+  confirmed NOT to work — do not re-attempt it.** The rule (Rules → Overview
+  → Create rule → Cache Rule, matching `URI Path starts with /_next/image`,
+  Cache Eligibility "Eligible for cache", Edge TTL "Ignore cache-control
+  header and use this TTL" 7 days, Browser TTL "Override origin and use this
+  TTL" 7 days) saved and showed as active, but repeated `curl -D-` against a
+  live `/_next/image?...` URL after activation still showed **no
+  `Cache-Control` header and no `cf-cache-status` header at all** — not even
+  `BYPASS`, which a Cache Rule would normally stamp even when it declines to
+  cache. That total absence is the tell: `/_next/image` is answered by
+  Worker code (`.open-next/worker.js`) rather than a traditional
+  origin-behind-cache response, and Cloudflare's zone-level Cache
+  Rules/Page Rules apply to the cache sitting in front of an origin — a
+  response a Worker constructs and returns directly bypasses that layer
+  entirely unless the Worker itself calls the Cache API (`caches.default`).
+  So the dashboard-only fix this section used to recommend doesn't apply to
+  this architecture; setting the header has to happen in the adapter's
+  response code, which is the same category of change (Worker code touching
+  the request/response path) that caused the three outages above — so
+  don't attempt it without Workers Logs access and off-production
+  load-testing first, same standing rule. This still only concerns the
+  "perxel.com 1st party" portion of the Lighthouse finding (routes through
+  our own Worker); the direct `assets.tina.io` hits (video/flags, the larger
+  portion) are the separate, still-unresolved case documented above.
+  **What actually did move the Lighthouse score**, same session: the
+  uncached bytes themselves were oversized regardless of any `Cache-Control`
+  header — every JPEG in `public/uploads` was an unresized stock-photo
+  original (4000-9500px wide, several MB each) despite `next.config.ts`'s
+  device sizes topping out at 3840px. `pnpm optimize-images`
+  (`scripts/optimize-images.mjs`, added 2026-08-21, mirrors
+  `compress-video.mjs`'s pattern — resize-cap + mozjpeg re-encode, only
+  replaces a file if it saves ≥10%) cut `public/uploads`' JPEGs from ~70MB to
+  ~19MB. Unlike the Cache Rule attempt, this is a plain git-tracked binary
+  file change with no Worker/caching risk, and it helps even without a
+  browser cache lifetime fix, since there's simply less to transfer on every
+  load (cached or not).
 - **Video is never optimized by anything in this stack, and a muted
   `autoPlay` `<video>` ignores its own `preload` hint — any new
   video-carrying component must gate on mount, not on `preload`.**
