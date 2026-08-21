@@ -795,3 +795,77 @@ slug changes without a rebuild, defeating the point.
   new block/component that renders more than one image or video where only
   one is meant to be "active" (another carousel, another gallery) needs
   the same conditional-mount treatment, not a CSS-visibility trick.
+- **CMS reads are cached (R2 + D1) and invalidated on-demand on content
+  push, not on a timer — added 2026-08-21 after mobile PageSpeed showed
+  server response time, not assets, as the dominant Speed Index/LCP cost.**
+  Every `client.queries.*` call in `lib/cms-server.ts` previously hit Tina
+  Cloud's GraphQL API live on every single request, with no caching at
+  all (`Cache-Control: no-store` on the document, confirmed via the bf-cache
+  Lighthouse audit) — a live Lighthouse run against production measured
+  **~3.7-5.4s time-to-first-byte**, over 85% of total LCP time, before any
+  asset even started loading. `open-next.config.ts` now wires up
+  `r2IncrementalCache` (bucket `atlas-robotics-cache`) as Next's Data Cache
+  backing store and `d1NextTagCache` (database `atlas-robotics-tag-cache`,
+  binding `NEXT_TAG_CACHE_D1`) as the tag cache — **both are required
+  together**, not just one: the adapter's own docs are explicit that the
+  incremental cache alone can't support `revalidateTag`, since it has no
+  record of which tag was invalidated when. Every CMS read is tagged
+  `{ cache: "force-cache", next: { tags: ["cms"] } }` (passed as
+  Tina-generated client's second `options.fetchOptions` arg — confirmed by
+  reading `node_modules/tinacms/dist/client.js`'s `request()` directly, it
+  spreads `fetchOptions` straight onto the underlying `fetch()` call, which
+  is Next's own patched fetch during SSR) — cached indefinitely, no
+  `next.revalidate`, since this is on-demand-only.
+  `app/api/revalidate/route.ts` (secret-gated via `REVALIDATE_SECRET`, a
+  Cloudflare Worker secret) calls `revalidateTag("cms", { expire: 0 })` —
+  immediate expiration, not the `"max"` stale-while-revalidate profile,
+  per Next's own docs recommending `{ expire: 0 }` specifically for
+  "webhooks or third-party services that need immediate expiration."
+  `.github/workflows/revalidate.yml` hits that route on every push to
+  `content/**`.
+  **Why a separate GitHub Action rather than relying on Cloudflare's own
+  Git-triggered build:** two different systems solving two different
+  problems, not a duplicate. Cloudflare's dashboard build (Settings →
+  Builds → Build watch paths, `Exclude paths: content/*`) controls whether
+  a *new deploy* happens; the R2/D1 cache controls how fast *each request*
+  responds regardless of deploys. A fresh deploy doesn't know to purge the
+  R2-backed Data Cache — that's a Next.js-level concern the build pipeline
+  has no visibility into — so the two are complementary, not redundant.
+  **Real bug found in that exclude-path config while investigating this
+  (separate from the caching work, not yet fixed as of this writing):**
+  Cloudflare's build-watch-paths glob (confirmed against
+  `developers.cloudflare.com/workers/ci-cd/builds/build-watch-paths/`) only
+  matches within one path segment — `content/*` excludes flat files like
+  `content/footer/en.json` but does **not** exclude the actually-edited
+  content, which is nested one level deeper
+  (`content/pages/vi/home.md`, `content/blog/en/*.md`,
+  `content/products/vi/*.md`). If full rebuilds on every content edit
+  aren't intended, this needs to become `content/**`.
+  **The D1 schema isn't published anywhere in the adapter's docs** — the
+  `revalidations` table (`migrations/0001_tag_cache_revalidations.sql`) was
+  reverse-engineered by reading
+  `node_modules/@opennextjs/cloudflare/dist/api/overrides/tag-cache/d1-next-tag-cache.js`'s
+  actual queries directly, then cross-checked against two independent
+  real-world projects' committed migrations on GitHub (found via
+  `gh api search/code`) that hit the same "docs don't say" problem — both
+  confirm the same `(tag, revalidatedAt, stale, expire)` shape with
+  `UNIQUE(tag) ON CONFLICT REPLACE`. Re-verify this against the installed
+  adapter version's source before trusting it blindly on an
+  `@opennextjs/cloudflare` upgrade — the schema has changed at least once
+  before (an older 2-column `(tag, revalidatedAt)` shape one of those
+  reference projects explicitly warned against reusing).
+  **`revalidateTag` needs a second argument in this Next.js version** —
+  breaking change from the Next 15 API most training data and tutorials
+  assume; the single-argument form type-errors (and is documented as
+  deprecated even where suppressed). See `AGENTS.md`'s standing warning
+  about this repo's Next.js version before assuming any cache/revalidation
+  API signature from memory.
+  **Not yet verified end-to-end against production**: implemented and
+  committed (`060180f`), R2 bucket + D1 database + migration applied live,
+  but not pushed to `main` as of this writing, so no real request has
+  exercised this path yet. Before trusting it: confirm cache objects
+  actually appear in `atlas-robotics-cache` after a page load
+  (`wrangler r2 object list`), confirm a `cms` row appears in
+  `atlas-robotics-tag-cache`'s `revalidations` table after hitting
+  `/api/revalidate`, and confirm a real content push (through the GitHub
+  Action) is reflected on the live site without a full redeploy.
