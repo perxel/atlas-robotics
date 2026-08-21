@@ -100,10 +100,15 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
                 }}
                 src={slide.video}
                 // next/image's optimizer only serves widths listed in next.config.ts's
-                // images.deviceSizes/imageSizes (default set, unmodified here) — 1920 is
-                // the nearest bucket above 1280 in that default list; an arbitrary width
-                // like 1280 gets a hard 400 ("w parameter is not allowed").
-                poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1920&q=50` : undefined}
+                // images.deviceSizes/imageSizes (default set, unmodified here) — 1080 is
+                // one of those buckets; an arbitrary width gets a hard 400
+                // ("w parameter is not allowed"). Sized for mobile (where Lighthouse/Speed
+                // Index actually measures this) rather than desktop retina, since this is a
+                // placeholder the video replaces within about a second, not final content —
+                // confirmed live that the unthrottled poster request alone (at the old
+                // w=1920&q=50) transferred ~153KB and took ~520ms, competing with the page's
+                // own JS/CSS for bandwidth on the critical path.
+                poster={slide.image ? `/_next/image?url=${encodeURIComponent(slide.image)}&w=1080&q=40` : undefined}
                 data-tina-field={tinaField(slide, "video")}
                 className="absolute inset-0 h-full w-full object-cover"
                 loop

@@ -33,10 +33,10 @@ const nextConfig: NextConfig = {
     // Cloudflare Cache Rule — see CLAUDE.md.
     minimumCacheTTL: 604800,
     // Next's default is `[75]` only — Hero.tsx's hand-built poster URL
-    // (`/_next/image?...&q=50`) deliberately asks for a lower quality than
+    // (`/_next/image?...&q=40`) deliberately asks for a lower quality than
     // that, since it's just a placeholder shown before the video paints, so
-    // 50 has to be explicitly allow-listed or every poster request 400s.
-    qualities: [50, 75],
+    // 40 has to be explicitly allow-listed or every poster request 400s.
+    qualities: [40, 75],
   },
   async redirects() {
     return [
