@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { client } from "@/tina/__generated__/client";
 import type { BlogConnectionQuery, ProductsConnectionQuery } from "@/tina/__generated__/types";
 import type { ConnectionItem } from "@/cms/collection";
@@ -25,6 +26,25 @@ export type { Locale };
 // No `next.revalidate` — this is on-demand-only, not time-based, so a
 // cached read stays valid until something actually calls revalidateTag.
 const CMS_FETCH_OPTIONS = { fetchOptions: { cache: "force-cache", next: { tags: ["cms"] } } } as const;
+
+// `CMS_FETCH_OPTIONS` above makes a read participate in Next's *cross-request*
+// Data Cache (R2-backed in production) — it says nothing about whether two
+// calls to the same function *within one request* get deduped. GraphQL reads
+// go over POST, which Next's automatic per-request fetch memoization doesn't
+// cover (that's GET-only) — so every `cache()` wrap below (React's, imported
+// above) is what stops the same document from being fetched multiple times
+// in a single render. Concretely: `getSiteSettings`/`CMSDictionary.loadMap`
+// are each called independently from generateMetadata, the page component,
+// Header, and Footer on every route — without this, that's 4 separate
+// fetches (network round trips even on a cache hit) for the same document,
+// every single page load. Traced every call site by hand: an unoptimized
+// home page render fires an estimated ~28 distinct CMS fetches; this
+// collapses it to ~9. That fan-out is also the leading suspect for a live
+// Error 1102
+// ("Worker exceeded resource limits") — a cold-cache window (right after a
+// `revalidateTag` invalidation) means all ~28 of those become simultaneous
+// live Tina Cloud calls in one Worker invocation instead of cheap cache
+// reads. See CLAUDE.md's Known issues for the incident.
 
 // Project registration for the cms/ framework — see .claude/docs/ for the
 // design behind each domain below. cms/ itself never hardcodes a
@@ -86,6 +106,17 @@ export type ProductItem = ConnectionItem<ProductsConnectionQuery["productsConnec
 
 // --- Wiring: one call, framework-owned (cms/create-project.ts) ---
 
+// `getMultilingualSettings` (below) and the dictionary both need this same
+// `multilingual/index.json` document. Before this was two independent
+// functions each calling `client.queries.multilingual(...)` on their own —
+// `cache()` only dedupes repeated calls to the *same* function reference, so
+// wrapping each of those separately wouldn't have stopped the duplicate.
+// One shared cached fetcher, used by both, is what actually collapses it to
+// one fetch.
+const getMultilingualDoc = cache(() =>
+  client.queries.multilingual({ relativePath: "index.json" }, CMS_FETCH_OPTIONS).then((r) => r.data.multilingual)
+);
+
 export const {
   CMSCollection,
   CMSTaxonomy,
@@ -94,7 +125,7 @@ export const {
   CMSLocaleAlternates,
   CMSDictionary,
   CMSSeo,
-  resolveLocaleAlternates,
+  resolveLocaleAlternates: resolveLocaleAlternatesUncached,
   seoDashboardScreen,
   translationDashboardScreen,
 } = createCmsProject({
@@ -106,25 +137,37 @@ export const {
   taxonomyRegistry,
   singletonRegistry,
   pagesConfig: {
-    fetchConnection: (args) =>
+    // Shared by every nav link that references a page (`getAlternates`/
+    // `getTitleAlternates`, both called per link — see `resolveNavLink`
+    // below) and by `resolveLocaleAlternates`'s pages branch. None of those
+    // filter by slug, so they're all the same cache key — before `cache()`,
+    // a 4-link nav meant 8 identical full-connection fetches per render.
+    fetchConnection: cache((args?: { slug?: string }) =>
       client.queries
         .pagesConnection(
           { filter: { draft: { eq: false }, ...(args?.slug ? { slug: { eq: args.slug } } : {}) } },
           CMS_FETCH_OPTIONS
         )
-        .then((r) => r.data.pagesConnection.edges),
-    fetchByPath: (relativePath: string) => client.queries.pages({ relativePath }, CMS_FETCH_OPTIONS),
+        .then((r) => r.data.pagesConnection.edges)
+    ),
+    fetchByPath: cache((relativePath: string) => client.queries.pages({ relativePath }, CMS_FETCH_OPTIONS)),
   },
   dictionaryConfig: {
     fetchEntries: () =>
-      client.queries.multilingual({ relativePath: "index.json" }, CMS_FETCH_OPTIONS).then(
-        (r) =>
-          (r.data.multilingual.entries ?? []).filter(
+      getMultilingualDoc().then(
+        (doc) =>
+          (doc.entries ?? []).filter(
             (entry): entry is NonNullable<typeof entry> => !!entry
           ) as { key: string; values: Record<string, string | null | undefined> }[]
       ),
   },
 });
+
+// `CMSLocaleAlternates.resolve` (what this wraps) is called once per route
+// from that route's `generateMetadata` and again from `Header` — same
+// argument each time, so `cache()` collapses it to one call; its own pages
+// branch also routes through the now-cached `fetchConnection` above.
+export const resolveLocaleAlternates = cache(resolveLocaleAlternatesUncached);
 
 // --- Typed query helpers (project-specific generics on top of generic CMS methods) ---
 
@@ -162,25 +205,36 @@ type NavLinkDoc = {
 } | null;
 type FooterDoc = Awaited<ReturnType<typeof client.queries.footer>>["data"]["footer"];
 
-export const getBlogPostQuery = (locale: Locale, slug: string) =>
-  CMSCollection.getCollectionItem<BlogDocQuery>({ collectionName: "blog", lang: locale, slug });
+// Each of these four is called at least twice per render (a route's
+// `generateMetadata` plus its page component; `getSiteSettings` also from
+// Header and Footer) — `cache()` collapses every one of those pairs to a
+// single fetch.
+export const getBlogPostQuery = cache((locale: Locale, slug: string) =>
+  CMSCollection.getCollectionItem<BlogDocQuery>({ collectionName: "blog", lang: locale, slug })
+);
 
-export const getProductQuery = (locale: Locale, slug: string) =>
-  CMSCollection.getCollectionItem<ProductDocQuery>({ collectionName: "products", lang: locale, slug });
+export const getProductQuery = cache((locale: Locale, slug: string) =>
+  CMSCollection.getCollectionItem<ProductDocQuery>({ collectionName: "products", lang: locale, slug })
+);
 
-export const getPageQuery = (locale: Locale, slug: string) => CMSPages.getBySlug<PagesDocQuery>({ lang: locale, slug });
+export const getPageQuery = cache((locale: Locale, slug: string) =>
+  CMSPages.getBySlug<PagesDocQuery>({ lang: locale, slug })
+);
 
-export const getSiteSettings = (locale: Locale) => CMSSingleton.get<SiteSettingsDoc>({ name: "siteSettings", lang: locale });
+export const getSiteSettings = cache((locale: Locale) =>
+  CMSSingleton.get<SiteSettingsDoc>({ name: "siteSettings", lang: locale })
+);
 
 // Not a `singletonRegistry` entry (same reasoning `multilingual` never was
 // one): a single non-per-locale document, `index.json`, not one file per
 // locale — so it needs its own tolerant-fallback fetch rather than
 // `SingletonService.get()`'s per-locale lookup shape.
-export const getNav = () =>
+export const getNav = cache(() =>
   client.queries
     .nav({ relativePath: "index.json" }, CMS_FETCH_OPTIONS)
     .then((r) => r.data.nav)
-    .catch(() => null);
+    .catch(() => null)
+);
 
 export type ResolvedNavLink = {
   label: string;
@@ -232,10 +286,13 @@ export async function resolveNavLinks(nav: NavDoc | null | undefined, locale: Lo
   return resolved.filter((l): l is ResolvedNavLink => !!l);
 }
 
-export const getFooter = (locale: Locale) => CMSSingleton.get<FooterDoc>({ name: "footer", lang: locale });
+export const getFooter = cache((locale: Locale) => CMSSingleton.get<FooterDoc>({ name: "footer", lang: locale }));
 
-export const getMultilingualSettings = () =>
-  client.queries.multilingual({ relativePath: "index.json" }, CMS_FETCH_OPTIONS).then((r) => r.data.multilingual);
+// Same document as the dictionary's own fetch (see `getMultilingualDoc`
+// above) — sharing that one cached fetcher rather than querying again here
+// is what actually dedupes it; both call sites doing their own independent
+// `cache()` wrap would not have.
+export const getMultilingualSettings = () => getMultilingualDoc();
 
 /** Extra data some `pages` blocks need, fetched once per page render and shared by every route rendering `pages` blocks. Project-specific glue (hardcodes this project's block typenames), not cms/ framework logic. */
 export async function getPageBlockData(
