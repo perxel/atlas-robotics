@@ -1,0 +1,22 @@
+name: Revalidate CMS cache
+
+# Cloudflare's own build (Settings → Build → Build watch paths) excludes
+# content/* from triggering a redeploy — see CLAUDE.md. That's a separate
+# concern from this: a redeploy ships new code, it doesn't know to purge
+# Next's Data Cache in R2. This workflow is the one thing that actually
+# invalidates the "cms" tag (lib/cms-server.ts / app/api/revalidate) when
+# content changes, regardless of whether a redeploy also happens.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/**"
+
+jobs:
+  revalidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit the revalidate endpoint
+        run: |
+          curl --fail-with-body -X POST "https://atlas-robotics.perxel.com/api/revalidate" \
+            -H "x-revalidate-secret: ${{ secrets.REVALIDATE_SECRET }}"

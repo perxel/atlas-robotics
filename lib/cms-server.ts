@@ -14,6 +14,18 @@ import {
 
 export type { Locale };
 
+// Passed as the 2nd arg to every `client.queries.*` call below. Tina's
+// generated client spreads `fetchOptions` straight onto the underlying
+// `fetch()` call (confirmed against node_modules/tinacms/dist/client.js's
+// `request()` — not just typed, actually plumbed through), which is Next's
+// own patched fetch during SSR, so these options are what make the read
+// participate in Next's Data Cache at all. `cache: "force-cache"` opts back
+// into caching (Next 15+ defaults every fetch to uncached); `tags: ["cms"]`
+// is what app/api/revalidate/route.ts's `revalidateTag("cms")` invalidates.
+// No `next.revalidate` — this is on-demand-only, not time-based, so a
+// cached read stays valid until something actually calls revalidateTag.
+const CMS_FETCH_OPTIONS = { fetchOptions: { cache: "force-cache", next: { tags: ["cms"] } } } as const;
+
 // Project registration for the cms/ framework — see .claude/docs/ for the
 // design behind each domain below. cms/ itself never hardcodes a
 // collection/taxonomy/locale/string; this file (plus ./registry.ts, for
@@ -28,35 +40,42 @@ const collectionRegistry = {
   blog: {
     ...collectionPathConfig.blog,
     draftFieldName: "draft",
-    fetchEdges: () => client.queries.blogConnection().then((r) => r.data.blogConnection.edges),
-    fetchBySlug: (relativePath: string) => client.queries.blog({ relativePath }),
+    fetchEdges: () =>
+      client.queries.blogConnection(undefined, CMS_FETCH_OPTIONS).then((r) => r.data.blogConnection.edges),
+    fetchBySlug: (relativePath: string) => client.queries.blog({ relativePath }, CMS_FETCH_OPTIONS),
   },
   products: {
     ...collectionPathConfig.products,
     draftFieldName: "draft",
-    fetchEdges: () => client.queries.productsConnection().then((r) => r.data.productsConnection.edges),
-    fetchBySlug: (relativePath: string) => client.queries.products({ relativePath }),
+    fetchEdges: () =>
+      client.queries.productsConnection(undefined, CMS_FETCH_OPTIONS).then((r) => r.data.productsConnection.edges),
+    fetchBySlug: (relativePath: string) => client.queries.products({ relativePath }, CMS_FETCH_OPTIONS),
   },
 };
 
 const taxonomyRegistry = {
   categories: {
     ...taxonomyPathConfig.categories,
-    fetchTerms: () => client.queries.categoriesConnection().then((r) => r.data.categoriesConnection.edges),
+    fetchTerms: () =>
+      client.queries.categoriesConnection(undefined, CMS_FETCH_OPTIONS).then((r) => r.data.categoriesConnection.edges),
   },
   productCategories: {
     ...taxonomyPathConfig.productCategories,
     fetchTerms: () =>
-      client.queries.productCategoriesConnection().then((r) => r.data.productCategoriesConnection.edges),
+      client.queries
+        .productCategoriesConnection(undefined, CMS_FETCH_OPTIONS)
+        .then((r) => r.data.productCategoriesConnection.edges),
   },
 };
 
 const singletonRegistry = {
   siteSettings: {
-    fetchDoc: (l: Locale) => client.queries.siteSettings({ relativePath: `${l}.json` }).then((r) => r.data.siteSettings),
+    fetchDoc: (l: Locale) =>
+      client.queries.siteSettings({ relativePath: `${l}.json` }, CMS_FETCH_OPTIONS).then((r) => r.data.siteSettings),
   },
   footer: {
-    fetchDoc: (l: Locale) => client.queries.footer({ relativePath: `${l}.json` }).then((r) => r.data.footer),
+    fetchDoc: (l: Locale) =>
+      client.queries.footer({ relativePath: `${l}.json` }, CMS_FETCH_OPTIONS).then((r) => r.data.footer),
   },
 };
 
@@ -89,15 +108,16 @@ export const {
   pagesConfig: {
     fetchConnection: (args) =>
       client.queries
-        .pagesConnection({
-          filter: { draft: { eq: false }, ...(args?.slug ? { slug: { eq: args.slug } } : {}) },
-        })
+        .pagesConnection(
+          { filter: { draft: { eq: false }, ...(args?.slug ? { slug: { eq: args.slug } } : {}) } },
+          CMS_FETCH_OPTIONS
+        )
         .then((r) => r.data.pagesConnection.edges),
-    fetchByPath: (relativePath: string) => client.queries.pages({ relativePath }),
+    fetchByPath: (relativePath: string) => client.queries.pages({ relativePath }, CMS_FETCH_OPTIONS),
   },
   dictionaryConfig: {
     fetchEntries: () =>
-      client.queries.multilingual({ relativePath: "index.json" }).then(
+      client.queries.multilingual({ relativePath: "index.json" }, CMS_FETCH_OPTIONS).then(
         (r) =>
           (r.data.multilingual.entries ?? []).filter(
             (entry): entry is NonNullable<typeof entry> => !!entry
@@ -158,7 +178,7 @@ export const getSiteSettings = (locale: Locale) => CMSSingleton.get<SiteSettings
 // `SingletonService.get()`'s per-locale lookup shape.
 export const getNav = () =>
   client.queries
-    .nav({ relativePath: "index.json" })
+    .nav({ relativePath: "index.json" }, CMS_FETCH_OPTIONS)
     .then((r) => r.data.nav)
     .catch(() => null);
 
@@ -215,7 +235,7 @@ export async function resolveNavLinks(nav: NavDoc | null | undefined, locale: Lo
 export const getFooter = (locale: Locale) => CMSSingleton.get<FooterDoc>({ name: "footer", lang: locale });
 
 export const getMultilingualSettings = () =>
-  client.queries.multilingual({ relativePath: "index.json" }).then((r) => r.data.multilingual);
+  client.queries.multilingual({ relativePath: "index.json" }, CMS_FETCH_OPTIONS).then((r) => r.data.multilingual);
 
 /** Extra data some `pages` blocks need, fetched once per page render and shared by every route rendering `pages` blocks. Project-specific glue (hardcodes this project's block typenames), not cms/ framework logic. */
 export async function getPageBlockData(

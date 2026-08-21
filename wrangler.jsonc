@@ -19,6 +19,29 @@
       "service": "atlas-robotics"
     }
   ],
+  // Backs Next's Data Cache (unstable_cache / tagged fetch() calls in lib/cms-server.ts) so
+  // CMS reads survive across requests instead of every visitor paying a live Tina Cloud round
+  // trip. Binding name is fixed by @opennextjs/cloudflare's r2-incremental-cache override, not
+  // arbitrary. See open-next.config.ts and CLAUDE.md's Known issues for why this exists.
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "atlas-robotics-cache"
+    }
+  ],
+  // Tracks which cache tags (e.g. "cms") were last revalidated — required alongside the R2
+  // incremental cache above for revalidateTag()/app/api/revalidate to actually invalidate
+  // anything; the incremental cache alone has no notion of "this tag just changed". Binding
+  // name is fixed by @opennextjs/cloudflare's d1-next-tag-cache override. Schema is in
+  // migrations/0001_tag_cache_revalidations.sql — must exist before this binding is used, or
+  // every read/write here silently no-ops (see that file's D1NextModeTagCache.getConfig()).
+  "d1_databases": [
+    {
+      "binding": "NEXT_TAG_CACHE_D1",
+      "database_name": "atlas-robotics-tag-cache",
+      "database_id": "8650c6d7-e353-4ffc-84c9-cfb280991f3c"
+    }
+  ],
   "images": {
     // Enable image optimization
     // see https://opennext.js.org/cloudflare/howtos/image
