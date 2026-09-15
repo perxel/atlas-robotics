@@ -48,7 +48,7 @@ export default function PageView({
   ];
 
   return (
-    <article>
+    <article className="px-page-view">
       {titleEnabled && (
         <div className="my-container py-12">
           <h1 data-tina-field={tinaField(page, "title")} className="text-3xl font-semibold">

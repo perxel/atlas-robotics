@@ -90,7 +90,7 @@ export default function BlocksRenderer({
       {blocks.map((block, i) => {
         if (!block) return null;
         return (
-          <div key={i} data-tina-field={tinaField(block)}>
+          <div key={i} className="px-blocks-renderer" data-tina-field={tinaField(block)}>
             {block.__typename === "PagesBlocksHero" && <Hero data={block} />}
             {block.__typename === "PagesBlocksMediaGallery" && <MediaGalleryBlock data={block} />}
             {block.__typename === "PagesBlocksRichText" && <RichTextBlock data={block} />}

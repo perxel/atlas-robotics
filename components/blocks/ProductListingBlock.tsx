@@ -72,7 +72,7 @@ export default function ProductListingBlock({
   const { shown, pagination } = resolveShownProducts(data, products, currentPage);
 
   return (
-    <section className="my-container py-12">
+    <section className="px-product-listing-block my-container py-12">
       {data.heading && (
         <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
           {data.heading}

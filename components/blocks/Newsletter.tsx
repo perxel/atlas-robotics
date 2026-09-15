@@ -26,7 +26,7 @@ export default function Newsletter({
   };
 
   return (
-    <section className="border-t border-border bg-surface-muted px-4 py-16 text-center">
+    <section className="px-newsletter border-t border-border bg-surface-muted px-4 py-16 text-center">
       {data.heading && (
         <h2 data-tina-field={tinaField(data, "heading")} className="text-2xl font-semibold">
           {data.heading}

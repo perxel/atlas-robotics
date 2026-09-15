@@ -8,7 +8,7 @@ export default function MediaGalleryBlock({ data }: { data: PagesBlocksMediaGall
   if (items.length === 0) return null;
 
   return (
-    <section>
+    <section className="px-media-gallery-block">
       {(data.heading || data.subheading) && (
         <div className="mx-auto max-w-3xl px-4 py-16 text-center">
           {data.heading && (

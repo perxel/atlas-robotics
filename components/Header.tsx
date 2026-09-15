@@ -29,7 +29,7 @@ export default async function Header({ locale }: { locale: Locale }) {
   const t = (text: string) => translateText(uiDictionary, text);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface">
+    <header className="px-header sticky top-0 z-40 border-b border-border bg-surface">
       <div className="mx-auto flex my-container items-center justify-between gap-4 px-4 py-3">
         <Link
           href={CMSMultilingual.localePath(locale, "/")}

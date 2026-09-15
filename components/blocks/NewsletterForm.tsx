@@ -39,7 +39,7 @@ export default function NewsletterForm({
   }
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="px-newsletter-form mx-auto max-w-md">
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
         <label htmlFor="newsletter-email" className="sr-only">
           {fields.email.label}

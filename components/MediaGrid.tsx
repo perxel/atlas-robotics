@@ -20,7 +20,7 @@ export default function MediaGrid({ items, heading }: { items: GalleryItem[]; he
   if (shown.length === 0) return null;
 
   return (
-    <section className="mt-12">
+    <section className="px-media-grid mt-12">
       <h2 className="text-xl font-semibold">{heading}</h2>
       <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3">
         {shown.map((item, i) => (

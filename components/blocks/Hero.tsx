@@ -75,7 +75,7 @@ export default function Hero({ data }: { data: PagesBlocksHero }) {
   if (slides.length === 0) return null;
 
   return (
-    <section className="relative isolate min-h-[85vh] w-full overflow-hidden">
+    <section className="px-hero relative isolate min-h-[85vh] w-full overflow-hidden">
       {slides.map((slide, i) => (
         <div
           key={i}

@@ -79,7 +79,7 @@ export default function CoverMedia({
       // `<div>`'s implicit role is `generic`, which prohibits naming attributes
       // (axe: "aria-prohibited-attr") — `role="img"` makes this element one that
       // actually supports `aria-label` as its accessible name.
-      <div ref={containerRef} className={className} role="img" aria-label={alt}>
+      <div ref={containerRef} className={`px-cover-media ${className || ""}`} role="img" aria-label={alt}>
         {shouldLoadVideo && (
           <video
             src={src}
@@ -104,7 +104,7 @@ export default function CoverMedia({
   // that works everywhere without every call site also passing pixel
   // dimensions.
   return (
-    <div className={`relative overflow-hidden ${className || ""}`}>
+    <div className={`px-cover-media relative overflow-hidden ${className || ""}`}>
       <Image
         src={src}
         alt={alt}

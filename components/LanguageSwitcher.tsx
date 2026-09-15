@@ -69,7 +69,7 @@ export default function LanguageSwitcher({
   });
 
   return (
-    <div className="flex items-center gap-3 text-sm">
+    <div className="px-language-switcher flex items-center gap-3 text-sm">
       {entries.map(({ locale, label, flag, href, isCurrent }) => (
         <Link
           key={locale}

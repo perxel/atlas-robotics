@@ -48,11 +48,11 @@ export default function ContactFormBlock({
     );
 
     if (!data.media) {
-        return <section className="mx-auto max-w-xl px-4 py-12">{form}</section>;
+        return <section className="px-contact-form-block mx-auto max-w-xl px-4 py-12">{form}</section>;
     }
 
     return (
-        <section className="my-container py-12">
+        <section className="px-contact-form-block my-container py-12">
             <div className="grid gap-10 md:grid-cols-2 md:items-stretch">
                 <div className="relative min-h-64 overflow-hidden rounded-lg md:min-h-full">
                     <CoverMedia

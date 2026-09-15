@@ -48,7 +48,7 @@ export default function BlogPostView({
 
   return (
     <>
-      <article className="my-container py-12">
+      <article className="px-blog-post-view my-container py-12">
         {post.seo?.ogImage && (
           <CoverMedia
             src={post.seo.ogImage}
@@ -109,7 +109,7 @@ export default function BlogPostView({
       </article>
 
       {relatedPosts.length > 0 && (
-        <section className="mx-auto my-container px-4 pb-16">
+        <section className="px-blog-post-view mx-auto my-container px-4 pb-16">
           <h2 className="text-xl font-semibold">{t("Related posts")}</h2>
           <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {relatedPosts.map((related) => (

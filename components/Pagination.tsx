@@ -37,7 +37,7 @@ export default function Pagination({
   const hrefFor = (page: number) => canonicalPageHref(basePath, page);
 
   return (
-    <nav aria-label={t("Pagination")} className="mt-10 flex items-center justify-center gap-1">
+    <nav aria-label={t("Pagination")} className="px-pagination mt-10 flex items-center justify-center gap-1">
       <Link
         href={hrefFor(currentPage - 1)}
         aria-label={t("Previous")}

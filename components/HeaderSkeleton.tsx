@@ -12,7 +12,7 @@
 // header swaps in.
 export default function HeaderSkeleton() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface">
+    <header className="px-header-skeleton sticky top-0 z-40 border-b border-border bg-surface">
       <div className="mx-auto flex my-container min-h-9 items-center justify-between gap-4 px-4 py-3 md:min-h-8">
         <div className="h-8 w-32 animate-pulse rounded bg-surface-muted" />
         <div className="hidden h-8 w-48 animate-pulse rounded bg-surface-muted md:block" />

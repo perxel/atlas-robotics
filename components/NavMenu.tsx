@@ -88,7 +88,7 @@ export default function NavMenu({
 
   return (
     <>
-      <div ref={navRef} className="hidden items-center gap-6 text-sm md:flex" role="navigation" aria-label={t("Primary")}>
+      <div ref={navRef} className="px-nav-menu hidden items-center gap-6 text-sm md:flex" role="navigation" aria-label={t("Primary")}>
         {links.map((link, i) => {
           if (!link.children.length) {
             return (
@@ -131,7 +131,7 @@ export default function NavMenu({
 
       <button
         type="button"
-        className="flex h-9 w-9 items-center justify-center text-foreground md:hidden"
+        className="px-nav-menu flex h-9 w-9 items-center justify-center text-foreground md:hidden"
         aria-expanded={mobileOpen}
         aria-label={mobileOpen ? t("Close menu") : t("Open menu")}
         onClick={() => setMobileOpen((o) => !o)}
@@ -140,7 +140,7 @@ export default function NavMenu({
       </button>
 
       {mobileOpen && (
-        <div className="absolute inset-x-0 top-full z-40 border-b border-border bg-surface md:hidden">
+        <div className="px-nav-menu absolute inset-x-0 top-full z-40 border-b border-border bg-surface md:hidden">
           <nav className="flex flex-col px-4 py-2" aria-label={t("Primary")}>
             {links.map((link, i) => {
               if (!link.children.length) {

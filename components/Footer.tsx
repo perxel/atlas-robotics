@@ -11,7 +11,7 @@ export default async function Footer({ locale }: { locale: Locale }) {
   const t = (text: string) => translateText(uiDictionary, text);
 
   return (
-    <footer className="border-t border-border bg-surface-muted">
+    <footer className="px-footer border-t border-border bg-surface-muted">
         <div className="my-container grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
         {footer?.columns?.map(
           (col, i) =>

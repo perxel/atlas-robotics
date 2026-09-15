@@ -18,7 +18,7 @@ export default function SocialIcons({
   if (!items.length) return null;
 
   return (
-    <ul className="flex gap-3">
+    <ul className="px-social-icons flex gap-3">
       {items.map((link, i) => (
         <li key={i}>
           <a

@@ -6,7 +6,7 @@ export default function RichTextBlock({ data }: { data: PagesBlocksRichText }) {
   if (!data.body) return null;
 
   return (
-    <section className="my-container py-12">
+    <section className="px-rich-text-block my-container py-12">
       <div data-tina-field={tinaField(data, "body")} className="prose prose-sm max-w-none">
         <TinaMarkdown content={data.body} />
       </div>
