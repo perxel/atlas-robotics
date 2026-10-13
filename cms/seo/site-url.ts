@@ -11,10 +11,13 @@ import { requireInProduction } from "./require-in-production";
  * behind a parameterized helper — see requireInProduction's own comment for
  * why a dynamic env lookup would silently break in the client bundle.
  */
+// Trailing slashes are stripped: every URL is built as `${siteUrl}${path}` with
+// a path that starts with "/", so "https://x.com/" in the env var produced
+// "https://x.com//about" in every canonical, hreflang and sitemap URL.
 export const siteUrl = requireInProduction(process.env.NEXT_PUBLIC_SITE_URL, {
   fallback: "http://localhost:3000",
   errorMessage:
     "NEXT_PUBLIC_SITE_URL is not set. Canonical/hreflang/sitemap URLs would all " +
     "silently resolve to http://localhost:3000 in production otherwise — see " +
     "CLAUDE.md's \"Production builds require Tina Cloud\" note.",
-});
+}).replace(/\/+$/, "");

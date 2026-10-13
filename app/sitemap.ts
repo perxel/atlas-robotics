@@ -25,7 +25,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // other route) never imports the generated Tina client directly.
     const pagesIndex = await CMSPages.getSeoIndex();
     for (const page of pagesIndex) {
-        if (!enabledLocales.includes(page.locale)) continue;
+        // The 404 doc is the not-found page's content, not a page of its own
+        // (app/llms.txt/route.ts skips it the same way).
+        if (!enabledLocales.includes(page.locale) || page.filename === "404") continue;
         entries.push({
             url: `${siteUrl}${CMSCollection.resolvePagesDocumentUrl(page.locale, page.filename, page.slug)}`,
             lastModified: page.publishDate || undefined,
